@@ -102,19 +102,19 @@ void SceneFPCamera::Init()
 	meshList[GEO_PLANE] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 1.f);
 	meshList[GEO_PLANE]->textureID = LoadTGA("Image//nyp.tga");
 
-	meshList[GEO_GUI_QUAD] = MeshBuilder::GenerateQuad("GUIQUAD", glm::vec3(1.f, 1.f, 1.f), 1.f);
-	meshList[GEO_GUI_QUAD]->textureID = LoadTGA("Image//NYP.tga");
+	//meshList[GEO_GUI_QUAD] = MeshBuilder::GenerateQuad("GUIQUAD", glm::vec3(1.f, 1.f, 1.f), 1.f);
+	//meshList[GEO_GUI_QUAD]->textureID = LoadTGA("Image//NYP.tga");
 
-	meshList[GEO_DOORMAN] = MeshBuilder::GenerateOBJ("Doorman", "Models//doorman.obj");
-	meshList[GEO_DOORMAN]->textureID = LoadTGA("Image//doorman.tga");
+	////meshList[GEO_DOORMAN] = MeshBuilder::GenerateOBJ("Doorman", "Models//doorman.obj");
+	////meshList[GEO_DOORMAN]->textureID = LoadTGA("Image//doorman.tga");
 
-	// Without texture
-	meshList[GEO_MODEL_MTL1] = MeshBuilder::GenerateOBJMTL("model2", "Models//house_type01.obj", "Models//house_type01.mtl");
-	// With texture
-	meshList[GEO_MODEL_MTL2] = MeshBuilder::GenerateOBJMTL("model3", "Models//cottage_obj.obj", "Models//cottage_obj.mtl");
-	meshList[GEO_MODEL_MTL2]->textureID = LoadTGA("Textures//cottage_diffuse.tga");
-	meshList[GEO_TEXT] = MeshBuilder::GenerateText("text", 16, 16);
-	meshList[GEO_TEXT]->textureID = LoadTGA("Fonts//calibri.tga");
+	//// Without texture
+	//meshList[GEO_MODEL_MTL1] = MeshBuilder::GenerateOBJMTL("model2", "Models//house_type01.obj", "Models//house_type01.mtl");
+	//// With texture
+	//meshList[GEO_MODEL_MTL2] = MeshBuilder::GenerateOBJMTL("model3", "Models//cottage_obj.obj", "Models//cottage_obj.mtl");
+	//meshList[GEO_MODEL_MTL2]->textureID = LoadTGA("Textures//cottage_diffuse.tga");
+	//meshList[GEO_TEXT] = MeshBuilder::GenerateText("text", 16, 16);
+	//meshList[GEO_TEXT]->textureID = LoadTGA("Fonts//calibri.tga");
 
 	//meshList[GEO_SPHERE_BLUE] = MeshBuilder::GenerateSphere("Earth", Color(0.4f, 0.2f, 0.8f), 1.f, 12, 12);
 	//meshList[GEO_SPHERE_GREY] = MeshBuilder::GenerateSphere("Moon", Color(0.5f, 0.5f, 0.5f), 1.f, 4, 4);
@@ -217,37 +217,37 @@ void SceneFPCamera::Render()
 		RenderMesh(meshList[GEO_AXES], false);
 	}
 
-	{
-		PushPop lightGuard(modelStack);
-		// Render light
-		modelStack.Translate(light[0].position.x, light[0].position.y, light[0].position.z);
-		modelStack.Scale(0.1f, 0.1f, 0.1f);
-		RenderMesh(meshList[GEO_SPHERE], false);
-	}
+	//{
+	//	PushPop lightGuard(modelStack);
+	//	// Render light
+	//	modelStack.Translate(light[0].position.x, light[0].position.y, light[0].position.z);
+	//	modelStack.Scale(0.1f, 0.1f, 0.1f);
+	//	RenderMesh(meshList[GEO_SPHERE], false);
+	//}
 
-	{
-		PushPop doormanGuard(modelStack);
-		modelStack.Translate(0.f, 0.f, -0.f);
-		meshList[GEO_DOORMAN]->material.kAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
-		meshList[GEO_DOORMAN]->material.kDiffuse = glm::vec3(1.0f, 1.0f, 1.0f);
-		meshList[GEO_DOORMAN]->material.kSpecular = glm::vec3(0.0f, 0.0f, 0.0f);
-		meshList[GEO_DOORMAN]->material.kShininess = 1.0f;
-		RenderMesh(meshList[GEO_DOORMAN], enableLight);
-	}
-	// Models 2 and 3
-	{
-		PushPop idkGuard(modelStack);
-		modelStack.Translate(5, 10, 0);
-		RenderMesh(meshList[GEO_MODEL_MTL1], enableLight);
-	}
-	{
-		PushPop idkGuard(modelStack);
-		modelStack.Translate(5, -10, 0);
-		modelStack.Scale(0.5, 0.5, 0.5);
-		RenderMesh(meshList[GEO_MODEL_MTL2], enableLight);
-	}
+	//{
+	//	PushPop doormanGuard(modelStack);
+	//	modelStack.Translate(0.f, 0.f, -0.f);
+	//	meshList[GEO_DOORMAN]->material.kAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
+	//	meshList[GEO_DOORMAN]->material.kDiffuse = glm::vec3(1.0f, 1.0f, 1.0f);
+	//	meshList[GEO_DOORMAN]->material.kSpecular = glm::vec3(0.0f, 0.0f, 0.0f);
+	//	meshList[GEO_DOORMAN]->material.kShininess = 1.0f;
+	//	RenderMesh(meshList[GEO_DOORMAN], enableLight);
+	//}
+	//// Models 2 and 3
+	//{
+	//	PushPop idkGuard(modelStack);
+	//	modelStack.Translate(5, 10, 0);
+	//	RenderMesh(meshList[GEO_MODEL_MTL1], enableLight);
+	//}
+	//{
+	//	PushPop idkGuard(modelStack);
+	//	modelStack.Translate(5, -10, 0);
+	//	modelStack.Scale(0.5, 0.5, 0.5);
+	//	RenderMesh(meshList[GEO_MODEL_MTL2], enableLight);
+	//}
 	// Render GUI
-	RenderMeshOnScreen(meshList[GEO_GUI_QUAD], 50, 50, 50, 50);
+	//RenderMeshOnScreen(meshList[GEO_GUI_QUAD], 50, 50, 50, 50);
 	//{
 	//	PushPop texturedPlaneGuard(modelStack);
 	//	modelStack.Translate(0.f, 0.f, 0.f);

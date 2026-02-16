@@ -1,5 +1,6 @@
 #include "FPCamera.h"
 #include "KeyboardController.h"
+#include "MouseController.h"
 
 //Include GLFW
 #include <GLFW/glfw3.h>
@@ -34,54 +35,62 @@ void FPCamera::Reset()
 void FPCamera::Update(double dt)
 {
 	static const float ROTATE_SPEED = 100.0f;
-	static const float ZOOM_SPEED = 10.0f;
+	static const float ZOOM_SPEED = 5.0f;
+	static const float MOUSE_SENS = 0.1f;
 
 	glm::vec3 view = glm::normalize(target - position);
 	glm::vec3 right = glm::normalize(glm::cross(view, up));
 
-	// Rotate Left/Right
-	float yawDelta = 0.0f;
-	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_LEFT)) {
-		yawDelta = glm::radians(ROTATE_SPEED * static_cast<float>(dt));
-	} 
-	else if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_RIGHT)) {
-		yawDelta = -glm::radians(ROTATE_SPEED * static_cast<float>(dt));
-	}
+	glm::vec3 moveDir = glm::normalize(glm::vec3(view.x, 0, view.z));
+
+	glm::vec3 input(0, 0, 0);
 
 	// Move Forward/Backward
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_W)) {
-		position += view * ZOOM_SPEED * static_cast<float>(dt);
-		target += view * ZOOM_SPEED * static_cast<float>(dt);
-		isDirty = true;
+		//position += moveDir * ZOOM_SPEED * static_cast<float>(dt);
+		//target += moveDir * ZOOM_SPEED * static_cast<float>(dt);
+		input += moveDir;
 	}
-	else if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_S)) {
-		position -= view * ZOOM_SPEED * static_cast<float>(dt);
-		target -= view * ZOOM_SPEED * static_cast<float>(dt);
-		isDirty = true;
+	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_S)) {
+		//position -= moveDir * ZOOM_SPEED * static_cast<float>(dt);
+		//target -= moveDir * ZOOM_SPEED * static_cast<float>(dt);
+		input -= moveDir;
 	}
-
-	// Rotate up/down (Disabled)
-	//if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_UP)) {
-	//	// Rotate the view vector around the right axis (pitch)
-	//	view = glm::rotate(view, glm::radians(ROTATE_SPEED * static_cast<float>(dt)), right);
-	//	target = position + view;
-	//	isDirty = true;
-	//}
-	//else if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_DOWN)) {
-	//	// Rotate the view vector around the right axis (pitch)
-	//	view = glm::rotate(view, -glm::radians(ROTATE_SPEED * static_cast<float>(dt)), right);
-	//	target = position + view;
-	//	isDirty = true;
-	//}
-
-	if (yawDelta != 0.0f) {
-		// Rotate the view vector around the world up axis (yaw)
-		view = glm::rotate(view, yawDelta, up);
-		target = position + view;
-		isDirty = true;
+	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_A)) {
+		//position -= right * ZOOM_SPEED * static_cast<float>(dt);
+		//target -= right * ZOOM_SPEED * static_cast<float>(dt);
+		input -= right;
+	}
+	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_D)) {
+		//position += right * ZOOM_SPEED * static_cast<float>(dt);
+		//target += right * ZOOM_SPEED * static_cast<float>(dt);
+		input += right;
 	}
 
-	this->Refresh();
+	if (glm::length(input) > 0.001f) {
+		position += glm::normalize(input) * ZOOM_SPEED * static_cast<float>(dt);
+		target += glm::normalize(input) * ZOOM_SPEED * static_cast<float>(dt);
+	}
+
+	double deltaX = MouseController::GetInstance()->GetMouseDeltaX();
+	double deltaY = MouseController::GetInstance()->GetMouseDeltaY();
+
+	float angle = -deltaX * ROTATE_SPEED * MOUSE_SENS * static_cast<float>(dt);
+	float angleY = deltaY * ROTATE_SPEED * MOUSE_SENS * static_cast<float>(dt);
+
+	glm::mat4 yaw = glm::rotate(
+		glm::mat4(1.f),// matrix to modify
+		glm::radians(angle),// rotation angle in degree and converted to radians
+		glm::vec3(up.x, up.y, up.z)// the axis to rotate along
+	);
+
+	glm::mat4 pitch = glm::rotate(glm::mat4(1.f), glm::radians(angleY), right);
+
+	// calculate the rotated view vector
+	view = pitch * glm::vec4(view, 0.f);
+	glm::vec3 yawView = yaw * glm::vec4(view, 0.f);
+	target = position + yawView;
+	isDirty = true;
 }
 
 void FPCamera::Refresh()
