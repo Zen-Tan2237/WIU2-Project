@@ -265,9 +265,9 @@ void SceneFPCamera::Render()
 		PushPop textGuard(modelStack);
 		RenderText(meshList[GEO_TEXT], "Hello World", glm::vec3(0.f, 1.f, 0.f));
 	}
-	RenderTextOnScreen(meshList[GEO_TEXT], "Hello Screen", glm::vec3(0, 1, 0), 40, 0, 0);
+	RenderTextOnScreen(meshList[GEO_TEXT], "Hello Screen", glm::vec3(0, 1, 0), 40, 0, 0, 'C', 1.f);
 	std::string temp("FPS:" + std::to_string(fps));
-	RenderTextOnScreen(meshList[GEO_TEXT], temp.substr(0, 9), glm::vec3(0, 1, 0), 40, 0, 550);
+	RenderTextOnScreen(meshList[GEO_TEXT], temp.substr(0, 9), glm::vec3(0, 1, 0), 40, 0, 550, 'C', 1.f);
 }
 
 void SceneFPCamera::RenderMesh(Mesh* mesh, bool enableLight)
@@ -394,22 +394,25 @@ void SceneFPCamera::RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizeX
 	glDisable(GL_DEPTH_TEST);
 	//Change to orthographic mode
 	{
-		PushPop orthoGuard(projectionStack);
+		projectionStack.PushMatrix();
 		glm::mat4 ortho = glm::ortho(0.f, 800.f, 0.f, 600.f, -1000.f, 1000.f);
 		projectionStack.LoadMatrix(ortho);
 
 		// Set view and model matrix to identity
 		{
-			PushPop viewGuard(viewStack);
+			viewStack.PushMatrix();
 			viewStack.LoadIdentity();
 			{
-				PushPop modelGuard(modelStack);
+				modelStack.PushMatrix();
 				modelStack.LoadIdentity();
-				modelStack.Translate(x, y, 0);
+				modelStack.Translate(400 + x, 300 + y, 0);
 				modelStack.Scale(sizeX, sizeY, 1);
 				RenderMesh(mesh, false);
+				modelStack.PopMatrix();
 			}
+			viewStack.PopMatrix();
 		}
+		projectionStack.PopMatrix();
 	}
 	glEnable(GL_DEPTH_TEST);
 
@@ -479,8 +482,25 @@ void SceneFPCamera::RenderText(Mesh* mesh, std::string text, glm::vec3
 }
 
 void SceneFPCamera::RenderTextOnScreen(Mesh* mesh, std::string
-	text, glm::vec3 color, float size, float x, float y)
+	text, glm::vec3 color, float size, float x, float y, char alignment, float spacingPercentage)
 {
+	spacingPercentage = glm::clamp(spacingPercentage, 0.0f, 1.0f);
+
+	float spacing = 1.0f * spacingPercentage;
+	float textWidth = (text.length() - 1) * spacing;
+
+	float alignmentOffset = 0.f;
+	if (alignment == 'L') {
+		alignmentOffset = 0.f;
+	}
+	else if (alignment == 'C') {
+		alignmentOffset = -textWidth * 0.5f * size;
+	}
+	else if (alignment == 'R') {
+		alignmentOffset = -textWidth * size;
+	}
+
+
 	if (!mesh || mesh->textureID <= 0) //Proper error check
 		return;
 	// Enable blending
@@ -493,10 +513,11 @@ void SceneFPCamera::RenderTextOnScreen(Mesh* mesh, std::string
 	projectionStack.LoadMatrix(ortho);
 	viewStack.PushMatrix();
 	viewStack.LoadIdentity(); //No need camera for ortho mode
-		modelStack.PushMatrix();
+	modelStack.PushMatrix();
 	modelStack.LoadIdentity(); //Reset modelStack
-	modelStack.Translate(x, y, 0);
+	modelStack.Translate(400 + x + alignmentOffset, 300 + y, 0);
 	modelStack.Scale(size, size, size);
+
 	glUniform1i(m_parameters[U_TEXT_ENABLED], 1);
 	glUniform3fv(m_parameters[U_TEXT_COLOR], 1, &color.r);
 	glUniform1i(m_parameters[U_LIGHTENABLED], 0);
@@ -508,7 +529,7 @@ void SceneFPCamera::RenderTextOnScreen(Mesh* mesh, std::string
 	{
 		glm::mat4 characterSpacing = glm::translate(
 			glm::mat4(1.f),
-			glm::vec3(0.5f + i * 1.0f, 0.5f, 0)
+			glm::vec3(0.5f + i * (spacing), 0.5f, 0)
 		);
 		glm::mat4 MVP = projectionStack.Top() *
 			viewStack.Top() * modelStack.Top() * characterSpacing;
@@ -518,9 +539,9 @@ void SceneFPCamera::RenderTextOnScreen(Mesh* mesh, std::string
 	}
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glUniform1i(m_parameters[U_TEXT_ENABLED], 0);
-	projectionStack.PopMatrix();
-	viewStack.PopMatrix();
 	modelStack.PopMatrix();
+	viewStack.PopMatrix();
+	projectionStack.PopMatrix();
 	glEnable(GL_DEPTH_TEST);
 	glDisable(GL_BLEND);
 }

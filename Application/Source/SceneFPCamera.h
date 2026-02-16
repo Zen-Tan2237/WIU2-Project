@@ -82,7 +82,7 @@ private:
 	void RenderMesh(Mesh* mesh, bool enableLight);
 	void RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizeX, float sizeY);
 	void RenderText(Mesh* mesh, std::string text, glm::vec3 color);
-	void RenderTextOnScreen(Mesh* mesh, std::string text, glm::vec3 color, float size, float x, float y);
+	void RenderTextOnScreen(Mesh* mesh, std::string text, glm::vec3 color, float size, float x, float y, char alignment, float spacingPercentage);
 
 	unsigned m_vertexArrayID;
 	Mesh* meshList[NUM_GEOMETRY];
