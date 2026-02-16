@@ -88,7 +88,7 @@ void SceneFPCamera::Init()
 		m_parameters[U_MATERIAL_SHININESS]);
 
 	// Initialise camera properties
-	camera.Init(glm::vec3(0.f, 5.f, 10.f), glm::vec3(0.f, 5.f, 0.f), glm::vec3(0.f, 1.f, 0.f));
+	setCameraOrigin(glm::vec3(0.f, 5.f, -1.f), glm::vec3(0.f, 5.f, 1.f), glm::vec3(0.f, 6.f, -1.f));
 
 	// Init VBO here
 	for (int i = 0; i < NUM_GEOMETRY; ++i)
@@ -168,6 +168,44 @@ void SceneFPCamera::Update(double dt)
 		light[0].position.y -= static_cast<float>(dt) * 5.f;
 	if (KeyboardController::GetInstance()->IsKeyDown('P'))
 		light[0].position.y += static_cast<float>(dt) * 5.f;
+
+	// CAMERA BOBBING
+	camera.position -= previousBobOffset;
+	camera.target -= previousBobOffset;
+
+	glm::vec3 currentPlayerPosition = camera.position;
+	glm::vec3 delta = currentPlayerPosition - previousPlayerPosition;
+	delta.y = 0.0f;
+
+	previousPlayerPosition = currentPlayerPosition;
+
+	float distanceMoved = glm::length(delta);
+	bobDistanceAccumulated += distanceMoved;
+
+	bool isMoving = (distanceMoved > 0.0001f);
+
+	float targetWeight = isMoving ? 1.0f : 0.0f;
+	currentBobWeight += (targetWeight - currentBobWeight) * (1.0f - exp(-10.0f * dt));
+
+	float wave = bobDistanceAccumulated * bobFrequency;
+
+	float verticalOffset = sinf(wave) * bobAmplitudeVertical;
+	float horizontalOffset = sinf(wave * 0.5f) * bobAmplitudeHorizontal;
+
+	verticalOffset *= currentBobWeight;
+	horizontalOffset *= currentBobWeight;
+
+	glm::vec3 forward = glm::normalize(camera.target - camera.position);
+	glm::vec3 right = glm::normalize(glm::cross(forward, camera.up));
+
+	glm::vec3 currentBobOffset =
+		camera.up * verticalOffset +
+		right * horizontalOffset;
+
+	camera.position += currentBobOffset;
+	camera.target += currentBobOffset;
+
+	previousBobOffset = currentBobOffset;
 
 	camera.Update(dt);
 
@@ -544,4 +582,13 @@ void SceneFPCamera::RenderTextOnScreen(Mesh* mesh, std::string
 	projectionStack.PopMatrix();
 	glEnable(GL_DEPTH_TEST);
 	glDisable(GL_BLEND);
+}
+
+void SceneFPCamera::setCameraOrigin(glm::vec3 position, glm::vec3 target, glm::vec3 up)
+{
+	cameraOriginPosition = position;
+	cameraOriginTarget = target;
+	cameraOriginUp = up;
+
+	camera.Init(position, target, up);
 }

@@ -35,7 +35,7 @@ void FPCamera::Reset()
 void FPCamera::Update(double dt)
 {
 	static const float ROTATE_SPEED = 100.0f;
-	static const float ZOOM_SPEED = 5.0f;
+	static const float ZOOM_SPEED = 2.0f;
 	static const float MOUSE_SENS = 0.1f;
 
 	glm::vec3 view = glm::normalize(target - position);
@@ -47,23 +47,15 @@ void FPCamera::Update(double dt)
 
 	// Move Forward/Backward
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_W)) {
-		//position += moveDir * ZOOM_SPEED * static_cast<float>(dt);
-		//target += moveDir * ZOOM_SPEED * static_cast<float>(dt);
 		input += moveDir;
 	}
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_S)) {
-		//position -= moveDir * ZOOM_SPEED * static_cast<float>(dt);
-		//target -= moveDir * ZOOM_SPEED * static_cast<float>(dt);
 		input -= moveDir;
 	}
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_A)) {
-		//position -= right * ZOOM_SPEED * static_cast<float>(dt);
-		//target -= right * ZOOM_SPEED * static_cast<float>(dt);
 		input -= right;
 	}
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_D)) {
-		//position += right * ZOOM_SPEED * static_cast<float>(dt);
-		//target += right * ZOOM_SPEED * static_cast<float>(dt);
 		input += right;
 	}
 
