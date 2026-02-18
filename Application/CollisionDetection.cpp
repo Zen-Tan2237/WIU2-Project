@@ -1,6 +1,6 @@
 #include "CollisionDetection.h"
 
-bool checkCollision(const PhysicsObject& objA, const PhysicsObject& objB, CollisionData& collisionData)
+bool CheckCollision(const PhysicsObject& objA, const PhysicsObject& objB, CollisionData& collisionData)
 {
 	// Check the types of the bounding boxes of the two objects and call the appropriate collision detection function
 	if ((objA.boundingBox.getType() == BoundingBox::Type::OBB && objA.isOBBanAABB()) && (objB.boundingBox.getType() == BoundingBox::Type::OBB && objB.isOBBanAABB())) {
