@@ -24,7 +24,7 @@ public:
 
 	// Angular properties
 	glm::vec3 angularVel{ 0.f };
-	glm::vec3 angDeg{ 0.f }; // Euler angles in degrees, for dev input. Will be converted to radians.
+	float angleDeg{ 0.f };
 
 	BoundingBox boundingBox;
 
@@ -34,6 +34,9 @@ public:
 	void AddAngularImpulse(const glm::vec3& angularImpulse);
 	void UpdatePhysics(double dt);
 	void AddBoundingBox(BoundingBox box);
+
+	bool isOBBanAABB() const;
+
 
 protected:
 	glm::vec3 totalForces{ 0.f };
