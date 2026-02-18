@@ -82,7 +82,9 @@ private:
 	void RenderMesh(Mesh* mesh, bool enableLight);
 	void RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizeX, float sizeY);
 	void RenderText(Mesh* mesh, std::string text, glm::vec3 color);
-	void RenderTextOnScreen(Mesh* mesh, std::string text, glm::vec3 color, float size, float x, float y);
+	void RenderTextOnScreen(Mesh* mesh, std::string text, glm::vec3 color, float size, float x, float y, char alignment, float spacingPercentage);
+
+	void setCameraOrigin(glm::vec3 position, glm::vec3 target, glm::vec3 up);
 
 	unsigned m_vertexArrayID;
 	Mesh* meshList[NUM_GEOMETRY];
@@ -92,8 +94,22 @@ private:
 
 	float fps = 0;
 
-	//AltAzCamera camera;
+	// CAMERA PROPERTIES
 	FPCamera camera;
+	glm::vec3 cameraOriginPosition;
+	glm::vec3 cameraOriginTarget;
+	glm::vec3 cameraOriginUp;
+	float bobAmplitudeVertical = 0.035f;
+	float bobAmplitudeHorizontal = 0.025f;
+	float bobFrequency = 6.0f;
+
+	float bobDistanceAccumulated = 0.0f;
+	float currentBobWeight = 0.0f;
+
+	glm::vec3 currentPlayerPosition, previousPlayerPosition;
+	glm::vec3 previousBobOffset = glm::vec3(0.0f);
+	//
+
 	int projType = 1; // fix to 0 for orthographic, 1 for projection
 
 	MatrixStack modelStack, viewStack, projectionStack;

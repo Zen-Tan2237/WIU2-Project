@@ -88,7 +88,7 @@ void SceneFPCamera::Init()
 		m_parameters[U_MATERIAL_SHININESS]);
 
 	// Initialise camera properties
-	camera.Init(glm::vec3(0.f, 5.f, 10.f), glm::vec3(0.f, 5.f, 0.f), glm::vec3(0.f, 1.f, 0.f));
+	setCameraOrigin(glm::vec3(0.f, 5.f, -1.f), glm::vec3(0.f, 5.f, 1.f), glm::vec3(0.f, 6.f, -1.f));
 
 	// Init VBO here
 	for (int i = 0; i < NUM_GEOMETRY; ++i)
@@ -102,19 +102,19 @@ void SceneFPCamera::Init()
 	meshList[GEO_PLANE] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 1.f);
 	meshList[GEO_PLANE]->textureID = LoadTGA("Image//nyp.tga");
 
-	meshList[GEO_GUI_QUAD] = MeshBuilder::GenerateQuad("GUIQUAD", glm::vec3(1.f, 1.f, 1.f), 1.f);
-	meshList[GEO_GUI_QUAD]->textureID = LoadTGA("Image//NYP.tga");
+	//meshList[GEO_GUI_QUAD] = MeshBuilder::GenerateQuad("GUIQUAD", glm::vec3(1.f, 1.f, 1.f), 1.f);
+	//meshList[GEO_GUI_QUAD]->textureID = LoadTGA("Image//NYP.tga");
 
-	meshList[GEO_DOORMAN] = MeshBuilder::GenerateOBJ("Doorman", "Models//doorman.obj");
-	meshList[GEO_DOORMAN]->textureID = LoadTGA("Image//doorman.tga");
+	////meshList[GEO_DOORMAN] = MeshBuilder::GenerateOBJ("Doorman", "Models//doorman.obj");
+	////meshList[GEO_DOORMAN]->textureID = LoadTGA("Image//doorman.tga");
 
-	// Without texture
-	meshList[GEO_MODEL_MTL1] = MeshBuilder::GenerateOBJMTL("model2", "Models//house_type01.obj", "Models//house_type01.mtl");
-	// With texture
-	meshList[GEO_MODEL_MTL2] = MeshBuilder::GenerateOBJMTL("model3", "Models//cottage_obj.obj", "Models//cottage_obj.mtl");
-	meshList[GEO_MODEL_MTL2]->textureID = LoadTGA("Textures//cottage_diffuse.tga");
-	meshList[GEO_TEXT] = MeshBuilder::GenerateText("text", 16, 16);
-	meshList[GEO_TEXT]->textureID = LoadTGA("Fonts//calibri.tga");
+	//// Without texture
+	//meshList[GEO_MODEL_MTL1] = MeshBuilder::GenerateOBJMTL("model2", "Models//house_type01.obj", "Models//house_type01.mtl");
+	//// With texture
+	//meshList[GEO_MODEL_MTL2] = MeshBuilder::GenerateOBJMTL("model3", "Models//cottage_obj.obj", "Models//cottage_obj.mtl");
+	//meshList[GEO_MODEL_MTL2]->textureID = LoadTGA("Textures//cottage_diffuse.tga");
+	//meshList[GEO_TEXT] = MeshBuilder::GenerateText("text", 16, 16);
+	//meshList[GEO_TEXT]->textureID = LoadTGA("Fonts//calibri.tga");
 
 	//meshList[GEO_SPHERE_BLUE] = MeshBuilder::GenerateSphere("Earth", Color(0.4f, 0.2f, 0.8f), 1.f, 12, 12);
 	//meshList[GEO_SPHERE_GREY] = MeshBuilder::GenerateSphere("Moon", Color(0.5f, 0.5f, 0.5f), 1.f, 4, 4);
@@ -169,6 +169,44 @@ void SceneFPCamera::Update(double dt)
 	if (KeyboardController::GetInstance()->IsKeyDown('P'))
 		light[0].position.y += static_cast<float>(dt) * 5.f;
 
+	// CAMERA BOBBING
+	camera.position -= previousBobOffset;
+	camera.target -= previousBobOffset;
+
+	glm::vec3 currentPlayerPosition = camera.position;
+	glm::vec3 delta = currentPlayerPosition - previousPlayerPosition;
+	delta.y = 0.0f;
+
+	previousPlayerPosition = currentPlayerPosition;
+
+	float distanceMoved = glm::length(delta);
+	bobDistanceAccumulated += distanceMoved;
+
+	bool isMoving = (distanceMoved > 0.0001f);
+
+	float targetWeight = isMoving ? 1.0f : 0.0f;
+	currentBobWeight += (targetWeight - currentBobWeight) * (1.0f - exp(-10.0f * dt));
+
+	float wave = bobDistanceAccumulated * bobFrequency;
+
+	float verticalOffset = sinf(wave) * bobAmplitudeVertical;
+	float horizontalOffset = sinf(wave * 0.5f) * bobAmplitudeHorizontal;
+
+	verticalOffset *= currentBobWeight;
+	horizontalOffset *= currentBobWeight;
+
+	glm::vec3 forward = glm::normalize(camera.target - camera.position);
+	glm::vec3 right = glm::normalize(glm::cross(forward, camera.up));
+
+	glm::vec3 currentBobOffset =
+		camera.up * verticalOffset +
+		right * horizontalOffset;
+
+	camera.position += currentBobOffset;
+	camera.target += currentBobOffset;
+
+	previousBobOffset = currentBobOffset;
+
 	camera.Update(dt);
 
 	float temp = 1.f / dt;
@@ -217,37 +255,37 @@ void SceneFPCamera::Render()
 		RenderMesh(meshList[GEO_AXES], false);
 	}
 
-	{
-		PushPop lightGuard(modelStack);
-		// Render light
-		modelStack.Translate(light[0].position.x, light[0].position.y, light[0].position.z);
-		modelStack.Scale(0.1f, 0.1f, 0.1f);
-		RenderMesh(meshList[GEO_SPHERE], false);
-	}
+	//{
+	//	PushPop lightGuard(modelStack);
+	//	// Render light
+	//	modelStack.Translate(light[0].position.x, light[0].position.y, light[0].position.z);
+	//	modelStack.Scale(0.1f, 0.1f, 0.1f);
+	//	RenderMesh(meshList[GEO_SPHERE], false);
+	//}
 
-	{
-		PushPop doormanGuard(modelStack);
-		modelStack.Translate(0.f, 0.f, -0.f);
-		meshList[GEO_DOORMAN]->material.kAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
-		meshList[GEO_DOORMAN]->material.kDiffuse = glm::vec3(1.0f, 1.0f, 1.0f);
-		meshList[GEO_DOORMAN]->material.kSpecular = glm::vec3(0.0f, 0.0f, 0.0f);
-		meshList[GEO_DOORMAN]->material.kShininess = 1.0f;
-		RenderMesh(meshList[GEO_DOORMAN], enableLight);
-	}
-	// Models 2 and 3
-	{
-		PushPop idkGuard(modelStack);
-		modelStack.Translate(5, 10, 0);
-		RenderMesh(meshList[GEO_MODEL_MTL1], enableLight);
-	}
-	{
-		PushPop idkGuard(modelStack);
-		modelStack.Translate(5, -10, 0);
-		modelStack.Scale(0.5, 0.5, 0.5);
-		RenderMesh(meshList[GEO_MODEL_MTL2], enableLight);
-	}
+	//{
+	//	PushPop doormanGuard(modelStack);
+	//	modelStack.Translate(0.f, 0.f, -0.f);
+	//	meshList[GEO_DOORMAN]->material.kAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
+	//	meshList[GEO_DOORMAN]->material.kDiffuse = glm::vec3(1.0f, 1.0f, 1.0f);
+	//	meshList[GEO_DOORMAN]->material.kSpecular = glm::vec3(0.0f, 0.0f, 0.0f);
+	//	meshList[GEO_DOORMAN]->material.kShininess = 1.0f;
+	//	RenderMesh(meshList[GEO_DOORMAN], enableLight);
+	//}
+	//// Models 2 and 3
+	//{
+	//	PushPop idkGuard(modelStack);
+	//	modelStack.Translate(5, 10, 0);
+	//	RenderMesh(meshList[GEO_MODEL_MTL1], enableLight);
+	//}
+	//{
+	//	PushPop idkGuard(modelStack);
+	//	modelStack.Translate(5, -10, 0);
+	//	modelStack.Scale(0.5, 0.5, 0.5);
+	//	RenderMesh(meshList[GEO_MODEL_MTL2], enableLight);
+	//}
 	// Render GUI
-	RenderMeshOnScreen(meshList[GEO_GUI_QUAD], 50, 50, 50, 50);
+	//RenderMeshOnScreen(meshList[GEO_GUI_QUAD], 50, 50, 50, 50);
 	//{
 	//	PushPop texturedPlaneGuard(modelStack);
 	//	modelStack.Translate(0.f, 0.f, 0.f);
@@ -265,9 +303,9 @@ void SceneFPCamera::Render()
 		PushPop textGuard(modelStack);
 		RenderText(meshList[GEO_TEXT], "Hello World", glm::vec3(0.f, 1.f, 0.f));
 	}
-	RenderTextOnScreen(meshList[GEO_TEXT], "Hello Screen", glm::vec3(0, 1, 0), 40, 0, 0);
+	RenderTextOnScreen(meshList[GEO_TEXT], "Hello Screen", glm::vec3(0, 1, 0), 40, 0, 0, 'C', 1.f);
 	std::string temp("FPS:" + std::to_string(fps));
-	RenderTextOnScreen(meshList[GEO_TEXT], temp.substr(0, 9), glm::vec3(0, 1, 0), 40, 0, 550);
+	RenderTextOnScreen(meshList[GEO_TEXT], temp.substr(0, 9), glm::vec3(0, 1, 0), 40, 0, 550, 'C', 1.f);
 }
 
 void SceneFPCamera::RenderMesh(Mesh* mesh, bool enableLight)
@@ -394,22 +432,25 @@ void SceneFPCamera::RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizeX
 	glDisable(GL_DEPTH_TEST);
 	//Change to orthographic mode
 	{
-		PushPop orthoGuard(projectionStack);
+		projectionStack.PushMatrix();
 		glm::mat4 ortho = glm::ortho(0.f, 800.f, 0.f, 600.f, -1000.f, 1000.f);
 		projectionStack.LoadMatrix(ortho);
 
 		// Set view and model matrix to identity
 		{
-			PushPop viewGuard(viewStack);
+			viewStack.PushMatrix();
 			viewStack.LoadIdentity();
 			{
-				PushPop modelGuard(modelStack);
+				modelStack.PushMatrix();
 				modelStack.LoadIdentity();
-				modelStack.Translate(x, y, 0);
+				modelStack.Translate(400 + x, 300 + y, 0);
 				modelStack.Scale(sizeX, sizeY, 1);
 				RenderMesh(mesh, false);
+				modelStack.PopMatrix();
 			}
+			viewStack.PopMatrix();
 		}
+		projectionStack.PopMatrix();
 	}
 	glEnable(GL_DEPTH_TEST);
 
@@ -479,8 +520,25 @@ void SceneFPCamera::RenderText(Mesh* mesh, std::string text, glm::vec3
 }
 
 void SceneFPCamera::RenderTextOnScreen(Mesh* mesh, std::string
-	text, glm::vec3 color, float size, float x, float y)
+	text, glm::vec3 color, float size, float x, float y, char alignment, float spacingPercentage)
 {
+	spacingPercentage = glm::clamp(spacingPercentage, 0.0f, 1.0f);
+
+	float spacing = 1.0f * spacingPercentage;
+	float textWidth = (text.length() - 1) * spacing;
+
+	float alignmentOffset = 0.f;
+	if (alignment == 'L') {
+		alignmentOffset = 0.f;
+	}
+	else if (alignment == 'C') {
+		alignmentOffset = -textWidth * 0.5f * size;
+	}
+	else if (alignment == 'R') {
+		alignmentOffset = -textWidth * size;
+	}
+
+
 	if (!mesh || mesh->textureID <= 0) //Proper error check
 		return;
 	// Enable blending
@@ -493,10 +551,11 @@ void SceneFPCamera::RenderTextOnScreen(Mesh* mesh, std::string
 	projectionStack.LoadMatrix(ortho);
 	viewStack.PushMatrix();
 	viewStack.LoadIdentity(); //No need camera for ortho mode
-		modelStack.PushMatrix();
+	modelStack.PushMatrix();
 	modelStack.LoadIdentity(); //Reset modelStack
-	modelStack.Translate(x, y, 0);
+	modelStack.Translate(400 + x + alignmentOffset, 300 + y, 0);
 	modelStack.Scale(size, size, size);
+
 	glUniform1i(m_parameters[U_TEXT_ENABLED], 1);
 	glUniform3fv(m_parameters[U_TEXT_COLOR], 1, &color.r);
 	glUniform1i(m_parameters[U_LIGHTENABLED], 0);
@@ -508,7 +567,7 @@ void SceneFPCamera::RenderTextOnScreen(Mesh* mesh, std::string
 	{
 		glm::mat4 characterSpacing = glm::translate(
 			glm::mat4(1.f),
-			glm::vec3(0.5f + i * 1.0f, 0.5f, 0)
+			glm::vec3(0.5f + i * (spacing), 0.5f, 0)
 		);
 		glm::mat4 MVP = projectionStack.Top() *
 			viewStack.Top() * modelStack.Top() * characterSpacing;
@@ -518,9 +577,18 @@ void SceneFPCamera::RenderTextOnScreen(Mesh* mesh, std::string
 	}
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glUniform1i(m_parameters[U_TEXT_ENABLED], 0);
-	projectionStack.PopMatrix();
-	viewStack.PopMatrix();
 	modelStack.PopMatrix();
+	viewStack.PopMatrix();
+	projectionStack.PopMatrix();
 	glEnable(GL_DEPTH_TEST);
 	glDisable(GL_BLEND);
+}
+
+void SceneFPCamera::setCameraOrigin(glm::vec3 position, glm::vec3 target, glm::vec3 up)
+{
+	cameraOriginPosition = position;
+	cameraOriginTarget = target;
+	cameraOriginUp = up;
+
+	camera.Init(position, target, up);
 }
