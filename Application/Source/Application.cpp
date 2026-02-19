@@ -22,6 +22,7 @@
 
 //debug
 #include "SceneTester.h"
+#include "BaseScene.h"
 
 GLFWwindow* m_window;
 const unsigned char FPS = 120; // FPS of this game
@@ -151,7 +152,7 @@ void Application::Run()
 	Scene* scene4 = new Scene4();
 	Scene* scene5 = new Scene5();*/
 	
-	Scene* scene = new SceneFPCamera();
+	Scene* scene = new SceneTester();
 	scene->Init();
 
 

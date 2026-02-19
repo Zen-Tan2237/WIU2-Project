@@ -28,6 +28,9 @@ BaseScene::~BaseScene()
 
 void BaseScene::Init()
 {
+	//call base scene stuff when current file is inherited from it
+	// BaseScene::Init();
+	
 	// Set background color to dark blue
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
 
@@ -96,28 +99,13 @@ void BaseScene::Init()
 		meshList[i] = nullptr;
 	}
 
+	//demo for obj files
+	//meshList[GEO_LEFT] = meshBuilder.LoadOBJMTL("Left", "OBJ//left.obj", "OBJ//left.mtl");
+	//meshList[GEO_LEFT] = MeshBuilder::LoadOBJ("Left", "OBJ//left.obj");
+	//meshList[GEO_LEFT]->textureID = LoadTGA("Image//left.tga");
+
 	meshList[GEO_AXES] = MeshBuilder::GenerateAxes("Axes", 10000.f, 10000.f, 10000.f);
-	meshList[GEO_SPHERE] = MeshBuilder::GenerateSphere("Sun", glm::vec3(1.f, 1.f, 1.f), 1.f, 16, 16);
-	meshList[GEO_CUBE] = MeshBuilder::GenerateCube("Arm", glm::vec3(0.5f, 0.5f, 0.5f), 1.f);
-	meshList[GEO_PLANE] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 1.f);
-	meshList[GEO_PLANE]->textureID = LoadTGA("Image//nyp.tga");
 
-	//meshList[GEO_GUI_QUAD] = MeshBuilder::GenerateQuad("GUIQUAD", glm::vec3(1.f, 1.f, 1.f), 1.f);
-	//meshList[GEO_GUI_QUAD]->textureID = LoadTGA("Image//NYP.tga");
-
-	////meshList[GEO_DOORMAN] = MeshBuilder::GenerateOBJ("Doorman", "Models//doorman.obj");
-	////meshList[GEO_DOORMAN]->textureID = LoadTGA("Image//doorman.tga");
-
-	//// Without texture
-	//meshList[GEO_MODEL_MTL1] = MeshBuilder::GenerateOBJMTL("model2", "Models//house_type01.obj", "Models//house_type01.mtl");
-	//// With texture
-	//meshList[GEO_MODEL_MTL2] = MeshBuilder::GenerateOBJMTL("model3", "Models//cottage_obj.obj", "Models//cottage_obj.mtl");
-	//meshList[GEO_MODEL_MTL2]->textureID = LoadTGA("Textures//cottage_diffuse.tga");
-	//meshList[GEO_TEXT] = MeshBuilder::GenerateText("text", 16, 16);
-	//meshList[GEO_TEXT]->textureID = LoadTGA("Fonts//calibri.tga");
-
-	//meshList[GEO_SPHERE_BLUE] = MeshBuilder::GenerateSphere("Earth", Color(0.4f, 0.2f, 0.8f), 1.f, 12, 12);
-	//meshList[GEO_SPHERE_GREY] = MeshBuilder::GenerateSphere("Moon", Color(0.5f, 0.5f, 0.5f), 1.f, 4, 4);
 
 	glm::mat4 projection = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
 	projectionStack.LoadMatrix(projection);
@@ -148,7 +136,6 @@ void BaseScene::Init()
 	glUniform1f(m_parameters[U_LIGHT0_EXPONENT], light[0].exponent);
 
 	enableLight = true;
-
 
 }
 
@@ -255,48 +242,11 @@ void BaseScene::Render()
 		RenderMesh(meshList[GEO_AXES], false);
 	}
 
-	//{
-	//	PushPop lightGuard(modelStack);
-	//	// Render light
-	//	modelStack.Translate(light[0].position.x, light[0].position.y, light[0].position.z);
-	//	modelStack.Scale(0.1f, 0.1f, 0.1f);
-	//	RenderMesh(meshList[GEO_SPHERE], false);
-	//}
-
-	//{
-	//	PushPop doormanGuard(modelStack);
-	//	modelStack.Translate(0.f, 0.f, -0.f);
-	//	meshList[GEO_DOORMAN]->material.kAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
-	//	meshList[GEO_DOORMAN]->material.kDiffuse = glm::vec3(1.0f, 1.0f, 1.0f);
-	//	meshList[GEO_DOORMAN]->material.kSpecular = glm::vec3(0.0f, 0.0f, 0.0f);
-	//	meshList[GEO_DOORMAN]->material.kShininess = 1.0f;
-	//	RenderMesh(meshList[GEO_DOORMAN], enableLight);
-	//}
-	//// Models 2 and 3
-	//{
-	//	PushPop idkGuard(modelStack);
-	//	modelStack.Translate(5, 10, 0);
-	//	RenderMesh(meshList[GEO_MODEL_MTL1], enableLight);
-	//}
-	//{
-	//	PushPop idkGuard(modelStack);
-	//	modelStack.Translate(5, -10, 0);
-	//	modelStack.Scale(0.5, 0.5, 0.5);
-	//	RenderMesh(meshList[GEO_MODEL_MTL2], enableLight);
-	//}
-	// Render GUI
-	//RenderMeshOnScreen(meshList[GEO_GUI_QUAD], 50, 50, 50, 50);
-	//{
-	//	PushPop texturedPlaneGuard(modelStack);
-	//	modelStack.Translate(0.f, 0.f, 0.f);
-	//	modelStack.Rotate(-90.f, 1.f, 0.f, 0.f);
-	//	modelStack.Scale(10.f, 10.f, 10.f);
+	//examples
 	//	meshList[GEO_PLANE]->material.kAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
 	//	meshList[GEO_PLANE]->material.kDiffuse = glm::vec3(1.0f, 1.0f, 1.0f);
 	//	meshList[GEO_PLANE]->material.kSpecular = glm::vec3(0.0f, 0.0f, 0.0f);
 	//	meshList[GEO_PLANE]->material.kShininess = 1.0f;
-	//	RenderMesh(meshList[GEO_PLANE], enableLight);
-	//}
 
 	// Render text
 	{
@@ -582,6 +532,52 @@ void BaseScene::RenderTextOnScreen(Mesh* mesh, std::string
 	projectionStack.PopMatrix();
 	glEnable(GL_DEPTH_TEST);
 	glDisable(GL_BLEND);
+}
+
+void BaseScene::RenderSkybox()
+{
+	//front 
+	modelStack.PushMatrix();
+	// Offset in Z direction by -50 units
+	modelStack.Translate(0.f, 0.f, -50.f);
+	// Skybox should be rendered without light
+	RenderMesh(meshList[GEO_FRONT], false);
+	modelStack.PopMatrix();
+
+	//back
+	modelStack.PushMatrix();
+	modelStack.Translate(0.f, 0.f, 50.f);
+	modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+	RenderMesh(meshList[GEO_BACK], false);
+	modelStack.PopMatrix();
+
+	//left
+	modelStack.PushMatrix();
+	modelStack.Translate(-50.f, 0.f, 0.f);
+	modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
+	RenderMesh(meshList[GEO_LEFT], false);
+	modelStack.PopMatrix();
+
+	//right
+	modelStack.PushMatrix();
+	modelStack.Translate(50.f, 0.f, 0.f);
+	modelStack.Rotate(-90.f, 0.f, 1.f, 0.f);
+	RenderMesh(meshList[GEO_RIGHT], false);
+	modelStack.PopMatrix();
+
+	//top
+	modelStack.PushMatrix();
+	modelStack.Translate(0.f, 50.f, 0.f);
+	modelStack.Rotate(-270.f, 1.f, 0.f, 0.f);
+	RenderMesh(meshList[GEO_TOP], false);
+	modelStack.PopMatrix();
+
+	//bottom
+	modelStack.PushMatrix();
+	modelStack.Translate(0.f, -50.f, 0.f);
+	modelStack.Rotate(270.f, 1.f, 0.f, 0.f);
+	RenderMesh(meshList[GEO_BOTTOM], false);
+	modelStack.PopMatrix();
 }
 
 void BaseScene::setCameraOrigin(glm::vec3 position, glm::vec3 target, glm::vec3 up)

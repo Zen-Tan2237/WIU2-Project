@@ -1,3 +1,7 @@
+//comments
+//currently testing shooting ball
+//guide: space key to shoot ball in camera direction
+
 #ifndef SCENE_TESTER_H
 #define SCENE_TESTER_H
 
@@ -7,7 +11,7 @@
 #include "MatrixStack.h"
 #include "Light.h"
 #include "FPCamera.h"
-//#include "PhysicsObject.h"
+#include "PhysicsObject.h"
 
 class SceneTester : public Scene
 {	
@@ -122,9 +126,7 @@ private:
 	bool enableLight;
 
 	//debug
-	//PhysicsObject ball;
+	PhysicsObject ball;
 };
 
 #endif
-
-// shoot balls 

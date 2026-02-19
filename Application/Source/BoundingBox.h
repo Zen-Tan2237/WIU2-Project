@@ -49,7 +49,7 @@ public:
 	void setCenter(const glm::vec3& c) { center = c; }
 	void setHalfExtents(const glm::vec3& he) { halfExtents = he; }
 	void setOrientation(const glm::mat3& o) { orientation = o; }
-	void setRadius(const glm::vec3& r) { radius = r; }
+	void setRadius(const float& r) { radius = r; }
 	void setSphereCenter(const glm::vec3& sc) { sphereCenter = sc; }
 	
 	glm::vec3 getHeight() const { return height; }
