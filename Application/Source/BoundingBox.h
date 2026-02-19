@@ -51,6 +51,7 @@ public:
 	void setOrientation(const glm::mat3& o) { orientation = o; }
 	void setRadius(const float& r) { radius = r; }
 	void setSphereCenter(const glm::vec3& sc) { sphereCenter = sc; }
+	void setType(const Type& t) { type = t; }
 	
 	glm::vec3 getHeight() const { return height; }
 	glm::vec3 getWidth() const { return width; }
