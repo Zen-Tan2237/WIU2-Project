@@ -1,0 +1,17 @@
+// GTA VI SOURCE CODE
+
+if (released) {
+	car = fast;
+	jiggle = many;
+	graphics = best;
+	reflection = real;
+	physics = real + goodest;
+	bugs = none;
+	while (!end) {
+		money += 1000000 * dt;
+	}
+}
+else {
+	teaser = true;
+	graphics = not very good;
+}

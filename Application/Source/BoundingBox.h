@@ -40,7 +40,7 @@ public:
 	void InitBB();
 
 	// Getters and setters for the bounding box properties
-	void setType(Type t) { type = t; }
+	void setType(const Type&t) { type = t; }
 	void setHeight(const glm::vec3& h) { height = h; }
 	void setWidth(const glm::vec3& w) { width = w; }
 	void setDepth(const glm::vec3& d) { depth = d; }
@@ -49,7 +49,6 @@ public:
 	void setCenter(const glm::vec3& c) { center = c; }
 	void setHalfExtents(const glm::vec3& he) { halfExtents = he; }
 	void setRadius(const float& r) { radius = r; }
-	void setType(const Type& t) { type = t; }
 	
 	glm::vec3 getHeight() const { return height; }
 	glm::vec3 getWidth() const { return width; }

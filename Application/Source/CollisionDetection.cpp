@@ -44,6 +44,7 @@ bool OverlapAABBAABB(const PhysicsObject& objA, const PhysicsObject& objB, Colli
 	if (isColliding) {
 		collisionData.collisionNormal = glm::vec3(0.f, 1.f, 0.f); 
 		collisionData.contactPoint = (glm::max(minA, minB) + glm::min(maxA, maxB)) * 0.5f; 
+		collisionData.contactPointB = collisionData.contactPoint; // For AABB vs AABB, the contact point on both objects is the same
 		collisionData.penetration = glm::length(glm::min(maxA, maxB) - glm::max(minA, minB));
 		collisionData.pObjA = const_cast<PhysicsObject*>(&objA);
 		collisionData.pObjB = const_cast<PhysicsObject*>(&objB);
@@ -56,13 +57,13 @@ bool OverlapAABBAABB(const PhysicsObject& objA, const PhysicsObject& objB, Colli
 
 bool OverlapOBBOBB(const PhysicsObject& objA, const PhysicsObject& objB, CollisionData& collisionData)
 {
-	// Implement OBB vs OBB collision detection (To be done IF ABSOLUTELY REQUIRED. idw do quarternions and rotation matrices if not necessary)
+	// Implement OBB vs OBB collision detection (To be done IF ABSOLUTELY REQUIRED.)
 	return false;
 }
 
 bool OverlapOBBAABB(const PhysicsObject& OBB, const PhysicsObject& AABB, CollisionData& collisionData)
 {
-	// Implement OBB vs AABB collision detection
+	// Implement OBB vs AABB collision detection (To be done IF ABSOLUTELY REQUIRED.)
 	return false;
 }
 
@@ -75,7 +76,20 @@ bool OverlapSphereSphere(const PhysicsObject& objA, const PhysicsObject& objB, C
 	float dispZ = objB.position.z - objA.position.z;
 	float dispSquared = (dispX * dispX) + (dispY * dispY) + (dispZ * dispZ);
 
-	return (totalRadiusSquared > dispSquared);
+	bool isColliding = (totalRadiusSquared > dispSquared);
+
+	if (isColliding) {
+		collisionData.collisionNormal = glm::normalize(objB.position - objA.position);
+		collisionData.contactPoint = objA.position + collisionData.collisionNormal * objA.boundingBox.getRadius();
+		collisionData.contactPointB = objB.position - collisionData.collisionNormal * objB.boundingBox.getRadius();
+		collisionData.penetration = (objA.boundingBox.getRadius() + objB.boundingBox.getRadius()) - sqrt(dispSquared);
+		collisionData.pObjA = const_cast<PhysicsObject*>(&objA);
+		collisionData.pObjB = const_cast<PhysicsObject*>(&objB);
+		// Currently Unused
+		collisionData.tangent = glm::normalize(glm::cross(collisionData.collisionNormal, glm::vec3(0.f, 1.f, 0.f)));
+		collisionData.bitangent = glm::normalize(glm::cross(collisionData.collisionNormal, collisionData.tangent));
+	}
+	return isColliding;
 }
 
 bool OverlapAABBSphere(const PhysicsObject& AABB, const PhysicsObject& Sphere, CollisionData& collisionData)
@@ -114,14 +128,89 @@ bool OverlapAABBSphere(const PhysicsObject& AABB, const PhysicsObject& Sphere, C
 
 bool OverlapOBBSphere(const PhysicsObject& OBB, const PhysicsObject& Sphere, CollisionData& collisionData)
 {
-	// Implement OBB vs Sphere collision detection
+	// 1. Get sphere stuff
+	glm::vec3 sphereCenter = Sphere.position;
+	glm::vec3 obbCenter = OBB.position;
+	glm::vec3 toSphere = sphereCenter - obbCenter;
+	
+	// 2. Get OBB half extents and orientation
+	glm::vec3 halfExtents = OBB.boundingBox.getHalfExtents();
+	glm::quat orientation = OBB.orientation;
+
+	// 3. Get OBB axes from orientation
+	glm::mat3 rotationMatrix = glm::mat3_cast(orientation);
+	glm::vec3 obbAxes[3] = { rotationMatrix[0], rotationMatrix[1], rotationMatrix[2] }; // 0 = x, 1 = y, 2 = z
+	
+	// 4. Project toSphere onto each OBB axis and clamp to half extents
+	glm::vec3 closestPointOnOBB = obbCenter;
+	closestPointOnOBB += obbAxes[0] * glm::clamp(glm::dot(toSphere, obbAxes[0]), -halfExtents.x, halfExtents.x);
+	closestPointOnOBB += obbAxes[1] * glm::clamp(glm::dot(toSphere, obbAxes[1]), -halfExtents.y, halfExtents.y);
+	closestPointOnOBB += obbAxes[2] * glm::clamp(glm::dot(toSphere, obbAxes[2]), -halfExtents.z, halfExtents.z);
+
+	// 5. Calculate distance from closest point on OBB to sphere center
+	glm::vec3 closestToSphere = sphereCenter - closestPointOnOBB;
+	float distanceSquared = glm::dot(closestToSphere, closestToSphere);
+	float radiusSquared = Sphere.boundingBox.getRadius() * Sphere.boundingBox.getRadius();
+	bool isColliding = distanceSquared <= radiusSquared;
+
+	if (isColliding) {
+		collisionData.collisionNormal = glm::normalize(closestToSphere);
+		collisionData.contactPoint = closestPointOnOBB;
+		collisionData.contactPointB = sphereCenter - collisionData.collisionNormal * Sphere.boundingBox.getRadius();
+		collisionData.penetration = Sphere.boundingBox.getRadius() - sqrt(distanceSquared);
+		collisionData.pObjA = const_cast<PhysicsObject*>(&OBB);
+		collisionData.pObjB = const_cast<PhysicsObject*>(&Sphere);
+		// Currently Unused
+		collisionData.tangent = glm::normalize(glm::cross(collisionData.collisionNormal, glm::vec3(0.f, 1.f, 0.f)));
+		collisionData.bitangent = glm::normalize(glm::cross(collisionData.collisionNormal, collisionData.tangent));
+	}
+
+
+
 	return false;
 }
 
-void ResolveCollision(CollisionData& collisionData)
+void ResolveCollision(CollisionData& cd)
 {
-	// Implement collision resolution using the collision data
-
-	// Impulse resolution with restitution
+	// Impulse based collision resolution with restitution and positional correction
+	PhysicsObject* objA = cd.pObjA;
+	PhysicsObject* objB = cd.pObjB;
+	glm::vec3 relativeVelocity = objB->velocity - objA->velocity;
+	glm::vec3 velAlongNormal = glm::dot(relativeVelocity, cd.collisionNormal) * cd.collisionNormal;
+	if (glm::dot(velAlongNormal, cd.collisionNormal) > 0) {
+		return;
+	}
+	// Calculate restitution (bounciness)
+	float e = std::min(objA->bounciness, objB->bounciness);
+	float j = -(1 + e) * glm::dot(relativeVelocity, cd.collisionNormal);
 	
+	// prepare inverse mass for impulse calculation
+	float invMassA = (objA->mass > 0.f) ? 1.f / objA->mass : 0.f;
+	float invMassB = (objB->mass > 0.f) ? 1.f / objB->mass : 0.f;
+	float invMassSum = invMassA + invMassB;
+
+	// Impluse calculation
+	glm::vec3 impulse = (j / invMassSum) * cd.collisionNormal;
+	objA->AddImpulse(-impulse);
+	objB->AddImpulse(impulse);
+
+	// Positional Correction
+	const float percent = 0.2f; // Penetration percentage to correct
+	const float slop = 0.01f; // Penetration allowance
+	glm::vec3 correction = std::max(cd.penetration - slop, 0.0f) / invMassSum * percent * cd.collisionNormal;
+	objA->position -= invMassA * correction;
+	objB->position += invMassB * correction;
+
+	// Angular impulse resolution
+	glm::vec3 rA = cd.contactPoint - objA->position;
+	glm::vec3 rB = cd.contactPointB - objB->position;
+	glm::vec3 angularImpulseA = glm::cross(rA, -impulse);
+	glm::vec3 angularImpulseB = glm::cross(rB, impulse);
+	objA->angularVelocity += objA->invInertiaWorld * angularImpulseA;
+	objB->angularVelocity += objB->invInertiaWorld * angularImpulseB;
+	// The most basic angular impulse resolver. 
+
+	// Apply Friction here (when needed)
+
+	// End.
 }
