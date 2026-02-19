@@ -43,8 +43,14 @@
     <ClCompile Include="Source\SceneTester.cpp">
       <Filter>Scene</Filter>
     </ClCompile>
-    <ClCompile Include="Source\BaseScene.cpp">
-      <Filter>Scene</Filter>
+    <ClCompile Include="Source\PhysicsObject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\BoundingBox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\CollisionDetection.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -96,8 +102,14 @@
     <ClInclude Include="Source\SceneTester.h">
       <Filter>Scene</Filter>
     </ClInclude>
-    <ClInclude Include="Source\BaseScene.h">
-      <Filter>Scene</Filter>
+    <ClInclude Include="Source\BoundingBox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\CollisionDetection.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\PhysicsObject.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
