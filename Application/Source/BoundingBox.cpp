@@ -9,9 +9,7 @@ BoundingBox::BoundingBox() :
 	maxPoint(glm::vec3(0.f)),
 	center(glm::vec3(0.f)),
 	halfExtents(glm::vec3(0.f)),
-	orientation(glm::mat3(1.f)),
-	radius(0.f),
-	sphereCenter(glm::vec3(0.f))
+	radius(0.f)
 {
 }
 
@@ -23,8 +21,18 @@ BoundingBox::~BoundingBox() {
 	maxPoint = glm::vec3(0.f);
 	center = glm::vec3(0.f);
 	halfExtents = glm::vec3(0.f);
-	orientation = glm::mat3(1.f);
 	radius = 0.f;
-	sphereCenter = glm::vec3(0.f);
+}
+
+void BoundingBox::InitBB() {
+	if (type == Type::OBB){
+		halfExtents = glm::vec3(width.x * 0.5f, height.y * 0.5f, depth.z * 0.5f);
+		center = glm::vec3(halfExtents.x, halfExtents.y, halfExtents.z);
+		minPoint = center - halfExtents;
+		maxPoint = center + halfExtents;
+	}
+	else if (type == Type::SPHERE) {
+		// nothing
+	}
 }
 
