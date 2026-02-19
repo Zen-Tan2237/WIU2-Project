@@ -32,7 +32,7 @@ bool OverlapAABBAABB(const PhysicsObject& objA, const PhysicsObject& objB, Colli
 
 bool OverlapOBBOBB(const PhysicsObject& objA, const PhysicsObject& objB, CollisionData& collisionData)
 {
-	// Implement OBB vs OBB collision detection
+	// Implement OBB vs OBB collision detection (To be done IF ABSOLUTELY REQUIRED. idw do quarternions and rotation matrices if not necessary)
 	return false;
 }
 

@@ -13,25 +13,34 @@ class PhysicsObject
 	// Base class for all objects used in this physics engine.
 	// Can be used directly, inherit when you want to add more properties or functions.
 
+	// quaternions gon kill me rn. 
 public:
 	PhysicsObject() {}
 	virtual ~PhysicsObject() {}
 
-	glm::vec3 pos{ 0.f };
-	glm::vec3 vel{ 0.f };
-	glm::vec3 acc{ 0.f };
-	float mass{ 1.f }; // 0.f is immovable... Units in kg.
+	// Transform properties
+	glm::vec3 position{ 0.f };
+	glm::quat orientation{ 1.f, 0.f, 0.f, 0.f };
+	glm::vec3 velocity{ 0.f }; // Linear velocity
+	
+	// Angular physics properties
+	glm::vec3 angularVelocity{ 0.f }; // Angular velocity in radians per second
+	glm::mat3 invInertiaLocal{ 1.f }; // Local inverse inertia tensor (3x3 matrix)
+	glm::mat3 invInertiaWorld{ 1.f }; // World inverse inertia tensor (3x3 matrix)
 
-	// Angular properties
-	glm::vec3 angularVel{ 0.f };
-	float angleDeg{ 0.f };
+
+	// misc properties for physics calculations
+	float mass{ 1.f };
+
+	// misc properties to enable/disable certain physics features
+	bool GravityEnabled{ false };
+	bool DragEnabled{ false };
 
 	BoundingBox boundingBox;
 
 	void AddForce(const glm::vec3& force);
-	void AddTorque(const glm::vec3& torque);
 	void AddImpulse(const glm::vec3& impulse);
-	void AddAngularImpulse(const glm::vec3& angularImpulse);
+	void AddImpulseAtPoint(const glm::vec3& impulse, const glm::vec3& point);
 	void UpdatePhysics(double dt);
 	void AddBoundingBox(BoundingBox box);
 
@@ -39,7 +48,9 @@ public:
 
 
 protected:
+	void ForcesSetZero();
 	glm::vec3 totalForces{ 0.f };
+	glm::vec3 totalTorque{ 0.f };
 };
 
 
