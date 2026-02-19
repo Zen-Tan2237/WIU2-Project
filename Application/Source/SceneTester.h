@@ -1,5 +1,5 @@
 //comments
-//currently testing shooting ball
+//currently testing shooting ball to a wall
 //guide: space key to shoot ball in camera direction
 
 #ifndef SCENE_TESTER_H
@@ -29,6 +29,7 @@ public:
 		GEO_TEXT,
 		//debug
 		GEO_SHOOT_BALL,
+		GEO_WALL,
 		NUM_GEOMETRY,
 	};
 
@@ -127,6 +128,7 @@ private:
 
 	//debug
 	PhysicsObject ball;
+	PhysicsObject wall;
 };
 
 #endif

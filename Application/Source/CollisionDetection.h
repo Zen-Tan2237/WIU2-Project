@@ -13,7 +13,7 @@ public:
 	float penetration{};
 	glm::vec3 collisionNormal{};
 	glm::vec3 contactPoint{};
-	glm::vec3 contactPointB{}; // For cases where we need the contact point on both objects (e.g., OBB vs OBB)
+	glm::vec3 contactPointB{};
 	glm::vec3 tangent{};
 	glm::vec3 bitangent{};
 	PhysicsObject* pObjA;
