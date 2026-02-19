@@ -149,6 +149,7 @@
   <ItemGroup>
     <ClCompile Include="Source\AltAzCamera.cpp" />
     <ClCompile Include="Source\Application.cpp" />
+    <ClCompile Include="Source\BaseScene.cpp" />
     <ClCompile Include="Source\FPCamera.cpp" />
     <ClCompile Include="Source\Light.cpp" />
     <ClCompile Include="Source\LoadOBJ.cpp" />
@@ -165,6 +166,7 @@
   <ItemGroup>
     <ClInclude Include="Source\AltAzCamera.h" />
     <ClInclude Include="Source\Application.h" />
+    <ClInclude Include="Source\BaseScene.h" />
     <ClInclude Include="Source\FPCamera.h" />
     <ClInclude Include="Source\Light.h" />
     <ClInclude Include="Source\LoadOBJ.h" />

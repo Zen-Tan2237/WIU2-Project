@@ -262,6 +262,16 @@ void SceneFPCamera::Render()
 		RenderMesh(meshList[GEO_AXES], false);
 	}
 
+	// Rendering template for physics objects
+	//{
+	//	PhysicsObject helloworld;
+	//	PushPop helloGuard(modelStack);
+	//	modelStack.Translate(helloworld.position.x, helloworld.position.y, helloworld.position.z);
+	//	glm::mat4 rotationMat = glm::mat4_cast(helloworld.orientation);
+	//	modelStack.MultMatrix(rotationMat);
+	//	modelStack.Scale(1, 1, 1);
+	//}
+
 	//{
 	//	PushPop lightGuard(modelStack);
 	//	// Render light
