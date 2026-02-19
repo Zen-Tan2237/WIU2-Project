@@ -170,7 +170,6 @@ public:
 	void RenderSkybox();
 
 	void setCameraOrigin(glm::vec3 position, glm::vec3 target, glm::vec3 up);
-
 	unsigned m_vertexArrayID;
 	Mesh* meshList[NUM_GEOMETRY];
 
