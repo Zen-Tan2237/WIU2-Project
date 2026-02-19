@@ -1,4 +1,4 @@
-#include "SceneTester.h"
+#include "BaseScene.h"
 #include "GL\glew.h"
 #include <iostream>
 
@@ -18,18 +18,18 @@
 #include "MouseController.h"
 #include "LoadTGA.h"
 
-SceneTester::SceneTester()
+BaseScene::BaseScene()
 {
 }
 
-SceneTester::~SceneTester()
+BaseScene::~BaseScene()
 {
 }
 
-void SceneTester::Init()
+void BaseScene::Init()
 {
 	// Set background color to dark blue
-	glClearColor(0.1f, 0.0f, 0.4f, 0.0f);
+	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
 
 	//Enable depth buffer and depth testing
 	glEnable(GL_DEPTH_TEST);
@@ -116,9 +116,10 @@ void SceneTester::Init()
 	//meshList[GEO_TEXT] = MeshBuilder::GenerateText("text", 16, 16);
 	//meshList[GEO_TEXT]->textureID = LoadTGA("Fonts//calibri.tga");
 
-	meshList[GEO_SHOOT_BALL] = MeshBuilder::GenerateSphere("ball", glm::vec3(1.f, 1.f, 1.f), 1.f, 32, 32);
+	//meshList[GEO_SPHERE_BLUE] = MeshBuilder::GenerateSphere("Earth", Color(0.4f, 0.2f, 0.8f), 1.f, 12, 12);
+	//meshList[GEO_SPHERE_GREY] = MeshBuilder::GenerateSphere("Moon", Color(0.5f, 0.5f, 0.5f), 1.f, 4, 4);
 
-	glm::mat4 projection = glm::perspective(45.0f, 16.0f / 9.0f, 0.1f, 1000.0f);
+	glm::mat4 projection = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
 	projectionStack.LoadMatrix(projection);
 
 
@@ -148,10 +149,10 @@ void SceneTester::Init()
 
 	enableLight = true;
 
-	//ball.update();
+
 }
 
-void SceneTester::Update(double dt)
+void BaseScene::Update(double dt)
 {
 	HandleKeyPress();
 
@@ -211,12 +212,9 @@ void SceneTester::Update(double dt)
 	float temp = 1.f / dt;
 	fps = glm::round(temp * 100.f) / 100.f;
 
-	//debug
-	
-
 }
 
-void SceneTester::Render()
+void BaseScene::Render()
 {
 	// Clear color buffer every frame
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -300,13 +298,6 @@ void SceneTester::Render()
 	//	RenderMesh(meshList[GEO_PLANE], enableLight);
 	//}
 
-	//shoot ball
-	{
-		PushPop shootBall(modelStack);
-		//modelStack.Translate(ball.position.x,);
-		RenderMesh(meshList[GEO_SHOOT_BALL], false);
-	}
-
 	// Render text
 	{
 		PushPop textGuard(modelStack);
@@ -317,7 +308,7 @@ void SceneTester::Render()
 	RenderTextOnScreen(meshList[GEO_TEXT], temp.substr(0, 9), glm::vec3(0, 1, 0), 40, 0, 550, 'C', 1.f);
 }
 
-void SceneTester::RenderMesh(Mesh* mesh, bool enableLight)
+void BaseScene::RenderMesh(Mesh* mesh, bool enableLight)
 {
 	glm::mat4 MVP, modelView, modelView_inverse_transpose;
 
@@ -364,7 +355,7 @@ void SceneTester::RenderMesh(Mesh* mesh, bool enableLight)
 }
 
 
-void SceneTester::Exit()
+void BaseScene::Exit()
 {
 	// Cleanup VBO here
 	for (int i = 0; i < NUM_GEOMETRY; ++i)
@@ -378,7 +369,7 @@ void SceneTester::Exit()
 	glDeleteProgram(m_programID);
 }
 
-void SceneTester::HandleKeyPress()
+void BaseScene::HandleKeyPress()
 {
 	if (KeyboardController::GetInstance()->IsKeyPressed(0x31))
 	{
@@ -436,7 +427,7 @@ void SceneTester::HandleKeyPress()
 
 }
 
-void SceneTester::RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizeX, float sizeY)
+void BaseScene::RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizeX, float sizeY)
 {
 	glDisable(GL_DEPTH_TEST);
 	//Change to orthographic mode
@@ -465,7 +456,7 @@ void SceneTester::RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizeX, 
 
 }
 
-void SceneTester::HandleMouseInput() {
+void BaseScene::HandleMouseInput() {
 	static bool isLeftUp = false;
 	static bool isRightUp = false;
 	// Process Left button
@@ -497,7 +488,7 @@ void SceneTester::HandleMouseInput() {
 	}
 }
 
-void SceneTester::RenderText(Mesh* mesh, std::string text, glm::vec3
+void BaseScene::RenderText(Mesh* mesh, std::string text, glm::vec3
 	color)
 {
 	if (!mesh || mesh->textureID <= 0) { //Proper error check
@@ -528,7 +519,7 @@ void SceneTester::RenderText(Mesh* mesh, std::string text, glm::vec3
 	glDisable(GL_BLEND);
 }
 
-void SceneTester::RenderTextOnScreen(Mesh* mesh, std::string
+void BaseScene::RenderTextOnScreen(Mesh* mesh, std::string
 	text, glm::vec3 color, float size, float x, float y, char alignment, float spacingPercentage)
 {
 	spacingPercentage = glm::clamp(spacingPercentage, 0.0f, 1.0f);
@@ -593,7 +584,7 @@ void SceneTester::RenderTextOnScreen(Mesh* mesh, std::string
 	glDisable(GL_BLEND);
 }
 
-void SceneTester::setCameraOrigin(glm::vec3 position, glm::vec3 target, glm::vec3 up)
+void BaseScene::setCameraOrigin(glm::vec3 position, glm::vec3 target, glm::vec3 up)
 {
 	cameraOriginPosition = position;
 	cameraOriginTarget = target;
