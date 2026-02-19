@@ -596,7 +596,7 @@ void BaseScene::Render()
 	{
 		PushPop axesGuard(modelStack);
 		// Render objects
-		RenderMesh(meshList[GEO_AXES], false);
+		//RenderMesh(meshList[GEO_AXES], false);
 	}
 
 	//examples
@@ -604,15 +604,6 @@ void BaseScene::Render()
 	//	meshList[GEO_PLANE]->material.kDiffuse = glm::vec3(1.0f, 1.0f, 1.0f);
 	//	meshList[GEO_PLANE]->material.kSpecular = glm::vec3(0.0f, 0.0f, 0.0f);
 	//	meshList[GEO_PLANE]->material.kShininess = 1.0f;
-
-	// Render text
-	{
-		PushPop textGuard(modelStack);
-		RenderText(meshList[GEO_TEXT], "Hello World", glm::vec3(0.f, 1.f, 0.f));
-	}
-	RenderTextOnScreen(meshList[GEO_TEXT], "Hello Screen", glm::vec3(0, 1, 0), 40, 0, 0, 'C', 1.f);
-	std::string temp("FPS:" + std::to_string(fps));
-	RenderTextOnScreen(meshList[GEO_TEXT], temp.substr(0, 9), glm::vec3(0, 1, 0), 40, 0, 550, 'C', 1.f);
 }
 
 void BaseScene::RenderMesh(Mesh* mesh, bool enableLight)
@@ -716,22 +707,6 @@ void BaseScene::HandleKeyPress()
 			light[0].power = 0.1f;
 		glUniform1f(m_parameters[U_LIGHT0_POWER], light[0].power);
 	}
-
-	if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_TAB))
-	{
-		if (light[0].type == Light::POINT) {
-			light[0].type = Light::DIRECTIONAL;
-		}
-		else if (light[0].type == Light::DIRECTIONAL) {
-			light[0].type = Light::SPOT;
-		}
-		else {
-			light[0].type = Light::POINT;
-		}
-
-		glUniform1i(m_parameters[U_LIGHT0_TYPE], light[0].type);
-	}
-
 }
 
 void BaseScene::RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizeX, float sizeY)
