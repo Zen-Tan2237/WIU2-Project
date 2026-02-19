@@ -146,10 +146,18 @@
     <Filter Include="include">
       <UniqueIdentifier>{09e3f582-7160-487a-8778-bc523d8c0934}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SFX">
+      <UniqueIdentifier>{b7b19d2e-596a-4ea8-a6cf-8f5665538152}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="gtaiv.txt">
       <Filter>Source Files</Filter>
     </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="SFX\244657__dsg__pop-5.flac">
+      <Filter>SFX</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -196,6 +196,9 @@
   <ItemGroup>
     <Text Include="gtaiv.txt" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="SFX\244657__dsg__pop-5.flac" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
