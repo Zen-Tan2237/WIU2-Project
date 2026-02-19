@@ -32,7 +32,7 @@ private:
 	glm::mat3 orientation; // To be calced during instance creation
 
 	// For Sphere
-	glm::vec3 radius; // "Dev" Input for radius (STRICTLY USE RADIUS, NOT DIAMETER)
+	float radius; // "Dev" Input for radius (STRICTLY USE RADIUS, NOT DIAMETER)
 	glm::vec3 sphereCenter; // To be calced during instance creation
 
 public:
@@ -60,7 +60,7 @@ public:
 	glm::vec3 getCenter() const { return center; }
 	glm::vec3 getHalfExtents() const { return halfExtents; }
 	glm::mat3 getOrientation() const { return orientation; }
-	glm::vec3 getRadius() const { return radius; }
+	float getRadius() const { return radius; }
 	glm::vec3 getSphereCenter() const { return sphereCenter; }
 	Type getType() const { return type; }
 };
