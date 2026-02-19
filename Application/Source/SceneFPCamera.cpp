@@ -88,7 +88,7 @@ void SceneFPCamera::Init()
 		m_parameters[U_MATERIAL_SHININESS]);
 
 	// Initialise camera properties
-	setCameraOrigin(glm::vec3(0.f, 5.f, -1.f), glm::vec3(0.f, 5.f, 1.f), glm::vec3(0.f, 6.f, -1.f));
+	setCameraOrigin(glm::vec3(0.f, 0.f, -1.f), glm::vec3(0.f, 0.f, 1.f), glm::vec3(0.f, 1.f, -1.f));
 
 	// Init VBO here
 	for (int i = 0; i < NUM_GEOMETRY; ++i)
@@ -101,6 +101,13 @@ void SceneFPCamera::Init()
 	meshList[GEO_CUBE] = MeshBuilder::GenerateCube("Arm", glm::vec3(0.5f, 0.5f, 0.5f), 1.f);
 	meshList[GEO_PLANE] = MeshBuilder::GenerateQuad("Plane", glm::vec3(1.f, 1.f, 1.f), 1.f);
 	meshList[GEO_PLANE]->textureID = LoadTGA("Image//nyp.tga");
+
+	// UI
+	meshList[GEO_MENU_GUI] = meshList[GEO_GUI_QUAD] = MeshBuilder::GenerateQuad("Menu GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
+	meshList[GEO_MENU_GUI]->textureID = LoadTGA("Image//Menu_GUI.tga");
+
+	meshList[GEO_SWITCHSCENE_GUI] = meshList[GEO_GUI_QUAD] = MeshBuilder::GenerateQuad("Switch Scene GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
+	meshList[GEO_SWITCHSCENE_GUI]->textureID = LoadTGA("Image//SwitchScene_GUI.tga");
 
 	//meshList[GEO_GUI_QUAD] = MeshBuilder::GenerateQuad("GUIQUAD", glm::vec3(1.f, 1.f, 1.f), 1.f);
 	//meshList[GEO_GUI_QUAD]->textureID = LoadTGA("Image//NYP.tga");
@@ -298,14 +305,20 @@ void SceneFPCamera::Render()
 	//	RenderMesh(meshList[GEO_PLANE], enableLight);
 	//}
 
-	// Render text
+	//// Render text
+	//{
+	//	PushPop textGuard(modelStack);
+	//	RenderText(meshList[GEO_TEXT], "Hello World", glm::vec3(0.f, 1.f, 0.f));
+	//}
+	//RenderTextOnScreen(meshList[GEO_TEXT], "Hello Screen", glm::vec3(0, 1, 0), 40, 0, 0, 'C', 1.f);
+	//std::string temp("FPS:" + std::to_string(fps));
+	//RenderTextOnScreen(meshList[GEO_TEXT], temp.substr(0, 9), glm::vec3(0, 1, 0), 40, 0, 550, 'C', 1.f);
+
 	{
-		PushPop textGuard(modelStack);
-		RenderText(meshList[GEO_TEXT], "Hello World", glm::vec3(0.f, 1.f, 0.f));
+	// Render UI
+		RenderMeshOnScreen(meshList[GEO_MENU_GUI], 0, 0, 1600, 900);
+		RenderMeshOnScreen(meshList[GEO_SWITCHSCENE_GUI], 0, 0, 1600, 900);
 	}
-	RenderTextOnScreen(meshList[GEO_TEXT], "Hello Screen", glm::vec3(0, 1, 0), 40, 0, 0, 'C', 1.f);
-	std::string temp("FPS:" + std::to_string(fps));
-	RenderTextOnScreen(meshList[GEO_TEXT], temp.substr(0, 9), glm::vec3(0, 1, 0), 40, 0, 550, 'C', 1.f);
 }
 
 void SceneFPCamera::RenderMesh(Mesh* mesh, bool enableLight)
@@ -433,7 +446,7 @@ void SceneFPCamera::RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizeX
 	//Change to orthographic mode
 	{
 		projectionStack.PushMatrix();
-		glm::mat4 ortho = glm::ortho(0.f, 800.f, 0.f, 600.f, -1000.f, 1000.f);
+		glm::mat4 ortho = glm::ortho(0.f, 1600.f, 0.f, 900.f, -1000.f, 1000.f);
 		projectionStack.LoadMatrix(ortho);
 
 		// Set view and model matrix to identity
@@ -443,7 +456,7 @@ void SceneFPCamera::RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizeX
 			{
 				modelStack.PushMatrix();
 				modelStack.LoadIdentity();
-				modelStack.Translate(400 + x, 300 + y, 0);
+				modelStack.Translate(800 + x, 450 + y, 0);
 				modelStack.Scale(sizeX, sizeY, 1);
 				RenderMesh(mesh, false);
 				modelStack.PopMatrix();
@@ -545,7 +558,7 @@ void SceneFPCamera::RenderTextOnScreen(Mesh* mesh, std::string
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDisable(GL_DEPTH_TEST);
-	glm::mat4 ortho = glm::ortho(0.f, 800.f, 0.f, 600.f, -
+	glm::mat4 ortho = glm::ortho(0.f, 1600.f, 0.f, 900.f, -
 		100.f, 100.f); // dimension of screen UI
 	projectionStack.PushMatrix();
 	projectionStack.LoadMatrix(ortho);
@@ -553,7 +566,7 @@ void SceneFPCamera::RenderTextOnScreen(Mesh* mesh, std::string
 	viewStack.LoadIdentity(); //No need camera for ortho mode
 	modelStack.PushMatrix();
 	modelStack.LoadIdentity(); //Reset modelStack
-	modelStack.Translate(400 + x + alignmentOffset, 300 + y, 0);
+	modelStack.Translate(800 + x + alignmentOffset, 450 + y, 0);
 	modelStack.Scale(size, size, size);
 
 	glUniform1i(m_parameters[U_TEXT_ENABLED], 1);
