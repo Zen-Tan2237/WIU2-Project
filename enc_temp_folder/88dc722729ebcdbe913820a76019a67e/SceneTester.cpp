@@ -149,7 +149,7 @@ void SceneTester::Init()
 	enableLight = true;
 
 	ball.position = glm::vec3(0.f, 5.f, 0.f);
-	ball.GravityEnabled = false;
+	ball.GravityEnabled = true;
 }
 
 void SceneTester::Update(double dt)

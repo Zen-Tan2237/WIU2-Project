@@ -152,7 +152,7 @@ void Application::Run()
 	Scene* scene4 = new Scene4();
 	Scene* scene5 = new Scene5();*/
 	
-	Scene* scene = new BaseScene();
+	Scene* scene = new SceneTester();
 	scene->Init();
 
 
