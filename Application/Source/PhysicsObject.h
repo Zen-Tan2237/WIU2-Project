@@ -22,6 +22,7 @@ public:
 	glm::vec3 position{ 0.f };
 	glm::quat orientation{ 1.f, 0.f, 0.f, 0.f };
 	glm::vec3 velocity{ 0.f }; // Linear velocity
+	glm::vec3 acceleration{ 0.f }; // Linear acceleration
 	
 	// Angular physics properties
 	glm::vec3 angularVelocity{ 0.f }; // Angular velocity in radians per second
@@ -36,7 +37,7 @@ public:
 
 	// misc properties to enable/disable certain physics features
 	bool GravityEnabled{ false };
-	bool DragEnabled{ false };
+	bool DragEnabled{ true };
 
 	BoundingBox boundingBox;
 

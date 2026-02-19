@@ -39,42 +39,50 @@ void PhysicsObject::AddImpulseAtPoint(const glm::vec3& impulse, const glm::vec3&
 }
 
 void PhysicsObject::UpdatePhysics(double dt) {
-	// keep quaternions normalized to prevent floating point drift
-	orientation = glm::normalize(orientation);
-
-	// convert dt to float for physics calculations
 	float fdt = static_cast<float>(dt);
 
-	// Linear physics update
-	if (GravityEnabled) {
-		totalForces += glm::vec3(0.f, -9.81f * mass, 0.f); // Apply gravity force
-	}
-	if (DragEnabled) {
-		totalForces += -velocity * 0.1f; // Simple drag force proportional to velocity
-	}
-	if (mass > 0.f) {
-		// Simple Euler integration for linear motion
-		glm::vec3 acceleration = totalForces / mass;
-		velocity += acceleration * static_cast<float>(dt);
-		position += velocity * static_cast<float>(dt);
-	}
-	
-	// Angular physics update
-	// Update inv inertia in world space from current orientation
-	glm::mat3 R = glm::mat3_cast(orientation);
-	invInertiaWorld = R * invInertiaLocal * glm::transpose(R);
+	// No time has passed, no need to update
+	if (fdt <= 0.f) return;
 
-	glm::vec3 angularAcc = invInertiaWorld * totalTorque;
-	angularVelocity += angularAcc * fdt;
-
-	// Integrate orientation using angular velocity
-	glm::quat wq(0.f, angularVelocity.x, angularVelocity.y, angularVelocity.z);
-	glm::quat dq = 0.5f * wq * orientation;
-	orientation += dq * fdt;
+	// Warp orientation
 	orientation = glm::normalize(orientation);
 
-	// Clear accumulators
-	ForcesSetZero();
+	// If gravity is enabled, apply it as a force
+	if (GravityEnabled) {
+		glm::vec3 gravityForce = glm::vec3(0.f, -9.81f, 0.f);
+		totalForces += gravityForce * mass;
+	}
+
+	// Important params
+	const float Drag = 1.5f; // Drag coefficient (tunable)
+	const float SpeedThreshold = 0.01f; // Threshold below which we consider the object to be at rest
+
+	// If drag is enabled, apply it as a force opposite to velocity
+	if (mass > 0) {
+		acceleration = totalForces * (1.f / mass);
+	}
+
+	// If drag is enabled, apply it as a force opposite to velocity
+	if (DragEnabled) {
+		glm::vec3 dragForce = -Drag * velocity;
+		totalForces += dragForce;
+		acceleration += dragForce * (1.f / mass);
+	}
+
+	// apply angular velocity to orientation
+	orientation += 0.5f * glm::quat(0.f, angularVelocity) * orientation * fdt;
+
+	// Snap to 0 velocity if below threshold to prevent jitter
+	if (glm::length(velocity) < SpeedThreshold) {
+		velocity = glm::vec3(0.f);
+	}
+
+	// Semi-implicit Euler integration for linear motion
+	velocity += acceleration * fdt;
+	position += velocity * fdt;
+
+	// Reset forces and torque for the next frame
+	ForcesSetZero();    
 }
 
 void PhysicsObject::ForcesSetZero() {

@@ -22,9 +22,9 @@ private:
 	// z forward, y up, x right
 
 	// For OBB (And AABB when rotation == 0 || 180 deg) 
-	glm::vec3 width; // "Dev" Input for x-height
-	glm::vec3 height; // "Dev" Input for y-width
-	glm::vec3 depth; // "Dev" Input for z-depth
+	float width; // "Dev" Input for x-height
+	float height; // "Dev" Input for y-width
+	float depth; // "Dev" Input for z-depth
 	glm::vec3 minPoint; // To be calced during instance creation
 	glm::vec3 maxPoint; // To be calced during instance creation
 	glm::vec3 center; // To be calced during instance creation
@@ -38,21 +38,22 @@ public:
 	~BoundingBox();
 
 	void InitBB();
+	void UpdateBB(const glm::vec3& newCenter);
 
 	// Getters and setters for the bounding box properties
 	void setType(const Type&t) { type = t; }
-	void setHeight(const glm::vec3& h) { height = h; }
-	void setWidth(const glm::vec3& w) { width = w; }
-	void setDepth(const glm::vec3& d) { depth = d; }
+	void setHeight(const float& h) { height = h; }
+	void setWidth(const float& w) { width = w; }
+	void setDepth(const float& d) { depth = d; }
 	void setMinPoint(const glm::vec3& min) { minPoint = min; }
 	void setMaxPoint(const glm::vec3& max) { maxPoint = max; }
 	void setCenter(const glm::vec3& c) { center = c; }
 	void setHalfExtents(const glm::vec3& he) { halfExtents = he; }
 	void setRadius(const float& r) { radius = r; }
 	
-	glm::vec3 getHeight() const { return height; }
-	glm::vec3 getWidth() const { return width; }
-	glm::vec3 getDepth() const { return depth; }
+	float getHeight() const { return height; }
+	float getWidth() const { return width; }
+	float getDepth() const { return depth; }
 	glm::vec3 getMinPoint() const { return minPoint; }
 	glm::vec3 getMaxPoint() const { return maxPoint; }
 	glm::vec3 getCenter() const { return center; }

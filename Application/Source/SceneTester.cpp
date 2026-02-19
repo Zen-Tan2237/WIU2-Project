@@ -152,19 +152,20 @@ void SceneTester::Init()
 
 	ball.position = glm::vec3(0.f, 5.f, 0.f);
 	ball.mass = 10.f;
-	ball.GravityEnabled = true;
+	ball.bounciness = 0.5f;
+	ball.GravityEnabled = false;
 	ball.boundingBox.setType(BoundingBox::Type::SPHERE);
-	ball.boundingBox.setRadius(100.f);
+	ball.boundingBox.setRadius(1.f);
 
 
 	wall.position = glm::vec3(-5.f, 5.f, 0.f);
 	wall.mass = 0.f; // immovable object
 	wall.boundingBox.setType(BoundingBox::Type::OBB);
-	wall.boundingBox.setWidth(glm::vec3(5.f, 0.1f, 5.f));
-	wall.boundingBox.setHeight(glm::vec3(0.1f, 5.f, 5.f));
-	wall.boundingBox.setDepth(glm::vec3(5.f, 5.f, 0.1f));
+	wall.boundingBox.setWidth(1.f);
+	wall.boundingBox.setHeight(10.f);
+	wall.boundingBox.setDepth(10.f);
 	wall.boundingBox.InitBB();
-
+	wall.velocity = glm::vec3(0.f);
 }
 
 void SceneTester::Update(double dt)
@@ -227,24 +228,21 @@ void SceneTester::Update(double dt)
 	float temp = 1.f / dt;
 	fps = glm::round(temp * 100.f) / 100.f;
 
+
 	//debug
-	if (Application::IsKeyPressed(GLFW_KEY_SPACE))
-	{
-		// Shoot the ball in the direction the camera is facing
-		glm::vec3 shootDirection = glm::normalize(camera.target - camera.position);
-		ball.velocity = shootDirection * 10.f; // Adjust the speed as needed
-		ball.position = camera.position;
-	}
-	ball.UpdatePhysics(dt);
+
 	CollisionData cd;
 	if (CheckCollision(ball, wall, cd))
 	{
 		meshList[GEO_SHOOT_BALL]->material.kAmbient = glm::vec3(0.f, 1.f, 0.f);
+		ResolveCollision(cd);
 	}
 	else
 	{
 		meshList[GEO_SHOOT_BALL]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
 	}
+
+	ball.UpdatePhysics(dt);
 }
 
 void SceneTester::Render()
@@ -334,16 +332,19 @@ void SceneTester::Render()
 	{
 		PushPop wallGuard(modelStack);
 		modelStack.Translate(wall.position.x, wall.position.y, wall.position.z);
+		glm::mat4 rotation = glm::mat4_cast(wall.orientation);
+		modelStack.MultMatrix(rotation);
+		modelStack.Scale(wall.boundingBox.getWidth(), wall.boundingBox.getHeight(), wall.boundingBox.getDepth());
 		//modelStack.Scale(5.f, 0.1f, 5.f);
-		RenderMesh(meshList[GEO_WALL], false);
+		RenderMesh(meshList[GEO_WALL], true);
 	}
 
 	//shoot ball
 	{
 		PushPop shootBall(modelStack);
 		modelStack.Translate(ball.position.x, ball.position.y, ball.position.z);
-		modelStack.Scale(1.f, 1.f, 1.f);
-		RenderMesh(meshList[GEO_SHOOT_BALL], false);
+		modelStack.Scale(ball.boundingBox.getRadius(), ball.boundingBox.getRadius(), ball.boundingBox.getRadius());
+		RenderMesh(meshList[GEO_SHOOT_BALL], true);
 	}
 
 	// Render text
@@ -443,7 +444,7 @@ void SceneTester::HandleKeyPress()
 	if (KeyboardController::GetInstance()->IsKeyPressed(VK_SPACE))
 	{
 		// Change to black background
-		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+		// glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	}
 
 	if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_0))
@@ -472,7 +473,12 @@ void SceneTester::HandleKeyPress()
 
 		glUniform1i(m_parameters[U_LIGHT0_TYPE], light[0].type);
 	}
-
+	if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_SPACE)) {
+		glm::vec3 shootDirection = glm::normalize(camera.target - camera.position);
+		ball.velocity = glm::vec3(0,0,0);
+		ball.AddImpulse(shootDirection * 50.f);
+		ball.position = camera.position;
+	}
 }
 
 void SceneTester::RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizeX, float sizeY)
