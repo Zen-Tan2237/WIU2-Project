@@ -60,6 +60,9 @@
     <ClCompile Include="Source\SceneTester.cpp">
       <Filter>Scenes</Filter>
     </ClCompile>
+    <ClCompile Include="Source\BaseScene.cpp">
+      <Filter>Scenes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Application.h">
@@ -108,6 +111,9 @@
       <Filter>Scenes</Filter>
     </ClInclude>
     <ClInclude Include="Source\SceneTester.h">
+      <Filter>Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\BaseScene.h">
       <Filter>Scenes</Filter>
     </ClInclude>
   </ItemGroup>
