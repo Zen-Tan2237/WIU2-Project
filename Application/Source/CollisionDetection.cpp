@@ -45,10 +45,13 @@ bool OverlapOBBAABB(const PhysicsObject& OBB, const PhysicsObject& AABB, Collisi
 bool OverlapSphereSphere(const PhysicsObject& objA, const PhysicsObject& objB, CollisionData& collisionData)
 {
 	// Implement Sphere vs Sphere collision detection 
-	float totalRadius = objA.boundingBox.getRadius() + objB.boundingBox.getRadius();
-	float dispX;
+	float totalRadiusSquared = (objA.boundingBox.getRadius() + objB.boundingBox.getRadius()) * (objA.boundingBox.getRadius() + objB.boundingBox.getRadius());
+	float dispX = objB.position.x - objA.position.x;
+	float dispY = objB.position.y - objA.position.y;
+	float dispZ = objB.position.z - objA.position.z;
+	float dispSquared = (dispX * dispX) + (dispY * dispY) + (dispZ * dispZ);
 
-	return false;
+	return (totalRadiusSquared > dispSquared);
 }
 
 bool OverlapAABBSphere(const PhysicsObject& AABB, const PhysicsObject& Sphere, CollisionData& collisionData)
