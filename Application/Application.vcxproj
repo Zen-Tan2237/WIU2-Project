@@ -161,6 +161,7 @@
     <ClCompile Include="Source\MeshBuilder.cpp" />
     <ClCompile Include="Source\PhysicsObject.cpp" />
     <ClCompile Include="Source\SceneFPCamera.cpp" />
+    <ClCompile Include="Source\SceneTester.cpp" />
     <ClCompile Include="Source\SceneTexture.cpp" />
     <ClCompile Include="Source\shader.cpp" />
   </ItemGroup>
@@ -180,6 +181,7 @@
     <ClInclude Include="Source\PhysicsObject.h" />
     <ClInclude Include="Source\Scene.h" />
     <ClInclude Include="Source\SceneFPCamera.h" />
+    <ClInclude Include="Source\SceneTester.h" />
     <ClInclude Include="Source\SceneTexture.h" />
     <ClInclude Include="Source\shader.hpp" />
     <ClInclude Include="Source\Vertex.h" />

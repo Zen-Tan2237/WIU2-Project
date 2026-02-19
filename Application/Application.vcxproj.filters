@@ -57,6 +57,8 @@
     <ClCompile Include="Source\CollisionDetection.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\SceneTester.cpp">
+      <Filter>Scenes</Filter>
     <ClCompile Include="Source\BoundingBox.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
