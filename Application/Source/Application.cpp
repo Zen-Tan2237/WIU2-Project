@@ -20,6 +20,9 @@
 #include "KeyboardController.h"
 #include "MouseController.h"
 
+//debug
+#include "SceneTester.h"
+
 GLFWwindow* m_window;
 const unsigned char FPS = 120; // FPS of this game
 const unsigned int frameTime = 1000 / FPS; // time for each frame
@@ -148,7 +151,7 @@ void Application::Run()
 	Scene* scene4 = new Scene4();
 	Scene* scene5 = new Scene5();*/
 	
-	Scene* scene = new SceneFPCamera();
+	Scene* scene = new SceneTester();
 	scene->Init();
 
 
