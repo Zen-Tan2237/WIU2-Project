@@ -170,7 +170,6 @@ public:
 	void RenderSkybox();
 
 	void setCameraOrigin(glm::vec3 position, glm::vec3 target, glm::vec3 up);
-
 	unsigned m_vertexArrayID;
 	Mesh* meshList[NUM_GEOMETRY];
 
@@ -198,7 +197,7 @@ public:
 
 	MatrixStack modelStack, viewStack, projectionStack;
 
-	static const int NUM_LIGHTS = 1;
+	static const int NUM_LIGHTS = 8;
 	Light light[NUM_LIGHTS];
 	bool enableLight;
 };

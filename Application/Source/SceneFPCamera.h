@@ -8,6 +8,11 @@
 #include "Light.h"
 #include "FPCamera.h"
 
+#include <string>
+
+static const int TOTAL_INTERACTIVES = 100;
+static const int TOTAL_PICKABLES = 10;
+
 class SceneFPCamera : public Scene
 {
 public:
@@ -21,7 +26,16 @@ public:
 		GEO_DOORMAN,
 		GEO_MODEL_MTL1,
 		GEO_MODEL_MTL2,
-		GEO_TEXT,
+
+		GEO_MENU_GUI,
+		GEO_SWITCHSCENE_GUI,
+
+		GEO_INTERACT_EUI,
+		GEO_INTERACTED_EUI,
+
+		GEO_CARNIVALEEFREAKSHOW_FONT,
+
+		//GEO_TEXT,
 		NUM_GEOMETRY,
 	};
 
@@ -86,6 +100,13 @@ private:
 
 	void setCameraOrigin(glm::vec3 position, glm::vec3 target, glm::vec3 up);
 
+	void resetInteractives();
+	void addInteractives(std::string name, char type, glm::vec3 position);
+	void addPickables(std::string name, glm::vec3 position);
+	void removePickables(std::string name);
+	void initializePickablesInteractives();
+	void getClosestInteractive();
+
 	unsigned m_vertexArrayID;
 	Mesh* meshList[NUM_GEOMETRY];
 
@@ -108,6 +129,25 @@ private:
 
 	glm::vec3 currentPlayerPosition, previousPlayerPosition;
 	glm::vec3 previousBobOffset = glm::vec3(0.0f);
+	//
+
+	// INTERACTIVES
+	int noOfInteractives;
+
+	std::string interactives[TOTAL_INTERACTIVES];
+	char interactivesType[TOTAL_INTERACTIVES];
+	glm::vec3 interactivesPos[TOTAL_INTERACTIVES];
+
+	int interactedIndexes[TOTAL_INTERACTIVES];
+	int interactedIndex;
+	int previousInteractedIndex;
+
+	int noOfPickables;
+	std::string pickables[TOTAL_PICKABLES];
+	glm::vec3 pickablesPos[TOTAL_PICKABLES];
+
+	float interactedEUI_scale;
+	float interactedEUI_targetScale;
 	//
 
 	int projType = 1; // fix to 0 for orthographic, 1 for projection

@@ -147,9 +147,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="audio.cpp" />
     <ClCompile Include="Source\AltAzCamera.cpp" />
     <ClCompile Include="Source\Application.cpp" />
+    <ClCompile Include="Source\audio.cpp" />
     <ClCompile Include="Source\BaseScene.cpp" />
     <ClCompile Include="Source\BoundingBox.cpp" />
     <ClCompile Include="Source\CollisionDetection.cpp" />
@@ -163,8 +163,10 @@
     <ClCompile Include="Source\MeshBuilder.cpp" />
     <ClCompile Include="Source\PhysicsObject.cpp" />
     <ClCompile Include="Source\SceneFPCamera.cpp" />
+    <ClCompile Include="Source\SceneHub.cpp" />
     <ClCompile Include="Source\SceneTester.cpp" />
     <ClCompile Include="Source\SceneTexture.cpp" />
+    <ClCompile Include="Source\SceneTiltingTable.cpp" />
     <ClCompile Include="Source\shader.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -185,13 +187,18 @@
     <ClInclude Include="Source\PhysicsObject.h" />
     <ClInclude Include="Source\Scene.h" />
     <ClInclude Include="Source\SceneFPCamera.h" />
+    <ClInclude Include="Source\SceneHub.h" />
     <ClInclude Include="Source\SceneTester.h" />
     <ClInclude Include="Source\SceneTexture.h" />
+    <ClInclude Include="Source\SceneTiltingTable.h" />
     <ClInclude Include="Source\shader.hpp" />
     <ClInclude Include="Source\Vertex.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="gtaiv.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="SFX\244657__dsg__pop-5.flac" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
