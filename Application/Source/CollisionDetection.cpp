@@ -89,6 +89,7 @@ bool OverlapSphereSphere(const PhysicsObject& objA, const PhysicsObject& objB, C
 		collisionData.tangent = glm::normalize(glm::cross(collisionData.collisionNormal, glm::vec3(0.f, 1.f, 0.f)));
 		collisionData.bitangent = glm::normalize(glm::cross(collisionData.collisionNormal, collisionData.tangent));
 	}
+	return isColliding;
 }
 
 bool OverlapAABBSphere(const PhysicsObject& AABB, const PhysicsObject& Sphere, CollisionData& collisionData)
@@ -127,7 +128,43 @@ bool OverlapAABBSphere(const PhysicsObject& AABB, const PhysicsObject& Sphere, C
 
 bool OverlapOBBSphere(const PhysicsObject& OBB, const PhysicsObject& Sphere, CollisionData& collisionData)
 {
-	// 1. Get all axes 
+	// 1. Get sphere stuff
+	glm::vec3 sphereCenter = Sphere.position;
+	glm::vec3 obbCenter = OBB.position;
+	glm::vec3 toSphere = sphereCenter - obbCenter;
+	
+	// 2. Get OBB half extents and orientation
+	glm::vec3 halfExtents = OBB.boundingBox.getHalfExtents();
+	glm::quat orientation = OBB.orientation;
+
+	// 3. Get OBB axes from orientation
+	glm::mat3 rotationMatrix = glm::mat3_cast(orientation);
+	glm::vec3 obbAxes[3] = { rotationMatrix[0], rotationMatrix[1], rotationMatrix[2] }; // 0 = x, 1 = y, 2 = z
+	
+	// 4. Project toSphere onto each OBB axis and clamp to half extents
+	glm::vec3 closestPointOnOBB = obbCenter;
+	closestPointOnOBB += obbAxes[0] * glm::clamp(glm::dot(toSphere, obbAxes[0]), -halfExtents.x, halfExtents.x);
+	closestPointOnOBB += obbAxes[1] * glm::clamp(glm::dot(toSphere, obbAxes[1]), -halfExtents.y, halfExtents.y);
+	closestPointOnOBB += obbAxes[2] * glm::clamp(glm::dot(toSphere, obbAxes[2]), -halfExtents.z, halfExtents.z);
+
+	// 5. Calculate distance from closest point on OBB to sphere center
+	glm::vec3 closestToSphere = sphereCenter - closestPointOnOBB;
+	float distanceSquared = glm::dot(closestToSphere, closestToSphere);
+	float radiusSquared = Sphere.boundingBox.getRadius() * Sphere.boundingBox.getRadius();
+	bool isColliding = distanceSquared <= radiusSquared;
+
+	if (isColliding) {
+		collisionData.collisionNormal = glm::normalize(closestToSphere);
+		collisionData.contactPoint = closestPointOnOBB;
+		collisionData.contactPointB = sphereCenter - collisionData.collisionNormal * Sphere.boundingBox.getRadius();
+		collisionData.penetration = Sphere.boundingBox.getRadius() - sqrt(distanceSquared);
+		collisionData.pObjA = const_cast<PhysicsObject*>(&OBB);
+		collisionData.pObjB = const_cast<PhysicsObject*>(&Sphere);
+		// Currently Unused
+		collisionData.tangent = glm::normalize(glm::cross(collisionData.collisionNormal, glm::vec3(0.f, 1.f, 0.f)));
+		collisionData.bitangent = glm::normalize(glm::cross(collisionData.collisionNormal, collisionData.tangent));
+	}
+
 
 
 	return false;
@@ -165,6 +202,13 @@ void ResolveCollision(CollisionData& cd)
 	objB->position += invMassB * correction;
 
 	// Angular impulse resolution
+	glm::vec3 rA = cd.contactPoint - objA->position;
+	glm::vec3 rB = cd.contactPointB - objB->position;
+	glm::vec3 angularImpulseA = glm::cross(rA, -impulse);
+	glm::vec3 angularImpulseB = glm::cross(rB, impulse);
+	objA->angularVelocity += objA->invInertiaWorld * angularImpulseA;
+	objB->angularVelocity += objB->invInertiaWorld * angularImpulseB;
+	// The most basic angular impulse resolver. 
 
 	// Apply Friction here (when needed)
 
