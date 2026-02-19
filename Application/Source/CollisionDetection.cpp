@@ -82,7 +82,7 @@ bool OverlapAABBSphere(const PhysicsObject& AABB, const PhysicsObject& Sphere, C
 {
 	// Implement AABB vs Sphere collision detection
 	float distanceSquared = 0.f;
-	glm::vec3 sphereCenter = Sphere.boundingBox.getSphereCenter();
+	glm::vec3 sphereCenter = Sphere.position;
 	glm::vec3 aabbMin = AABB.boundingBox.getMinPoint();
 	glm::vec3 aabbMax = AABB.boundingBox.getMaxPoint();
 
@@ -121,4 +121,7 @@ bool OverlapOBBSphere(const PhysicsObject& OBB, const PhysicsObject& Sphere, Col
 void ResolveCollision(CollisionData& collisionData)
 {
 	// Implement collision resolution using the collision data
+
+	// Impulse resolution with restitution
+	
 }

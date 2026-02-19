@@ -22,8 +22,8 @@ private:
 	// z forward, y up, x right
 
 	// For OBB (And AABB when rotation == 0 || 180 deg) 
-	glm::vec3 height; // "Dev" Input for x-width
-	glm::vec3 width; // "Dev" Input for y-height
+	glm::vec3 width; // "Dev" Input for x-height
+	glm::vec3 height; // "Dev" Input for y-width
 	glm::vec3 depth; // "Dev" Input for z-depth
 	glm::vec3 minPoint; // To be calced during instance creation
 	glm::vec3 maxPoint; // To be calced during instance creation
@@ -32,11 +32,12 @@ private:
 
 	// For Sphere
 	float radius; // "Dev" Input for radius (STRICTLY USE RADIUS, NOT DIAMETER)
-	glm::vec3 sphereCenter; // To be calced during instance creation
 
 public:
 	BoundingBox();
 	~BoundingBox();
+
+	void InitBB();
 
 	// Getters and setters for the bounding box properties
 	void setType(Type t) { type = t; }
@@ -48,7 +49,6 @@ public:
 	void setCenter(const glm::vec3& c) { center = c; }
 	void setHalfExtents(const glm::vec3& he) { halfExtents = he; }
 	void setRadius(const float& r) { radius = r; }
-	void setSphereCenter(const glm::vec3& sc) { sphereCenter = sc; }
 	void setType(const Type& t) { type = t; }
 	
 	glm::vec3 getHeight() const { return height; }
@@ -59,7 +59,6 @@ public:
 	glm::vec3 getCenter() const { return center; }
 	glm::vec3 getHalfExtents() const { return halfExtents; }
 	float getRadius() const { return radius; }
-	glm::vec3 getSphereCenter() const { return sphereCenter; }
 	Type getType() const { return type; }
 };
 
