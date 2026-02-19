@@ -118,6 +118,7 @@ void SceneTester::Init()
 	//meshList[GEO_TEXT]->textureID = LoadTGA("Fonts//calibri.tga");
 
 	meshList[GEO_SHOOT_BALL] = MeshBuilder::GenerateSphere("ball", glm::vec3(1.f, 1.f, 1.f), 1.f, 32, 32);
+	meshList[GEO_WALL] = MeshBuilder::GenerateCube("wall", glm::vec3(1.f, 0.f, 0.f), 1.f);
 
 	glm::mat4 projection = glm::perspective(45.0f, 16.0f / 9.0f, 0.1f, 1000.0f);
 	projectionStack.LoadMatrix(projection);
@@ -152,11 +153,18 @@ void SceneTester::Init()
 	ball.position = glm::vec3(0.f, 5.f, 0.f);
 	ball.mass = 10.f;
 	ball.GravityEnabled = true;
-	//ball.boundingBox.setType(BoundingBox::Type::SPHERE);
+	ball.boundingBox.setType(BoundingBox::Type::SPHERE);
+	ball.boundingBox.setRadius(100.f);
 
-	wall.position = glm::vec3(0.f, 5.f, 10.f);
+
+	wall.position = glm::vec3(-5.f, 5.f, 0.f);
 	wall.mass = 0.f; // immovable object
-	//wall.boundingBox.setType(BoundingBox::Type::OBB);
+	wall.boundingBox.setType(BoundingBox::Type::OBB);
+	wall.boundingBox.setWidth(glm::vec3(5.f, 0.1f, 5.f));
+	wall.boundingBox.setHeight(glm::vec3(0.1f, 5.f, 5.f));
+	wall.boundingBox.setDepth(glm::vec3(5.f, 5.f, 0.1f));
+	wall.boundingBox.InitBB();
+
 }
 
 void SceneTester::Update(double dt)
@@ -322,6 +330,13 @@ void SceneTester::Render()
 	//	meshList[GEO_PLANE]->material.kShininess = 1.0f;
 	//	RenderMesh(meshList[GEO_PLANE], enableLight);
 	//}
+
+	{
+		PushPop wallGuard(modelStack);
+		modelStack.Translate(wall.position.x, wall.position.y, wall.position.z);
+		//modelStack.Scale(5.f, 0.1f, 5.f);
+		RenderMesh(meshList[GEO_WALL], false);
+	}
 
 	//shoot ball
 	{

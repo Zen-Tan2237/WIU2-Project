@@ -29,6 +29,7 @@ public:
 		GEO_TEXT,
 		//debug
 		GEO_SHOOT_BALL,
+		GEO_WALL,
 		NUM_GEOMETRY,
 	};
 
