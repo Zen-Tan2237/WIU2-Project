@@ -147,9 +147,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="audio.cpp" />
     <ClCompile Include="Source\AltAzCamera.cpp" />
     <ClCompile Include="Source\Application.cpp" />
+    <ClCompile Include="Source\audio.cpp" />
     <ClCompile Include="Source\BaseScene.cpp" />
     <ClCompile Include="Source\BoundingBox.cpp" />
     <ClCompile Include="Source\CollisionDetection.cpp" />

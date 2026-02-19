@@ -103,18 +103,22 @@ void SceneFPCamera::Init()
 	meshList[GEO_PLANE]->textureID = LoadTGA("Image//nyp.tga");
 
 	// GUI
-	meshList[GEO_MENU_GUI] = meshList[GEO_GUI_QUAD] = MeshBuilder::GenerateQuad("Menu GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
+	meshList[GEO_MENU_GUI] = MeshBuilder::GenerateQuad("Menu GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
 	meshList[GEO_MENU_GUI]->textureID = LoadTGA("Image//Menu_GUI.tga");
 
-	meshList[GEO_SWITCHSCENE_GUI] = meshList[GEO_GUI_QUAD] = MeshBuilder::GenerateQuad("Switch Scene GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
+	meshList[GEO_SWITCHSCENE_GUI] = MeshBuilder::GenerateQuad("Switch Scene GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
 	meshList[GEO_SWITCHSCENE_GUI]->textureID = LoadTGA("Image//SwitchScene_GUI.tga");
 
 	// EUI
-	meshList[GEO_INTERACT_EUI] = meshList[GEO_GUI_QUAD] = MeshBuilder::GenerateQuad("Interact EUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
+	meshList[GEO_INTERACT_EUI] = MeshBuilder::GenerateQuad("Interact EUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
 	meshList[GEO_INTERACT_EUI]->textureID = LoadTGA("Image//Interact_EUI.tga");
 
-	meshList[GEO_INTERACTED_EUI] = meshList[GEO_GUI_QUAD] = MeshBuilder::GenerateQuad("Interacted EUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
+	meshList[GEO_INTERACTED_EUI] = MeshBuilder::GenerateQuad("Interacted EUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
 	meshList[GEO_INTERACTED_EUI]->textureID = LoadTGA("Image//Interacted_EUI.tga");
+
+	// FONTS
+	meshList[GEO_CARNIVALEEFREAKSHOW_FONT] = MeshBuilder::GenerateText("Carnivalee Freakshow Font", 16, 16);
+	meshList[GEO_CARNIVALEEFREAKSHOW_FONT]->textureID = LoadTGA("Fonts//CarnivaleeFreakshow.tga");
 
 	//meshList[GEO_GUI_QUAD] = MeshBuilder::GenerateQuad("GUIQUAD", glm::vec3(1.f, 1.f, 1.f), 1.f);
 	//meshList[GEO_GUI_QUAD]->textureID = LoadTGA("Image//NYP.tga");
@@ -251,10 +255,6 @@ void SceneFPCamera::Update(double dt)
 	initializePickablesInteractives();
 	getClosestInteractive();
 
-	if (interactedIndex != -1) {
-		std::cout << interactedIndex << std::endl;
-	}
-
 	//
 
 	float t = 1.f - std::exp(-5 * dt);
@@ -368,6 +368,8 @@ void SceneFPCamera::Render()
 		// Render GUI
 		//RenderMeshOnScreen(meshList[GEO_MENU_GUI], 0, 0, 1600, 900);
 		//RenderMeshOnScreen(meshList[GEO_SWITCHSCENE_GUI], 0, 0, 1600, 900);
+
+		RenderTextOnScreen(meshList[GEO_CARNIVALEEFREAKSHOW_FONT], "Score", glm::vec3(0, 1, 0), 45, -795, 400, 'L', 0.6f);
 	}
 	
 	{
