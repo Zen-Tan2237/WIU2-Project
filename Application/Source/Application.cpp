@@ -13,6 +13,9 @@
 
 #include "Scene1.h"
 #include "Scene2.h"
+//#include "Scene3.h"
+//#include "Scene4.h"
+//#include "Scene5.h"
 #include "SceneFPCamera.h"
 #include "KeyboardController.h"
 #include "MouseController.h"
@@ -84,6 +87,8 @@ void Application::Init()
 		exit(EXIT_FAILURE);
 	}
 
+	sceneNum = SCENE1;
+
 	//Set the GLFW window creation hints - these are optional
 	glfwWindowHint(GLFW_SAMPLES, 4); //Request 4x antialiasing
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3); //Request a specific OpenGL version
@@ -92,7 +97,7 @@ void Application::Init()
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); //We don't want the old OpenGL
 
 	//Create a window and create its OpenGL context
-	m_window = glfwCreateWindow(1200, 900, "OPENGL FRAMEWORK", NULL, NULL);
+	m_window = glfwCreateWindow(1600, 900, "OPENGL FRAMEWORK", NULL, NULL);
 
 	//If the window couldn't be created
 	if (!m_window)
@@ -137,15 +142,43 @@ void Application::Init()
 void Application::Run()
 {
 	//Main Loop
-	Scene* scene = new SceneFPCamera();
+	Scene* scene1 = new Scene1(); // You decide whichscene you want to load
+	Scene* scene2 = new Scene2();
+	/*Scene* scene3 = new Scene3();
+	Scene* scene4 = new Scene4();
+	Scene* scene5 = new Scene5();*/
+	
+	Scene* scene = scene1;
 	scene->Init();
+
 
 	m_timer.startTimer();    // Start timer to calculate how long it takes to render this frame
 	while (!glfwWindowShouldClose(m_window) && !IsKeyPressed(VK_ESCAPE))
 	{
+		////change stuff later (scene switching)
+		//if (!isEnterUp && KeyboardController::GetInstance() -> IsKeyDown(GLFW_KEY_ENTER)) {
+		//	if (sceneNum == SCENE1) {
+		//		scene1->Exit(); // Ensure you exit previous screen and remove the previous shader
+		//		scene2->Init(); // Initialise the next screen
+		//		scene = scene2;
+		//		sceneNum = SCENE_GUI;
+		//	}
+		//	else if (sceneNum == SCENE_GUI) {
+		//		scene2->Exit();
+		//		scene1->Init();
+		//		scene = scene1;
+		//		sceneNum = SCENE_MODEL;
+		//	}
+		//	isEnterUp = true;
+		//}
+		//else if (isEnterUp && KeyboardController::GetInstance() -> IsKeyUp(GLFW_KEY_ENTER)) //change later
+		//{
+		//	isEnterUp = false;
+		//}
+
 		scene->Update(m_timer.getElapsedTime());
 		scene->Render();
-		//Swap buffers
+		//Swap buffers	
 		glfwSwapBuffers(m_window);
 
 		KeyboardController::GetInstance()->PostUpdate();
@@ -162,7 +195,11 @@ void Application::Run()
 
 	} //Check if the ESC key had been pressed or if the window had been closed
 	scene->Exit();
-	delete scene;
+	delete scene1;
+	delete scene2;
+	/*delete scene3;
+	delete scene4;
+	delete scene5;*/
 }
 
 void Application::Exit()

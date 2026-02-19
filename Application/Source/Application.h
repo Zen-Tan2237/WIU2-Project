@@ -7,6 +7,16 @@
 class Application
 {
 public:
+	enum SCENE_NUM
+	{
+		SCENE1 = 0,
+		SCENE2,
+		SCENE3,
+		SCENE4,
+		SCENE5,
+		TOTAL_SCENE
+	};
+
 	Application();
 	~Application();
 	void Init();
@@ -21,6 +31,9 @@ private:
 
 	bool enablePointer = false;
 	bool showPointer = true;
+
+	SCENE_NUM sceneNum;
+	bool isEnterUp = false;
 
 };
 
