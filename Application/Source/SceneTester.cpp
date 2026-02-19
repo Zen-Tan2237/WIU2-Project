@@ -17,6 +17,7 @@
 #include "KeyboardController.h"
 #include "MouseController.h"
 #include "LoadTGA.h"
+#include "CollisionDetection.h"
 
 SceneTester::SceneTester()
 {
@@ -151,6 +152,11 @@ void SceneTester::Init()
 	ball.position = glm::vec3(0.f, 5.f, 0.f);
 	ball.mass = 10.f;
 	ball.GravityEnabled = true;
+	//ball.boundingBox.setType(BoundingBox::Type::SPHERE);
+
+	wall.position = glm::vec3(0.f, 5.f, 10.f);
+	wall.mass = 0.f; // immovable object
+	//wall.boundingBox.setType(BoundingBox::Type::OBB);
 }
 
 void SceneTester::Update(double dt)
@@ -222,6 +228,15 @@ void SceneTester::Update(double dt)
 		ball.position = camera.position;
 	}
 	ball.UpdatePhysics(dt);
+	CollisionData cd;
+	if (CheckCollision(ball, wall, cd))
+	{
+		meshList[GEO_SHOOT_BALL]->material.kAmbient = glm::vec3(0.f, 1.f, 0.f);
+	}
+	else
+	{
+		meshList[GEO_SHOOT_BALL]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+	}
 }
 
 void SceneTester::Render()

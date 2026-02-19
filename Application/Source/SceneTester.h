@@ -1,5 +1,5 @@
 //comments
-//currently testing shooting ball
+//currently testing shooting ball to a wall
 //guide: space key to shoot ball in camera direction
 
 #ifndef SCENE_TESTER_H
@@ -127,6 +127,7 @@ private:
 
 	//debug
 	PhysicsObject ball;
+	PhysicsObject wall;
 };
 
 #endif

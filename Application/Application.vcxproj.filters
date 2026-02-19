@@ -43,6 +43,12 @@
     <ClCompile Include="Source\SceneTester.cpp">
       <Filter>Scene</Filter>
     </ClCompile>
+    <ClCompile Include="Source\BoundingBox.cpp" />
+    <ClCompile Include="Source\CollisionDetection.cpp" />
+    <ClCompile Include="Source\PhysicsObject.cpp" />
+    <ClCompile Include="Source\BaseScene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\AltAzCamera.h">
@@ -101,6 +107,9 @@
     </ClInclude>
     <ClInclude Include="Source\PhysicsObject.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\BaseScene.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
