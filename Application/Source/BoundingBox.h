@@ -60,7 +60,7 @@ public:
 	glm::vec3 getCenter() const { return center; }
 	glm::vec3 getHalfExtents() const { return halfExtents; }
 	glm::mat3 getOrientation() const { return orientation; }
-	glm::vec3 getRadius() const { return radius; }
+	float getRadius() const { return radius; }
 	glm::vec3 getSphereCenter() const { return sphereCenter; }
 	Type getType() const { return type; }
 };
