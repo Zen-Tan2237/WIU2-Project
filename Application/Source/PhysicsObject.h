@@ -31,6 +31,8 @@ public:
 
 	// misc properties for physics calculations
 	float mass{ 1.f };
+	float bounciness{ 0.5f }; // Coefficient of restitution for collisions
+	float friction{ 0.5f }; // Coefficient of friction for collisions (Currently a stub, to be added when needed)
 
 	// misc properties to enable/disable certain physics features
 	bool GravityEnabled{ false };

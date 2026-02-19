@@ -54,16 +54,16 @@
     <ClCompile Include="Source\FPCamera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\CollisionDetection.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\BoundingBox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="Source\SceneFPCamera.cpp">
       <Filter>Scenes</Filter>
     </ClCompile>
-    <ClCompile Include="CollisionDetection.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="PhysicsObject.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="BoundingBox.cpp">
+    <ClCompile Include="Source\PhysicsObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -113,13 +113,13 @@
     <ClInclude Include="Source\SceneFPCamera.h">
       <Filter>Scenes</Filter>
     </ClInclude>
-    <ClInclude Include="CollisionDetection.h">
+    <ClInclude Include="Source\CollisionDetection.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="PhysicsObject.h">
+    <ClInclude Include="Source\BoundingBox.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BoundingBox.h">
+    <ClInclude Include="Source\PhysicsObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
