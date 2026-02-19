@@ -148,7 +148,8 @@ void SceneTester::Init()
 
 	enableLight = true;
 
-	//ball.update();
+	ball.position = glm::vec3(0.f, 5.f, 0.f);
+	ball.GravityEnabled = false;
 }
 
 void SceneTester::Update(double dt)
@@ -212,8 +213,14 @@ void SceneTester::Update(double dt)
 	fps = glm::round(temp * 100.f) / 100.f;
 
 	//debug
-	
-
+	if (Application::IsKeyPressed(GLFW_KEY_SPACE))
+	{
+		// Shoot the ball in the direction the camera is facing
+		glm::vec3 shootDirection = glm::normalize(camera.target - camera.position);
+		ball.velocity = shootDirection * 10.f; // Adjust the speed as needed
+		ball.position = camera.position;
+	}
+	ball.UpdatePhysics(dt);
 }
 
 void SceneTester::Render()
@@ -303,7 +310,8 @@ void SceneTester::Render()
 	//shoot ball
 	{
 		PushPop shootBall(modelStack);
-		//modelStack.Translate(ball.position.x,);
+		modelStack.Translate(ball.position.x, ball.position.y, ball.position.z);
+		modelStack.Scale(1.f, 1.f, 1.f);
 		RenderMesh(meshList[GEO_SHOOT_BALL], false);
 	}
 

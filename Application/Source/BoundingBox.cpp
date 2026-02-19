@@ -10,7 +10,7 @@ BoundingBox::BoundingBox() :
 	center(glm::vec3(0.f)),
 	halfExtents(glm::vec3(0.f)),
 	orientation(glm::mat3(1.f)),
-	radius(glm::vec3(0.f)),
+	radius(0.f),
 	sphereCenter(glm::vec3(0.f))
 {
 }
@@ -24,7 +24,7 @@ BoundingBox::~BoundingBox() {
 	center = glm::vec3(0.f);
 	halfExtents = glm::vec3(0.f);
 	orientation = glm::mat3(1.f);
-	radius = glm::vec3(0.f);
+	radius = 0.f;
 	sphereCenter = glm::vec3(0.f);
 }
 

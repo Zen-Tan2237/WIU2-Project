@@ -9,6 +9,7 @@
 
 class CollisionData
 {
+public:
 	float penetration{};
 	glm::vec3 collisionNormal{};
 	glm::vec3 contactPoint{};
