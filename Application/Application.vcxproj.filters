@@ -7,9 +7,6 @@
     <ClCompile Include="Source\AltAzCamera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\BaseScene.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\FPCamera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -46,15 +43,15 @@
     <ClCompile Include="Source\SceneTester.cpp">
       <Filter>Scene</Filter>
     </ClCompile>
+    <ClCompile Include="Source\BaseScene.cpp">
+      <Filter>Scene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\AltAzCamera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\BaseScene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\FPCamera.h">
@@ -97,6 +94,9 @@
       <Filter>Scene</Filter>
     </ClInclude>
     <ClInclude Include="Source\SceneTester.h">
+      <Filter>Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\BaseScene.h">
       <Filter>Scene</Filter>
     </ClInclude>
   </ItemGroup>
