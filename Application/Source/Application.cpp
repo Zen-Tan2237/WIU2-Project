@@ -142,13 +142,13 @@ void Application::Init()
 void Application::Run()
 {
 	//Main Loop
-	Scene* scene1 = new Scene1(); // You decide whichscene you want to load
-	Scene* scene2 = new Scene2();
+	/*Scene* scene1 = new Scene1(); 
+	Scene* scene2 = new Scene2();*/
 	/*Scene* scene3 = new Scene3();
 	Scene* scene4 = new Scene4();
 	Scene* scene5 = new Scene5();*/
 	
-	Scene* scene = scene1;
+	Scene* scene = new SceneFPCamera();
 	scene->Init();
 
 
@@ -195,8 +195,9 @@ void Application::Run()
 
 	} //Check if the ESC key had been pressed or if the window had been closed
 	scene->Exit();
-	delete scene1;
-	delete scene2;
+	delete scene; //delete when scene switching implimented
+	/*delete scene1;
+	delete scene2;*/
 	/*delete scene3;
 	delete scene4;
 	delete scene5;*/
