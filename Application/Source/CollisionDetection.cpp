@@ -175,42 +175,69 @@ void ResolveCollision(CollisionData& cd)
 	// Impulse based collision resolution with restitution and positional correction
 	PhysicsObject* objA = cd.pObjA;
 	PhysicsObject* objB = cd.pObjB;
-	glm::vec3 relativeVelocity = objB->velocity - objA->velocity;
-	glm::vec3 velAlongNormal = glm::dot(relativeVelocity, cd.collisionNormal) * cd.collisionNormal;
-	if (glm::dot(velAlongNormal, cd.collisionNormal) > 0) {
+
+	// Guard against null pointers
+	if (!objA || !objB) {
 		return;
 	}
+
+	// Calculate relative position vectors from object centers to contact points
+	glm::vec3 rA = cd.contactPoint - objA->position;
+	glm::vec3 rB = cd.contactPointB - objB->position;
+
+	// Calculate velocity at contact points (linear + rotational components)
+	glm::vec3 velA_contact = objA->velocity + glm::cross(objA->angularVelocity, rA);
+	glm::vec3 velB_contact = objB->velocity + glm::cross(objB->angularVelocity, rB);
+	glm::vec3 relativeVelocity = velB_contact - velA_contact;
+
+	// Check if objects are approaching (moving towards each other along collision normal)
+	float velocityAlongNormal = glm::dot(relativeVelocity, cd.collisionNormal);
+	if (velocityAlongNormal >= 0.0f) {
+		return; // Objects are separating or moving parallel
+	}
+
 	// Calculate restitution (bounciness)
 	float e = std::min(objA->bounciness, objB->bounciness);
-	float j = -(1 + e) * glm::dot(relativeVelocity, cd.collisionNormal);
-	
-	// prepare inverse mass for impulse calculation
-	float invMassA = (objA->mass > 0.f) ? 1.f / objA->mass : 0.f;
-	float invMassB = (objB->mass > 0.f) ? 1.f / objB->mass : 0.f;
-	float invMassSum = invMassA + invMassB;
+	float j = -(1.0f + e) * velocityAlongNormal;
 
-	// Impluse calculation
-	glm::vec3 impulse = (j / invMassSum) * cd.collisionNormal;
+	// Prepare inverse mass for impulse calculation
+	float invMassA = (objA->mass > 0.0f) ? 1.0f / objA->mass : 0.0f;
+	float invMassB = (objB->mass > 0.0f) ? 1.0f / objB->mass : 0.0f;
+
+	// Calculate rotational effect on impulse denominator
+	// This accounts for how the contact point offset affects rotational response
+	glm::vec3 rACrossN = glm::cross(rA, cd.collisionNormal);
+	glm::vec3 rBCrossN = glm::cross(rB, cd.collisionNormal);
+	float rotEffectA = glm::dot(rACrossN, objA->invInertiaWorld * rACrossN);
+	float rotEffectB = glm::dot(rBCrossN, objB->invInertiaWorld * rBCrossN);
+
+	// Full inverse mass sum including rotational effects
+	float invMassSum = invMassA + invMassB + rotEffectA + rotEffectB;
+
+	// Guard against zero inverse mass sum (both objects are static)
+	if (invMassSum < 1e-6f) {
+		return;
+	}
+
+	// Impulse calculation (scalar magnitude)
+	float impulseMagnitude = j / invMassSum;
+	glm::vec3 impulse = impulseMagnitude * cd.collisionNormal;
+
+	// Apply linear impulses
 	objA->AddImpulse(-impulse);
 	objB->AddImpulse(impulse);
 
-	// Positional Correction
-	const float percent = 0.2f; // Penetration percentage to correct
-	const float slop = 0.01f; // Penetration allowance
-	glm::vec3 correction = std::max(cd.penetration - slop, 0.0f) / invMassSum * percent * cd.collisionNormal;
+	// Apply angular impulses (torque from contact point offset)
+	glm::vec3 torqueA = glm::cross(rA, -impulse);
+	glm::vec3 torqueB = glm::cross(rB, impulse);
+	objA->angularVelocity += objA->invInertiaWorld * torqueA;
+	objB->angularVelocity += objB->invInertiaWorld * torqueB;
+
+	// Positional Correction (prevent penetration drift)
+	const float percent = 0.2f; // Penetration percentage to correct (0-1 range)
+	const float slop = 0.01f; // Penetration allowance before correcting
+	float penetrationCorrection = std::max(cd.penetration - slop, 0.0f);
+	glm::vec3 correction = (penetrationCorrection / invMassSum) * percent * cd.collisionNormal;
 	objA->position -= invMassA * correction;
 	objB->position += invMassB * correction;
-
-	// Angular impulse resolution
-	glm::vec3 rA = cd.contactPoint - objA->position;
-	glm::vec3 rB = cd.contactPointB - objB->position;
-	glm::vec3 angularImpulseA = glm::cross(rA, -impulse);
-	glm::vec3 angularImpulseB = glm::cross(rB, impulse);
-	objA->angularVelocity += objA->invInertiaWorld * angularImpulseA;
-	objB->angularVelocity += objB->invInertiaWorld * angularImpulseB;
-	// The most basic angular impulse resolver. 
-
-	// Apply Friction here (when needed)
-
-	// End.
 }
