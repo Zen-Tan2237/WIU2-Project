@@ -198,7 +198,7 @@ public:
 
 	MatrixStack modelStack, viewStack, projectionStack;
 
-	static const int NUM_LIGHTS = 1;
+	static const int NUM_LIGHTS = 8;
 	Light light[NUM_LIGHTS];
 	bool enableLight;
 };
