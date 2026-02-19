@@ -7,6 +7,9 @@
     <ClCompile Include="Source\AltAzCamera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\BaseScene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="Source\FPCamera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -43,12 +46,24 @@
     <ClCompile Include="Source\SceneTester.cpp">
       <Filter>Scene</Filter>
     </ClCompile>
+    <ClCompile Include="Source\CollisionDetection.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\BoundingBox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\PhysicsObject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\AltAzCamera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Application.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\BaseScene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\FPCamera.h">
@@ -113,5 +128,10 @@
     <Filter Include="Scene">
       <UniqueIdentifier>{dd894fa8-bd4b-4aef-88eb-e2782cc38216}</UniqueIdentifier>
     </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="gtaiv.txt">
+      <Filter>Source Files</Filter>
+    </Text>
   </ItemGroup>
 </Project>

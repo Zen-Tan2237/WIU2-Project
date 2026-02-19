@@ -188,6 +188,9 @@
     <ClInclude Include="Source\shader.hpp" />
     <ClInclude Include="Source\Vertex.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="gtaiv.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

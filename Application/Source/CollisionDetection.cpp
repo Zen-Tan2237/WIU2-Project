@@ -44,6 +44,7 @@ bool OverlapAABBAABB(const PhysicsObject& objA, const PhysicsObject& objB, Colli
 	if (isColliding) {
 		collisionData.collisionNormal = glm::vec3(0.f, 1.f, 0.f); 
 		collisionData.contactPoint = (glm::max(minA, minB) + glm::min(maxA, maxB)) * 0.5f; 
+		collisionData.contactPointB = collisionData.contactPoint; // For AABB vs AABB, the contact point on both objects is the same
 		collisionData.penetration = glm::length(glm::min(maxA, maxB) - glm::max(minA, minB));
 		collisionData.pObjA = const_cast<PhysicsObject*>(&objA);
 		collisionData.pObjB = const_cast<PhysicsObject*>(&objB);
@@ -56,13 +57,13 @@ bool OverlapAABBAABB(const PhysicsObject& objA, const PhysicsObject& objB, Colli
 
 bool OverlapOBBOBB(const PhysicsObject& objA, const PhysicsObject& objB, CollisionData& collisionData)
 {
-	// Implement OBB vs OBB collision detection (To be done IF ABSOLUTELY REQUIRED. idw do quarternions and rotation matrices if not necessary)
+	// Implement OBB vs OBB collision detection (To be done IF ABSOLUTELY REQUIRED.)
 	return false;
 }
 
 bool OverlapOBBAABB(const PhysicsObject& OBB, const PhysicsObject& AABB, CollisionData& collisionData)
 {
-	// Implement OBB vs AABB collision detection
+	// Implement OBB vs AABB collision detection (To be done IF ABSOLUTELY REQUIRED.)
 	return false;
 }
 
@@ -75,7 +76,19 @@ bool OverlapSphereSphere(const PhysicsObject& objA, const PhysicsObject& objB, C
 	float dispZ = objB.position.z - objA.position.z;
 	float dispSquared = (dispX * dispX) + (dispY * dispY) + (dispZ * dispZ);
 
-	return (totalRadiusSquared > dispSquared);
+	bool isColliding = (totalRadiusSquared > dispSquared);
+
+	if (isColliding) {
+		collisionData.collisionNormal = glm::normalize(objB.position - objA.position);
+		collisionData.contactPoint = objA.position + collisionData.collisionNormal * objA.boundingBox.getRadius();
+		collisionData.contactPointB = objB.position - collisionData.collisionNormal * objB.boundingBox.getRadius();
+		collisionData.penetration = (objA.boundingBox.getRadius() + objB.boundingBox.getRadius()) - sqrt(dispSquared);
+		collisionData.pObjA = const_cast<PhysicsObject*>(&objA);
+		collisionData.pObjB = const_cast<PhysicsObject*>(&objB);
+		// Currently Unused
+		collisionData.tangent = glm::normalize(glm::cross(collisionData.collisionNormal, glm::vec3(0.f, 1.f, 0.f)));
+		collisionData.bitangent = glm::normalize(glm::cross(collisionData.collisionNormal, collisionData.tangent));
+	}
 }
 
 bool OverlapAABBSphere(const PhysicsObject& AABB, const PhysicsObject& Sphere, CollisionData& collisionData)
@@ -114,14 +127,46 @@ bool OverlapAABBSphere(const PhysicsObject& AABB, const PhysicsObject& Sphere, C
 
 bool OverlapOBBSphere(const PhysicsObject& OBB, const PhysicsObject& Sphere, CollisionData& collisionData)
 {
-	// Implement OBB vs Sphere collision detection
+	// 1. Get all axes 
+
+
 	return false;
 }
 
-void ResolveCollision(CollisionData& collisionData)
+void ResolveCollision(CollisionData& cd)
 {
-	// Implement collision resolution using the collision data
-
-	// Impulse resolution with restitution
+	// Impulse based collision resolution with restitution and positional correction
+	PhysicsObject* objA = cd.pObjA;
+	PhysicsObject* objB = cd.pObjB;
+	glm::vec3 relativeVelocity = objB->velocity - objA->velocity;
+	glm::vec3 velAlongNormal = glm::dot(relativeVelocity, cd.collisionNormal) * cd.collisionNormal;
+	if (glm::dot(velAlongNormal, cd.collisionNormal) > 0) {
+		return;
+	}
+	// Calculate restitution (bounciness)
+	float e = std::min(objA->bounciness, objB->bounciness);
+	float j = -(1 + e) * glm::dot(relativeVelocity, cd.collisionNormal);
 	
+	// prepare inverse mass for impulse calculation
+	float invMassA = (objA->mass > 0.f) ? 1.f / objA->mass : 0.f;
+	float invMassB = (objB->mass > 0.f) ? 1.f / objB->mass : 0.f;
+	float invMassSum = invMassA + invMassB;
+
+	// Impluse calculation
+	glm::vec3 impulse = (j / invMassSum) * cd.collisionNormal;
+	objA->AddImpulse(-impulse);
+	objB->AddImpulse(impulse);
+
+	// Positional Correction
+	const float percent = 0.2f; // Penetration percentage to correct
+	const float slop = 0.01f; // Penetration allowance
+	glm::vec3 correction = std::max(cd.penetration - slop, 0.0f) / invMassSum * percent * cd.collisionNormal;
+	objA->position -= invMassA * correction;
+	objB->position += invMassB * correction;
+
+	// Angular impulse resolution
+
+	// Apply Friction here (when needed)
+
+	// End.
 }
