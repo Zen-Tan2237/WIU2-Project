@@ -7,6 +7,7 @@
 #include "MatrixStack.h"
 #include "Light.h"
 #include "FPCamera.h"
+#include <vector> // added
 
 class BaseScene : public Scene
 {
@@ -22,14 +23,6 @@ public:
 		GEO_FRONT,
 		GEO_BACK,
 		//objects
-		GEO_SPHERE,
-		GEO_CUBE,
-		GEO_PLANE,
-		GEO_GUI_QUAD,
-		GEO_DOORMAN,
-		GEO_MODEL_MTL1,
-		GEO_MODEL_MTL2,
-		GEO_TEXT,
 		NUM_GEOMETRY,
 	};
 
@@ -171,7 +164,7 @@ public:
 
 	void setCameraOrigin(glm::vec3 position, glm::vec3 target, glm::vec3 up);
 	unsigned m_vertexArrayID;
-	Mesh* meshList[NUM_GEOMETRY];
+	std::vector<Mesh*> meshList;
 
 	unsigned m_programID;
 	unsigned m_parameters[U_TOTAL];

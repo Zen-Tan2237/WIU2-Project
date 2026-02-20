@@ -143,8 +143,8 @@ void Application::Init()
 void Application::Run()
 {
 	//Main Loop
-	Scene* scene1 = new SceneTester(); 
-	Scene* scene2 = new SceneFPCamera();
+	Scene* scene1 = new SceneFPCamera(); 
+	Scene* scene2 = new SceneHub();
 	/*Scene* scene3 = new Scene3();
 	Scene* scene4 = new Scene4();
 	Scene* scene5 = new Scene5();*/
@@ -157,25 +157,26 @@ void Application::Run()
 	while (!glfwWindowShouldClose(m_window) && !IsKeyPressed(VK_ESCAPE))
 	{
 		//change stuff later (scene switching)
-		//if (!isEnterUp && KeyboardController::GetInstance() -> IsKeyDown(GLFW_KEY_ENTER)) {
-		//	if (sceneNum == SCENE1) {
-		//		scene1->Exit(); // Ensure you exit previous screen and remove the previous shader
-		//		scene2->Init(); // Initialise the next screen
-		//		scene = scene2;
-		//		sceneNum = SCENE_GUI;
-		//	}
-		//	else if (sceneNum == SCENE_GUI) {
-		//		scene2->Exit();
-		//		scene1->Init();
-		//		scene = scene1;
-		//		sceneNum = SCENE_MODEL;
-		//	}
-		//	isEnterUp = true;
-		//}
-		//else if (isEnterUp && KeyboardController::GetInstance() -> IsKeyUp(GLFW_KEY_ENTER)) //change later
-		//{
-		//	isEnterUp = false;
-		//}
+		if (!isEnterUp && KeyboardController::GetInstance() -> IsKeyDown(GLFW_KEY_ENTER)) {
+			if (sceneNum == SCENE1) {
+				scene1->Exit(); // Ensure you exit previous screen and remove the previous shader
+				scene2->Init(); // Initialise the next screen
+				scene = scene2;
+				sceneNum = SCENE2;
+			}
+			else if (sceneNum == SCENE2) {
+				scene2->Exit();
+				scene1->Init();
+				scene = scene1;
+				sceneNum = SCENE1;
+			}
+
+			isEnterUp = true;
+		}
+		else if (isEnterUp && KeyboardController::GetInstance() -> IsKeyUp(GLFW_KEY_ENTER)) //change later
+		{
+			isEnterUp = false;
+		}
 
 		scene->Update(m_timer.getElapsedTime());
 		scene->Render();
