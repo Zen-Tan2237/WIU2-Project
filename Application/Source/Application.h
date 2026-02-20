@@ -3,6 +3,7 @@
 #define APPLICATION_H
 
 #include "timer.h"
+#include "..\include\miniaudio.h"
 
 class Application
 {
@@ -35,6 +36,7 @@ private:
 	SCENE_NUM sceneNum;
 	bool isEnterUp = false;
 
+	ma_engine audioEngine;
 };
 
 #endif
