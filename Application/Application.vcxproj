@@ -170,6 +170,7 @@
     <ClCompile Include="Source\shader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="audio.h" />
     <ClInclude Include="include\miniaudio.h" />
     <ClInclude Include="Source\AltAzCamera.h" />
     <ClInclude Include="Source\Application.h" />

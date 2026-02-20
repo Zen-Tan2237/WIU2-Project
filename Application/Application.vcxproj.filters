@@ -61,6 +61,9 @@
     <ClCompile Include="Source\SceneHub.cpp">
       <Filter>Scene</Filter>
     </ClCompile>
+    <ClCompile Include="Source\audio.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\AltAzCamera.h">
@@ -131,6 +134,9 @@
     </ClInclude>
     <ClInclude Include="Source\SceneHub.h">
       <Filter>Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="audio.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
