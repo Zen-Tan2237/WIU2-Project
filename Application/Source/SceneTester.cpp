@@ -16,8 +16,11 @@
 #include "MeshBuilder.h"
 #include "KeyboardController.h"
 #include "MouseController.h"
+#include "audio.h"
 #include "LoadTGA.h"
 #include "CollisionDetection.h"
+
+ma_sound pop;
 
 SceneTester::SceneTester()
 {
@@ -163,6 +166,14 @@ void SceneTester::Init()
 
 	player.InitPhysicsObject(camera.position, 0.f, BoundingBox::Type::OBB, glm::vec3(0.5f, 5.f, 0.5f), miscSettings);
 
+	// init sound pop
+	ma_result result;
+	result = ma_sound_init_from_file(Audio_GetEngine(),
+		"SFX/244657__dsg__pop-5.flac",
+		0, NULL, NULL, &pop);
+	if (result != MA_SUCCESS) {
+		std::cout << "Error loading sound" << std::endl; // error cout
+	}
 }
 
 void SceneTester::Update(double dt)
@@ -181,6 +192,10 @@ void SceneTester::Update(double dt)
 		light[0].position.y -= static_cast<float>(dt) * 5.f;
 	if (KeyboardController::GetInstance()->IsKeyDown('P'))
 		light[0].position.y += static_cast<float>(dt) * 5.f;
+	if (KeyboardController::GetInstance()->IsKeyPressed('Y')) { // test key to play pop sound
+		ma_sound_seek_to_pcm_frame(&pop, 0);
+		ma_sound_start(&pop);
+	}
 
 	// CAMERA BOBBING
 	camera.position -= previousBobOffset;
@@ -454,6 +469,8 @@ void SceneTester::Exit()
 	}
 	glDeleteVertexArrays(1, &m_vertexArrayID);
 	glDeleteProgram(m_programID);
+
+	ma_sound_uninit(&pop);
 }
 
 void SceneTester::HandleKeyPress()
