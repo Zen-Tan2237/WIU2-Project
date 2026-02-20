@@ -173,6 +173,52 @@ void Application::Run()
 				sceneNum = SCENE1;
 			}
 
+			////uncomment after game properly implemented
+			//if (scene->nextScene != 0)
+			//{
+			//	switch (scene->nextScene)
+			//	{
+			//	case 1:
+			//		scene->Exit();
+
+			//		scene1->Init();
+			//		scene = scene1;
+			//		break;
+
+			//	case 2:
+			//		scene->Exit();
+
+			//		scene1->Init();
+			//		scene = scene2;
+			//		break;
+
+			//	case 3:
+			//		scene->Exit();
+
+			//		scene1->Init();
+			//		scene = scene3;
+			//		break;
+
+			//	case 4:
+			//		scene->Exit();
+
+			//		scene1->Init();
+			//		scene = scene4;
+			//		break;
+
+			//	case 5:
+			//		scene->Exit();
+
+			//		scene1->Init();
+			//		scene = scene5;
+			//		break;
+
+			//	default:
+			//		scene->nextScene = 0;
+			//		break;
+			//	}
+			//}
+
 			isEnterUp = true;
 		}
 		else if (isEnterUp && KeyboardController::GetInstance() -> IsKeyUp(GLFW_KEY_ENTER)) //change later
