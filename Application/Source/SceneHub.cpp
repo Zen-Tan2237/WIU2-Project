@@ -25,6 +25,7 @@ void SceneHub::Init()
 {
 	BaseScene::Init();
 
+	//light
 	{
 		light[0].position = glm::vec3(0, 5, 0);
 		light[0].color = glm::vec3(1, 1, 1);
@@ -122,7 +123,6 @@ void SceneHub::Init()
 		light[7].exponent = 3.f;
 		light[7].spotDirection = glm::vec3(0.f, 1.f, 0.f);
 	}
-
 	{
 		glUniform3fv(m_parameters[U_LIGHT0_COLOR], 1, &light[0].color.r);
 		glUniform1i(m_parameters[U_LIGHT0_TYPE], light[0].type);
@@ -234,7 +234,6 @@ void SceneHub::Render()
 
 	{
 		PushPop stall(modelStack);
-		
 		modelStack.Translate(0, 0, 0);
 		modelStack.Scale(10.1f, 10.1f, 10.1f);
 		meshList_hub[GEO_STALL]->material.kAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
