@@ -22,14 +22,6 @@ public:
 		GEO_FRONT,
 		GEO_BACK,
 		//objects
-		GEO_SPHERE,
-		GEO_CUBE,
-		GEO_PLANE,
-		GEO_GUI_QUAD,
-		GEO_DOORMAN,
-		GEO_MODEL_MTL1,
-		GEO_MODEL_MTL2,
-		GEO_TEXT,
 		NUM_GEOMETRY,
 	};
 

@@ -5,6 +5,7 @@
 class SceneHub : public BaseScene
 {
 public:
+
 	SceneHub();
 	~SceneHub();
 	void Init() override;
