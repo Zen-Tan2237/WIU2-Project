@@ -1,5 +1,5 @@
 #pragma once
-#include "include\miniaudio.h"
+#include "..\include\miniaudio.h"
 
 // initialize and shutdown
 bool Audio_Init();

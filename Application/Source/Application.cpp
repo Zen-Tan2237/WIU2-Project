@@ -17,7 +17,7 @@
 
 #include "KeyboardController.h"
 #include "MouseController.h"
-#include "../audio.h"
+#include "audio.h"
 
 //debug
 #include "SceneTester.h"
