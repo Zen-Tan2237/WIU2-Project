@@ -11,6 +11,7 @@
 
 static const int TOTAL_INTERACTIVES = 100;
 static const int TOTAL_PICKABLES = 10;
+static const int TOTAL_LIGHTS = 8;
 
 class BaseScene : public Scene
 {
@@ -18,13 +19,6 @@ public:
 	enum GEOMETRY_TYPE
 	{
 		GEO_AXES,
-		GEO_SPHERE,
-		GEO_CUBE,
-		GEO_PLANE,
-		GEO_GUI_QUAD,
-		GEO_DOORMAN,
-		GEO_MODEL_MTL1,
-		GEO_MODEL_MTL2,
 
 		// SKYBOX
 		GEO_FRONT,
@@ -50,7 +44,8 @@ public:
 		GEO_HOMEVIDEOBOLD_FONT,
 		GEO_VCROSDMONO_FONT,
 
-		//GEO_TEXT,
+		//debug
+
 		NUM_GEOMETRY,
 	};
 
@@ -189,6 +184,7 @@ public:
 	void RenderText(Mesh* mesh, std::string text, glm::vec3 color);
 	void RenderTextOnScreen(Mesh* mesh, std::string text, glm::vec3 color, float size, float x, float y, char alignment, float spacingPercentage);
 	void RenderSkybox();
+	void RenderUI();
 
 	void setCameraOrigin(glm::vec3 position, glm::vec3 target, glm::vec3 up);
 
@@ -249,8 +245,8 @@ public:
 
 	MatrixStack modelStack, viewStack, projectionStack;
 
-	static const int NUM_LIGHTS = 8;
-	Light light[NUM_LIGHTS];
+	
+	Light light[TOTAL_LIGHTS];
 	bool enableLight;
 };
 
