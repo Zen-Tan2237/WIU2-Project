@@ -50,8 +50,17 @@ void PhysicsObject::UpdatePhysics(double dt) {
 	// No time has passed, no need to update
 	if (fdt <= 0.f) return;
 
+	// update inertia tensors based on current orientation
+	UpdateInertiaTensors();
+
 	// Warp orientation
 	orientation = glm::normalize(orientation);
+
+	// Important params
+	const float Drag = 0.5f; // Drag coefficient (tunable)
+	const float AngularDrag = 0.5f; // Angular drag coefficient (tunable)
+	const float SpeedThreshold = 0.01f; // Threshold below which we consider the object to be at rest
+	const float AngularSpeedThreshold = 0.01f; // Threshold below which we consider the object to be at rest in terms of rotation
 
 	// If gravity is enabled, apply it as a force
 	if (GravityEnabled) {
@@ -59,33 +68,40 @@ void PhysicsObject::UpdatePhysics(double dt) {
 		totalForces += gravityForce * mass;
 	}
 
-	// Important params
-	const float Drag = 0.5f; // Drag coefficient (tunable)
-	const float SpeedThreshold = 0.01f; // Threshold below which we consider the object to be at rest
-
-	// If drag is enabled, apply it as a force opposite to velocity
-	if (mass > 0) {
-		acceleration = totalForces * (1.f / mass);
-	}
-
-	// If drag is enabled, apply it as a force opposite to velocity
+	// If drag is enabled, apply it as a force opposite to the velocity
 	if (DragEnabled) {
 		glm::vec3 dragForce = -Drag * velocity;
 		totalForces += dragForce;
 		acceleration += dragForce * (1.f / mass);
 	}
 
+	// Apply angular drag
+	glm::vec3 angularDragTorque = -AngularDrag * angularVelocity;
+	totalTorque += angularDragTorque;
+
+	// Apply acceleration from forces
+	if (mass > 0) {
+		acceleration = totalForces * (1.f / mass);
+	}
+
+	// Apply angular acceleration from torque
+	glm::vec3 angularAcceleration = invInertiaWorld * totalTorque;
+	angularVelocity += angularAcceleration * fdt;
+
+
 	// apply angular velocity to orientation
 	orientation += 0.5f * glm::quat(0.f, angularVelocity) * orientation * fdt;
+
+	// Semi-implicit Euler integration for linear motion
+	velocity += acceleration * fdt;
+	position += velocity * fdt;
+
 
 	// Snap to 0 velocity if below threshold to prevent jitter
 	if (glm::length(velocity) < SpeedThreshold) {
 		velocity = glm::vec3(0.f);
 	}
 
-	// Semi-implicit Euler integration for linear motion
-	velocity += acceleration * fdt;
-	position += velocity * fdt;
 
 	// Reset forces and torque for the next frame
 	ForcesSetZero();    
