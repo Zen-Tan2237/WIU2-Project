@@ -5,12 +5,11 @@
 class SceneHub : public BaseScene
 {
 public:
-    enum HUB_GEOMETRY_TYPE
+    enum GEOMETRY_TYPE_HUB
     {
-        BOX = BaseScene::NUM_GEOMETRY,
         GEO_STALL,
-        HUB_NUM_GEOMETRY // sentinel: equals BaseScene::NUM_GEOMETRY + number_of_hub_items
-    };
+        NUM_GEOMETRY,
+	};
 
     SceneHub();
     ~SceneHub();
@@ -18,6 +17,9 @@ public:
     void Update(double dt) override;
     void Render() override;
     void Exit() override;
+
+	Mesh* meshList_hub[NUM_GEOMETRY];
+
 };
 #endif
 

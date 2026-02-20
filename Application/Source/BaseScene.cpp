@@ -217,187 +217,9 @@ void BaseScene::Init()
 	projectionStack.LoadMatrix(projection);
 
 
-	glUniform1i(m_parameters[U_NUMLIGHTS], 2);
+	glUniform1i(m_parameters[U_NUMLIGHTS], TOTAL_LIGHTS);
 
-	{
-		light[0].position = glm::vec3(0, 5, 0);
-		light[0].color = glm::vec3(1, 1, 1);
-		light[0].type = Light::POINT;
-		light[0].power = 1;
-		light[0].kC = 1.f;
-		light[0].kL = 0.01f;
-		light[0].kQ = 0.001f;
-		light[0].cosCutoff = 45.f;
-		light[0].cosInner = 30.f;
-		light[0].exponent = 3.f;
-		light[0].spotDirection = glm::vec3(0.f, 1.f, 0.f);
-
-		light[1].position = glm::vec3(0, 5, 0);
-		light[1].color = glm::vec3(1, 1, 1);
-		light[1].type = Light::POINT;
-		light[1].power = 1;
-		light[1].kC = 1.f;
-		light[1].kL = 0.01f;
-		light[1].kQ = 0.001f;
-		light[1].cosCutoff = 45.f;
-		light[1].cosInner = 30.f;
-		light[1].exponent = 3.f;
-		light[1].spotDirection = glm::vec3(0.f, 1.f, 0.f);
-
-		light[2].position = glm::vec3(0, 5, 0);
-		light[2].color = glm::vec3(1, 1, 1);
-		light[2].type = Light::POINT;
-		light[2].power = 1;
-		light[2].kC = 1.f;
-		light[2].kL = 0.01f;
-		light[2].kQ = 0.001f;
-		light[2].cosCutoff = 45.f;
-		light[2].cosInner = 30.f;
-		light[2].exponent = 3.f;
-		light[2].spotDirection = glm::vec3(0.f, 1.f, 0.f);
-
-		light[3].position = glm::vec3(0, 5, 0);
-		light[3].color = glm::vec3(1, 1, 1);
-		light[3].type = Light::POINT;
-		light[3].power = 1;
-		light[3].kC = 1.f;
-		light[3].kL = 0.01f;
-		light[3].kQ = 0.001f;
-		light[3].cosCutoff = 45.f;
-		light[3].cosInner = 30.f;
-		light[3].exponent = 3.f;
-		light[3].spotDirection = glm::vec3(0.f, 1.f, 0.f);
-
-		light[4].position = glm::vec3(0, 5, 0);
-		light[4].color = glm::vec3(1, 1, 1);
-		light[4].type = Light::POINT;
-		light[4].power = 1;
-		light[4].kC = 1.f;
-		light[4].kL = 0.01f;
-		light[4].kQ = 0.001f;
-		light[4].cosCutoff = 45.f;
-		light[4].cosInner = 30.f;
-		light[4].exponent = 3.f;
-		light[4].spotDirection = glm::vec3(0.f, 1.f, 0.f);
-
-		light[5].position = glm::vec3(0, 5, 0);
-		light[5].color = glm::vec3(1, 1, 1);
-		light[5].type = Light::POINT;
-		light[5].power = 1;
-		light[5].kC = 1.f;
-		light[5].kL = 0.01f;
-		light[5].kQ = 0.001f;
-		light[5].cosCutoff = 45.f;
-		light[5].cosInner = 30.f;
-		light[5].exponent = 3.f;
-		light[5].spotDirection = glm::vec3(0.f, 1.f, 0.f);
-
-		light[6].position = glm::vec3(0, 5, 0);
-		light[6].color = glm::vec3(1, 1, 1);
-		light[6].type = Light::POINT;
-		light[6].power = 1;
-		light[6].kC = 1.f;
-		light[6].kL = 0.01f;
-		light[6].kQ = 0.001f;
-		light[6].cosCutoff = 45.f;
-		light[6].cosInner = 30.f;
-		light[6].exponent = 3.f;
-		light[6].spotDirection = glm::vec3(0.f, 1.f, 0.f);
-
-		light[7].position = glm::vec3(0, 5, 0);
-		light[7].color = glm::vec3(1, 1, 1);
-		light[7].type = Light::POINT;
-		light[7].power = 1;
-		light[7].kC = 1.f;
-		light[7].kL = 0.01f;
-		light[7].kQ = 0.001f;
-		light[7].cosCutoff = 45.f;
-		light[7].cosInner = 30.f;
-		light[7].exponent = 3.f;
-		light[7].spotDirection = glm::vec3(0.f, 1.f, 0.f);
-	}
-
-	{
-		glUniform3fv(m_parameters[U_LIGHT0_COLOR], 1, &light[0].color.r);
-		glUniform1i(m_parameters[U_LIGHT0_TYPE], light[0].type);
-		glUniform1f(m_parameters[U_LIGHT0_POWER], light[0].power);
-		glUniform1f(m_parameters[U_LIGHT0_KC], light[0].kC);
-		glUniform1f(m_parameters[U_LIGHT0_KL], light[0].kL);
-		glUniform1f(m_parameters[U_LIGHT0_KQ], light[0].kQ);
-		glUniform1f(m_parameters[U_LIGHT0_COSCUTOFF], cosf(glm::radians<float>(light[0].cosCutoff)));
-		glUniform1f(m_parameters[U_LIGHT0_COSINNER], cosf(glm::radians<float>(light[0].cosInner)));
-		glUniform1f(m_parameters[U_LIGHT0_EXPONENT], light[0].exponent);
-
-		glUniform3fv(m_parameters[U_LIGHT1_COLOR], 1, &light[1].color.r);
-		glUniform1i(m_parameters[U_LIGHT1_TYPE], light[1].type);
-		glUniform1f(m_parameters[U_LIGHT1_POWER], light[1].power);
-		glUniform1f(m_parameters[U_LIGHT1_KC], light[1].kC);
-		glUniform1f(m_parameters[U_LIGHT1_KL], light[1].kL);
-		glUniform1f(m_parameters[U_LIGHT1_KQ], light[1].kQ);
-		glUniform1f(m_parameters[U_LIGHT1_COSCUTOFF], cosf(glm::radians<float>(light[1].cosCutoff)));
-		glUniform1f(m_parameters[U_LIGHT1_COSINNER], cosf(glm::radians<float>(light[1].cosInner)));
-		glUniform1f(m_parameters[U_LIGHT1_EXPONENT], light[1].exponent);
-
-		glUniform3fv(m_parameters[U_LIGHT2_COLOR], 1, &light[2].color.r);
-		glUniform1i(m_parameters[U_LIGHT2_TYPE], light[2].type);
-		glUniform1f(m_parameters[U_LIGHT2_POWER], light[2].power);
-		glUniform1f(m_parameters[U_LIGHT2_KC], light[2].kC);
-		glUniform1f(m_parameters[U_LIGHT2_KL], light[2].kL);
-		glUniform1f(m_parameters[U_LIGHT2_KQ], light[2].kQ);
-		glUniform1f(m_parameters[U_LIGHT2_COSCUTOFF], cosf(glm::radians<float>(light[2].cosCutoff)));
-		glUniform1f(m_parameters[U_LIGHT2_COSINNER], cosf(glm::radians<float>(light[2].cosInner)));
-		glUniform1f(m_parameters[U_LIGHT2_EXPONENT], light[2].exponent);
-
-		glUniform3fv(m_parameters[U_LIGHT3_COLOR], 1, &light[3].color.r);
-		glUniform1i(m_parameters[U_LIGHT3_TYPE], light[3].type);
-		glUniform1f(m_parameters[U_LIGHT3_POWER], light[3].power);
-		glUniform1f(m_parameters[U_LIGHT3_KC], light[3].kC);
-		glUniform1f(m_parameters[U_LIGHT3_KL], light[3].kL);
-		glUniform1f(m_parameters[U_LIGHT3_KQ], light[3].kQ);
-		glUniform1f(m_parameters[U_LIGHT3_COSCUTOFF], cosf(glm::radians<float>(light[3].cosCutoff)));
-		glUniform1f(m_parameters[U_LIGHT3_COSINNER], cosf(glm::radians<float>(light[3].cosInner)));
-		glUniform1f(m_parameters[U_LIGHT3_EXPONENT], light[3].exponent);
-
-		glUniform3fv(m_parameters[U_LIGHT4_COLOR], 1, &light[4].color.r);
-		glUniform1i(m_parameters[U_LIGHT4_TYPE], light[4].type);
-		glUniform1f(m_parameters[U_LIGHT4_POWER], light[4].power);
-		glUniform1f(m_parameters[U_LIGHT4_KC], light[4].kC);
-		glUniform1f(m_parameters[U_LIGHT4_KL], light[4].kL);
-		glUniform1f(m_parameters[U_LIGHT4_KQ], light[4].kQ);
-		glUniform1f(m_parameters[U_LIGHT4_COSCUTOFF], cosf(glm::radians<float>(light[4].cosCutoff)));
-		glUniform1f(m_parameters[U_LIGHT4_COSINNER], cosf(glm::radians<float>(light[4].cosInner)));
-		glUniform1f(m_parameters[U_LIGHT4_EXPONENT], light[4].exponent);
-
-		glUniform3fv(m_parameters[U_LIGHT5_COLOR], 1, &light[5].color.r);
-		glUniform1i(m_parameters[U_LIGHT5_TYPE], light[5].type);
-		glUniform1f(m_parameters[U_LIGHT5_POWER], light[5].power);
-		glUniform1f(m_parameters[U_LIGHT5_KC], light[5].kC);
-		glUniform1f(m_parameters[U_LIGHT5_KL], light[5].kL);
-		glUniform1f(m_parameters[U_LIGHT5_KQ], light[5].kQ);
-		glUniform1f(m_parameters[U_LIGHT5_COSCUTOFF], cosf(glm::radians<float>(light[5].cosCutoff)));
-		glUniform1f(m_parameters[U_LIGHT5_COSINNER], cosf(glm::radians<float>(light[5].cosInner)));
-		glUniform1f(m_parameters[U_LIGHT5_EXPONENT], light[5].exponent);
-
-		glUniform3fv(m_parameters[U_LIGHT6_COLOR], 1, &light[6].color.r);
-		glUniform1i(m_parameters[U_LIGHT6_TYPE], light[6].type);
-		glUniform1f(m_parameters[U_LIGHT6_POWER], light[6].power);
-		glUniform1f(m_parameters[U_LIGHT6_KC], light[6].kC);
-		glUniform1f(m_parameters[U_LIGHT6_KL], light[6].kL);
-		glUniform1f(m_parameters[U_LIGHT6_KQ], light[6].kQ);
-		glUniform1f(m_parameters[U_LIGHT6_COSCUTOFF], cosf(glm::radians<float>(light[6].cosCutoff)));
-		glUniform1f(m_parameters[U_LIGHT6_COSINNER], cosf(glm::radians<float>(light[6].cosInner)));
-		glUniform1f(m_parameters[U_LIGHT6_EXPONENT], light[6].exponent);
-
-		glUniform3fv(m_parameters[U_LIGHT7_COLOR], 1, &light[7].color.r);
-		glUniform1i(m_parameters[U_LIGHT7_TYPE], light[7].type);
-		glUniform1f(m_parameters[U_LIGHT7_POWER], light[7].power);
-		glUniform1f(m_parameters[U_LIGHT7_KC], light[7].kC);
-		glUniform1f(m_parameters[U_LIGHT7_KL], light[7].kL);
-		glUniform1f(m_parameters[U_LIGHT7_KQ], light[7].kQ);
-		glUniform1f(m_parameters[U_LIGHT7_COSCUTOFF], cosf(glm::radians<float>(light[7].cosCutoff)));
-		glUniform1f(m_parameters[U_LIGHT7_COSINNER], cosf(glm::radians<float>(light[7].cosInner)));
-		glUniform1f(m_parameters[U_LIGHT7_EXPONENT], light[7].exponent);
-	}
+	
 	enableLight = true;
 
 	// INTERACTIVES
@@ -481,17 +303,6 @@ void BaseScene::Update(double dt)
 	float temp = 1.f / dt;
 	fps = glm::round(temp * 100.f) / 100.f;
 
-	resetInteractives();
-	addInteractives("Chicken", 'I', glm::vec3(1, 0, 0));
-	addInteractives("Chicken1", 'I', glm::vec3(-1, 0, 0));
-	addInteractives("Chicken2", 'I', glm::vec3(0, 0, 1));
-	addInteractives("Chicken3", 'I', glm::vec3(0, 0, -1));
-
-	//addPickables("Pork", glm::vec3(0, 0, 0));
-	initializePickablesInteractives();
-	getClosestInteractive();
-
-	//
 
 	float t1 = 1.f - std::exp(-5 * dt);
 	float t2 = 1.f - std::exp(-10 * dt);
@@ -676,12 +487,12 @@ void BaseScene::Render()
 			RenderMeshOnScreen(meshList[GEO_INTERACTFADE_GUI], interactGUI_positionOffset.x, interactGUI_positionOffset.y, 1600, 900);
 			RenderTextOnScreen(meshList[GEO_VCROSDMONO_FONT], interactives[interactedIndex], glm::vec3(1, 1, 1), 20, 410 + interactGUI_positionOffset.x * 1.5f, -10 + interactGUI_positionOffset.y, 'R', .6f);
 
-			if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_E))
+			if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_SPACE))
 			{
-				RenderTextOnScreen(meshList[GEO_HOMEVIDEOBOLD_FONT], "[E]", glm::vec3(109 / 255.f, 41 / 255.f, 34 / 255.f), 26, 440 + interactGUI_positionOffset.x, -13 + interactGUI_positionOffset.y, 'L', .6f);
+				RenderTextOnScreen(meshList[GEO_HOMEVIDEOBOLD_FONT], "[SPACE]", glm::vec3(109 / 255.f, 41 / 255.f, 34 / 255.f), 26, 440 + interactGUI_positionOffset.x, -13 + interactGUI_positionOffset.y, 'L', .6f);
 			}
 			else {
-				RenderTextOnScreen(meshList[GEO_HOMEVIDEO_FONT], "[E]", glm::vec3(109 / 255.f, 41 / 255.f, 34 / 255.f), 26, 440 + interactGUI_positionOffset.x, -13 + interactGUI_positionOffset.y, 'L', .6f);
+				RenderTextOnScreen(meshList[GEO_HOMEVIDEO_FONT], "[SPACE]", glm::vec3(109 / 255.f, 41 / 255.f, 34 / 255.f), 26, 440 + interactGUI_positionOffset.x, -13 + interactGUI_positionOffset.y, 'L', .6f);
 			}
 		}
 
@@ -782,10 +593,7 @@ void BaseScene::RenderMesh(Mesh* mesh, bool enableLight)
 	{
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
-
-
 }
-
 
 void BaseScene::Exit()
 {
@@ -1091,6 +899,7 @@ void BaseScene::addInteractives(std::string name, char type, glm::vec3 position)
 	else {
 		//std::cout << "[INTERACTIVES] Insufficient space. Operation failed" << std::endl;
 	}
+	std::cout << "nig\n";
 }
 
 void BaseScene::addPickables(std::string name, glm::vec3 position)
