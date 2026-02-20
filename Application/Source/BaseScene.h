@@ -9,20 +9,43 @@
 #include "FPCamera.h"
 #include <vector> // added
 
+static const int TOTAL_INTERACTIVES = 100;
+static const int TOTAL_PICKABLES = 10;
+static const int TOTAL_LIGHTS = 8;
+
 class BaseScene : public Scene
 {
 public:
 	enum GEOMETRY_TYPE
 	{
 		GEO_AXES,
-		//skybox
+
+		// SKYBOX
+		GEO_FRONT,
+		GEO_BACK,
 		GEO_LEFT,
 		GEO_RIGHT,
 		GEO_TOP,
 		GEO_BOTTOM,
-		GEO_FRONT,
-		GEO_BACK,
-		//objects
+
+		// GUI
+		GEO_MENU_GUI,
+		GEO_SWITCHSCENE_GUI,
+		GEO_INTERACTFADE_GUI,
+
+		// EUI
+		GEO_INTERACT_EUI,
+		GEO_INTERACTED_EUI,
+
+		// FONTS
+		GEO_CARNIVALEEFREAKSHOW_FONT,
+		GEO_SATOSHIREGULAR_FONT,
+		GEO_HOMEVIDEO_FONT,
+		GEO_HOMEVIDEOBOLD_FONT,
+		GEO_VCROSDMONO_FONT,
+
+		//debug
+
 		NUM_GEOMETRY,
 	};
 
@@ -161,10 +184,19 @@ public:
 	void RenderText(Mesh* mesh, std::string text, glm::vec3 color);
 	void RenderTextOnScreen(Mesh* mesh, std::string text, glm::vec3 color, float size, float x, float y, char alignment, float spacingPercentage);
 	void RenderSkybox();
+	void RenderUI();
 
 	void setCameraOrigin(glm::vec3 position, glm::vec3 target, glm::vec3 up);
+
+	void resetInteractives();
+	void addInteractives(std::string name, char type, glm::vec3 position);
+	void addPickables(std::string name, glm::vec3 position);
+	void removePickables(std::string name);
+	void initializePickablesInteractives();
+	void getClosestInteractive();
+
 	unsigned m_vertexArrayID;
-	std::vector<Mesh*> meshList;
+	Mesh* meshList[NUM_GEOMETRY];
 
 	unsigned m_programID;
 	unsigned m_parameters[U_TOTAL];
@@ -175,7 +207,7 @@ public:
 	FPCamera camera;
 	glm::vec3 cameraOriginPosition;
 	glm::vec3 cameraOriginTarget;
-	glm::vec3 cameraOriginUp;	
+	glm::vec3 cameraOriginUp;
 	float bobAmplitudeVertical = 0.035f;
 	float bobAmplitudeHorizontal = 0.025f;
 	float bobFrequency = 6.0f;
@@ -185,13 +217,36 @@ public:
 
 	glm::vec3 currentPlayerPosition, previousPlayerPosition;
 	glm::vec3 previousBobOffset = glm::vec3(0.0f);
+	//
+
+	// INTERACTIVES
+	int noOfInteractives;
+
+	std::string interactives[TOTAL_INTERACTIVES];
+	char interactivesType[TOTAL_INTERACTIVES];
+	glm::vec3 interactivesPos[TOTAL_INTERACTIVES];
+
+	int interactedIndexes[TOTAL_INTERACTIVES];
+	int interactedIndex;
+	int previousInteractedIndex;
+
+	int noOfPickables;
+	std::string pickables[TOTAL_PICKABLES];
+	glm::vec3 pickablesPos[TOTAL_PICKABLES];
+
+	float interactedEUI_scale;
+	float interactedEUI_targetScale;
+
+	glm::vec2 interactGUI_positionOffset;
+	glm::vec2 interactGUI_targetPositionOffset;
+	//
 
 	int projType = 1; // fix to 0 for orthographic, 1 for projection
 
 	MatrixStack modelStack, viewStack, projectionStack;
 
-	static const int NUM_LIGHTS = 8;
-	Light light[NUM_LIGHTS];
+	
+	Light light[TOTAL_LIGHTS];
 	bool enableLight;
 };
 

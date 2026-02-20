@@ -162,6 +162,7 @@ void SceneTester::Init()
 	floor.InitPhysicsObject(glm::vec3(0, 0, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(100, 5, 100), 0, glm::vec3(1, 1, 1), miscSettings);
 
 	player.InitPhysicsObject(camera.position, 0.f, BoundingBox::Type::OBB, glm::vec3(0.5f, 5.f, 0.5f), miscSettings);
+
 }
 
 void SceneTester::Update(double dt)
