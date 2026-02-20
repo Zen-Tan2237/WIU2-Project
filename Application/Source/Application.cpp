@@ -14,8 +14,10 @@
 #include "SceneHub.h"
 #include "SceneTiltingTable.h"
 #include "SceneFPCamera.h"
+
 #include "KeyboardController.h"
 #include "MouseController.h"
+#include "../audio.h"
 
 //debug
 #include "SceneTester.h"
@@ -137,13 +139,7 @@ void Application::Init()
 		//return -1;
 	}
 
-	ma_result result;
-	result = ma_engine_init(NULL, &audioEngine);
-	if (result != MA_SUCCESS)
-	{
-		return;
-	}
-
+	Audio_Init();
 }
 
 void Application::Run()
@@ -151,11 +147,11 @@ void Application::Run()
 	//Main Loop
 	Scene* scene1 = new SceneHub(); 
 	Scene* scene2 = new SceneHub();
-	/*Scene* scene3 = new Scene3();
-	Scene* scene4 = new Scene4();
+	Scene* scene3 = new SceneTester();
+	/*Scene* scene4 = new Scene4();
 	Scene* scene5 = new Scene5();*/
 	
-	Scene* scene = scene1;
+	Scene* scene = scene3;
 	scene->Init();
 
 
@@ -261,7 +257,7 @@ void Application::Exit()
 {
 	KeyboardController::DestroyInstance();
 
-	ma_engine_uninit(&audioEngine);
+	Audio_Shutdown();
 
 	//Close OpenGL window and terminate GLFW
 	glfwDestroyWindow(m_window);

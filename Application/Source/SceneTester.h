@@ -1,5 +1,6 @@
 //comments
 //currently testing shooting ball to a wall
+//currently testing sound effects
 //guide: space key to shoot ball in camera direction
 
 #ifndef SCENE_TESTER_H
