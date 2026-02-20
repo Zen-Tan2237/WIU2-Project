@@ -11,6 +11,7 @@
 #include "SceneHub.h"
 #include "MeshBuilder.h"
 #include <iostream>
+#include "LoadTGA.h"
 
 SceneHub::SceneHub()
 {
@@ -22,6 +23,8 @@ SceneHub::~SceneHub()
 
 void SceneHub::Init()
 {
+	BaseScene::Init();
+
 	{
 		light[0].position = glm::vec3(0, 5, 0);
 		light[0].color = glm::vec3(1, 1, 1);
@@ -202,207 +205,45 @@ void SceneHub::Init()
 		glUniform1f(m_parameters[U_LIGHT7_EXPONENT], light[7].exponent);
 	}
 
-	BaseScene::Init();
-
 	//models
-	//meshList[GEO_STALL] = MeshBuilder::LoadOBJMTL("Stall", "OBJ//stall.obj", "OBJ//stall.mtl");
-	meshList_hub[GEO_STALL] = MeshBuilder::GenerateOBJ("Stall", "Models//mannequin.obj");
-	std::cout << (meshList_hub[GEO_STALL] == nullptr);
-
+	//meshList[GEO_STALL] = MeshBuilder::GenerateOBJMTL("Stall", "OBJ//stall.obj", "OBJ//stall.mtl");
+	meshList_hub[GEO_STALL] = MeshBuilder::GenerateOBJ("Stall", "Models//mannequin.obj"); //placeholder
+	meshList_hub[GEO_STALL]->textureID = LoadTGA("Image//Menu_GUI.tga");
 }
 
 void SceneHub::Update(double dt)
 {
-	resetInteractives();
+	BaseScene::Update(dt);
+
+	// name of interactive, I = interactive, coords
 	addInteractives("Chicken", 'I', glm::vec3(1, 0, 0));
 	addInteractives("Chicken1", 'I', glm::vec3(-1, 0, 0));
 	addInteractives("Chicken2", 'I', glm::vec3(0, 0, 1));
 	addInteractives("Chicken3", 'I', glm::vec3(0, 0, -1));
 
+	addInteractives("Y", 'I', glm::vec3(0.f, -1.f, 0.f));
+
 	//addPickables("Halal Pork", glm::vec3(0, 0, 0));
 	initializePickablesInteractives();
 	getClosestInteractive();
-	std::cout << "cunt\n";
-	BaseScene::Update(dt);
-
 }
 
 void SceneHub::Render()
 {
-	// Clear color buffer every frame
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	// Load view matrix stack and set it with camera position, target position and up direction
-	viewStack.LoadIdentity();
-	viewStack.LookAt(
-		camera.position.x, camera.position.y, camera.position.z,
-		camera.target.x, camera.target.y, camera.target.z,
-		camera.up.x, camera.up.y, camera.up.z
-	);
-
-	// Load identity matrix into the model stack
-	modelStack.LoadIdentity();
-
-	{
-		if (light[0].type == Light::DIRECTIONAL)
-		{
-			glm::vec3 lightDir(light[0].position.x, light[0].position.y, light[0].position.z);
-			glm::vec3 lightDirection_cameraspace = viewStack.Top() * glm::vec4(lightDir, 0);
-			glUniform3fv(m_parameters[U_LIGHT0_POSITION], 1, glm::value_ptr(lightDirection_cameraspace));
-		}
-		else if (light[0].type == Light::SPOT)
-		{
-			glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[0].position, 1);
-			glUniform3fv(m_parameters[U_LIGHT0_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
-			glm::vec3 spotDirection_cameraspace = viewStack.Top() * glm::vec4(light[0].spotDirection, 0);
-			glUniform3fv(m_parameters[U_LIGHT0_SPOTDIRECTION], 1, glm::value_ptr(spotDirection_cameraspace));
-		}
-		else {
-			// Calculate the light position in camera space
-			glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[0].position, 1);
-			glUniform3fv(m_parameters[U_LIGHT0_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
-		}
-		if (light[1].type == Light::DIRECTIONAL)
-		{
-			glm::vec3 lightDir(light[1].position.x, light[1].position.y, light[1].position.z);
-			glm::vec3 lightDirection_cameraspace = viewStack.Top() * glm::vec4(lightDir, 0);
-			glUniform3fv(m_parameters[U_LIGHT1_POSITION], 1, glm::value_ptr(lightDirection_cameraspace));
-		}
-		else if (light[1].type == Light::SPOT)
-		{
-			glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[1].position, 1);
-			glUniform3fv(m_parameters[U_LIGHT1_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
-			glm::vec3 spotDirection_cameraspace = viewStack.Top() * glm::vec4(light[1].spotDirection, 0);
-			glUniform3fv(m_parameters[U_LIGHT1_SPOTDIRECTION], 1, glm::value_ptr(spotDirection_cameraspace));
-		}
-		else {
-			// Calculate the light position in camera space
-			glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[1].position, 1);
-			glUniform3fv(m_parameters[U_LIGHT1_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
-		}
-		if (light[2].type == Light::DIRECTIONAL)
-		{
-			glm::vec3 lightDir(light[2].position.x, light[2].position.y, light[2].position.z);
-			glm::vec3 lightDirection_cameraspace = viewStack.Top() * glm::vec4(lightDir, 0);
-			glUniform3fv(m_parameters[U_LIGHT2_POSITION], 1, glm::value_ptr(lightDirection_cameraspace));
-		}
-		else if (light[2].type == Light::SPOT)
-		{
-			glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[2].position, 1);
-			glUniform3fv(m_parameters[U_LIGHT2_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
-			glm::vec3 spotDirection_cameraspace = viewStack.Top() * glm::vec4(light[2].spotDirection, 0);
-			glUniform3fv(m_parameters[U_LIGHT2_SPOTDIRECTION], 1, glm::value_ptr(spotDirection_cameraspace));
-		}
-		else {
-			// Calculate the light position in camera space
-			glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[2].position, 1);
-			glUniform3fv(m_parameters[U_LIGHT2_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
-		}
-		if (light[3].type == Light::DIRECTIONAL)
-		{
-			glm::vec3 lightDir(light[3].position.x, light[3].position.y, light[3].position.z);
-			glm::vec3 lightDirection_cameraspace = viewStack.Top() * glm::vec4(lightDir, 0);
-			glUniform3fv(m_parameters[U_LIGHT3_POSITION], 1, glm::value_ptr(lightDirection_cameraspace));
-		}
-		else if (light[3].type == Light::SPOT)
-		{
-			glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[3].position, 1);
-			glUniform3fv(m_parameters[U_LIGHT3_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
-			glm::vec3 spotDirection_cameraspace = viewStack.Top() * glm::vec4(light[3].spotDirection, 0);
-			glUniform3fv(m_parameters[U_LIGHT3_SPOTDIRECTION], 1, glm::value_ptr(spotDirection_cameraspace));
-		}
-		else {
-			// Calculate the light position in camera space
-			glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[3].position, 1);
-			glUniform3fv(m_parameters[U_LIGHT3_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
-		}
-		if (light[4].type == Light::DIRECTIONAL)
-		{
-			glm::vec3 lightDir(light[4].position.x, light[4].position.y, light[4].position.z);
-			glm::vec3 lightDirection_cameraspace = viewStack.Top() * glm::vec4(lightDir, 0);
-			glUniform3fv(m_parameters[U_LIGHT4_POSITION], 1, glm::value_ptr(lightDirection_cameraspace));
-		}
-		else if (light[4].type == Light::SPOT)
-		{
-			glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[4].position, 1);
-			glUniform3fv(m_parameters[U_LIGHT4_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
-			glm::vec3 spotDirection_cameraspace = viewStack.Top() * glm::vec4(light[4].spotDirection, 0);
-			glUniform3fv(m_parameters[U_LIGHT4_SPOTDIRECTION], 1, glm::value_ptr(spotDirection_cameraspace));
-		}
-		else {
-			// Calculate the light position in camera space
-			glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[4].position, 1);
-			glUniform3fv(m_parameters[U_LIGHT4_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
-		}
-		if (light[5].type == Light::DIRECTIONAL)
-		{
-			glm::vec3 lightDir(light[5].position.x, light[5].position.y, light[5].position.z);
-			glm::vec3 lightDirection_cameraspace = viewStack.Top() * glm::vec4(lightDir, 0);
-			glUniform3fv(m_parameters[U_LIGHT5_POSITION], 1, glm::value_ptr(lightDirection_cameraspace));
-		}
-		else if (light[5].type == Light::SPOT)
-		{
-			glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[5].position, 1);
-			glUniform3fv(m_parameters[U_LIGHT5_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
-			glm::vec3 spotDirection_cameraspace = viewStack.Top() * glm::vec4(light[5].spotDirection, 0);
-			glUniform3fv(m_parameters[U_LIGHT5_SPOTDIRECTION], 1, glm::value_ptr(spotDirection_cameraspace));
-		}
-		else {
-			// Calculate the light position in camera space
-			glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[5].position, 1);
-			glUniform3fv(m_parameters[U_LIGHT5_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
-		}
-		if (light[6].type == Light::DIRECTIONAL)
-		{
-			glm::vec3 lightDir(light[6].position.x, light[6].position.y, light[6].position.z);
-			glm::vec3 lightDirection_cameraspace = viewStack.Top() * glm::vec4(lightDir, 0);
-			glUniform3fv(m_parameters[U_LIGHT6_POSITION], 1, glm::value_ptr(lightDirection_cameraspace));
-		}
-		else if (light[6].type == Light::SPOT)
-		{
-			glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[6].position, 1);
-			glUniform3fv(m_parameters[U_LIGHT6_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
-			glm::vec3 spotDirection_cameraspace = viewStack.Top() * glm::vec4(light[6].spotDirection, 0);
-			glUniform3fv(m_parameters[U_LIGHT6_SPOTDIRECTION], 1, glm::value_ptr(spotDirection_cameraspace));
-		}
-		else {
-			// Calculate the light position in camera space
-			glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[6].position, 1);
-			glUniform3fv(m_parameters[U_LIGHT6_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
-		}
-		if (light[7].type == Light::DIRECTIONAL)
-		{
-			glm::vec3 lightDir(light[7].position.x, light[7].position.y, light[7].position.z);
-			glm::vec3 lightDirection_cameraspace = viewStack.Top() * glm::vec4(lightDir, 0);
-			glUniform3fv(m_parameters[U_LIGHT7_POSITION], 1, glm::value_ptr(lightDirection_cameraspace));
-		}
-		else if (light[7].type == Light::SPOT)
-		{
-			glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[7].position, 1);
-			glUniform3fv(m_parameters[U_LIGHT7_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
-			glm::vec3 spotDirection_cameraspace = viewStack.Top() * glm::vec4(light[7].spotDirection, 0);
-			glUniform3fv(m_parameters[U_LIGHT7_SPOTDIRECTION], 1, glm::value_ptr(spotDirection_cameraspace));
-		}
-		else {
-			// Calculate the light position in camera space
-			glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[7].position, 1);
-			glUniform3fv(m_parameters[U_LIGHT7_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
-		}
-	}
+	BaseScene::Render();
 
 	{
 		PushPop stall(modelStack);
 		
 		modelStack.Translate(0, 0, 0);
-		meshList[GEO_STALL]->material.kAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
-		meshList[GEO_STALL]->material.kDiffuse = glm::vec3(1.0f, 1.0f, 1.0f);
-		meshList[GEO_STALL]->material.kSpecular = glm::vec3(0.0f, 0.0f, 0.0f);
-		meshList[GEO_STALL]->material.kShininess = 1.0f;
+		modelStack.Scale(10.1f, 10.1f, 10.1f);
+		meshList_hub[GEO_STALL]->material.kAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
+		meshList_hub[GEO_STALL]->material.kDiffuse = glm::vec3(1.0f, 1.0f, 1.0f);
+		meshList_hub[GEO_STALL]->material.kSpecular = glm::vec3(0.0f, 0.0f, 0.0f);
+		meshList_hub[GEO_STALL]->material.kShininess = 1.0f;
 
 		RenderMesh(meshList_hub[GEO_STALL], true);
 	}
-
-	BaseScene::Render();
 }
 
 void SceneHub::Exit()

@@ -44,6 +44,8 @@ public:
 		GEO_HOMEVIDEOBOLD_FONT,
 		GEO_VCROSDMONO_FONT,
 
+		//debug
+
 		NUM_GEOMETRY,
 	};
 

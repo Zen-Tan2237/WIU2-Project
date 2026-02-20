@@ -308,6 +308,8 @@ void BaseScene::Update(double dt)
 	float t2 = 1.f - std::exp(-10 * dt);
 	interactedEUI_scale += (interactedEUI_targetScale - interactedEUI_scale) * t1;
 	interactGUI_positionOffset += (interactGUI_targetPositionOffset - interactGUI_positionOffset) * t2;
+
+	resetInteractives();
 }
 
 void BaseScene::Render()
@@ -487,12 +489,13 @@ void BaseScene::Render()
 			RenderMeshOnScreen(meshList[GEO_INTERACTFADE_GUI], interactGUI_positionOffset.x, interactGUI_positionOffset.y, 1600, 900);
 			RenderTextOnScreen(meshList[GEO_VCROSDMONO_FONT], interactives[interactedIndex], glm::vec3(1, 1, 1), 20, 410 + interactGUI_positionOffset.x * 1.5f, -10 + interactGUI_positionOffset.y, 'R', .6f);
 
-			if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_SPACE))
+			//meshlist[font type], text, color, size, x, y, alignment, spacing percentage
+			if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_E))
 			{
-				RenderTextOnScreen(meshList[GEO_HOMEVIDEOBOLD_FONT], "[SPACE]", glm::vec3(109 / 255.f, 41 / 255.f, 34 / 255.f), 26, 440 + interactGUI_positionOffset.x, -13 + interactGUI_positionOffset.y, 'L', .6f);
+				RenderTextOnScreen(meshList[GEO_HOMEVIDEOBOLD_FONT], "[E]", glm::vec3(109 / 255.f, 41 / 255.f, 34 / 255.f), 26, 440 + interactGUI_positionOffset.x, -13 + interactGUI_positionOffset.y, 'L', .6f);
 			}
 			else {
-				RenderTextOnScreen(meshList[GEO_HOMEVIDEO_FONT], "[SPACE]", glm::vec3(109 / 255.f, 41 / 255.f, 34 / 255.f), 26, 440 + interactGUI_positionOffset.x, -13 + interactGUI_positionOffset.y, 'L', .6f);
+				RenderTextOnScreen(meshList[GEO_HOMEVIDEO_FONT], "[E]", glm::vec3(109 / 255.f, 41 / 255.f, 34 / 255.f), 26, 440 + interactGUI_positionOffset.x, -13 + interactGUI_positionOffset.y, 'L', .6f);
 			}
 		}
 
@@ -548,6 +551,13 @@ void BaseScene::Render()
 
 			modelStack.PopMatrix();
 		}
+	}
+
+	{
+		PushPop skybox(modelStack);
+		modelStack.Translate(0, 0, 0); //later change to follow player class
+		modelStack.Scale(20.f, 20.f, 20.f);
+		//RenderSkybox();
 	}
 }
 
@@ -899,7 +909,6 @@ void BaseScene::addInteractives(std::string name, char type, glm::vec3 position)
 	else {
 		//std::cout << "[INTERACTIVES] Insufficient space. Operation failed" << std::endl;
 	}
-	std::cout << "nig\n";
 }
 
 void BaseScene::addPickables(std::string name, glm::vec3 position)
