@@ -10,9 +10,6 @@
 
 #include <string>
 
-static const int TOTAL_INTERACTIVES = 100;
-static const int TOTAL_PICKABLES = 10;
-
 class SceneFPCamera : public Scene
 {
 public:
@@ -29,11 +26,16 @@ public:
 
 		GEO_MENU_GUI,
 		GEO_SWITCHSCENE_GUI,
+		GEO_INTERACTFADE_GUI,
 
 		GEO_INTERACT_EUI,
 		GEO_INTERACTED_EUI,
 
 		GEO_CARNIVALEEFREAKSHOW_FONT,
+		GEO_SATOSHIREGULAR_FONT,
+		GEO_HOMEVIDEO_FONT,
+		GEO_HOMEVIDEOBOLD_FONT,
+		GEO_VCROSDMONO_FONT,
 
 		//GEO_TEXT,
 		NUM_GEOMETRY,
@@ -98,15 +100,6 @@ private:
 	void RenderText(Mesh* mesh, std::string text, glm::vec3 color);
 	void RenderTextOnScreen(Mesh* mesh, std::string text, glm::vec3 color, float size, float x, float y, char alignment, float spacingPercentage);
 
-	void setCameraOrigin(glm::vec3 position, glm::vec3 target, glm::vec3 up);
-
-	void resetInteractives();
-	void addInteractives(std::string name, char type, glm::vec3 position);
-	void addPickables(std::string name, glm::vec3 position);
-	void removePickables(std::string name);
-	void initializePickablesInteractives();
-	void getClosestInteractive();
-
 	unsigned m_vertexArrayID;
 	Mesh* meshList[NUM_GEOMETRY];
 
@@ -115,40 +108,7 @@ private:
 
 	float fps = 0;
 
-	// CAMERA PROPERTIES
 	FPCamera camera;
-	glm::vec3 cameraOriginPosition;
-	glm::vec3 cameraOriginTarget;
-	glm::vec3 cameraOriginUp;
-	float bobAmplitudeVertical = 0.035f;
-	float bobAmplitudeHorizontal = 0.025f;
-	float bobFrequency = 6.0f;
-
-	float bobDistanceAccumulated = 0.0f;
-	float currentBobWeight = 0.0f;
-
-	glm::vec3 currentPlayerPosition, previousPlayerPosition;
-	glm::vec3 previousBobOffset = glm::vec3(0.0f);
-	//
-
-	// INTERACTIVES
-	int noOfInteractives;
-
-	std::string interactives[TOTAL_INTERACTIVES];
-	char interactivesType[TOTAL_INTERACTIVES];
-	glm::vec3 interactivesPos[TOTAL_INTERACTIVES];
-
-	int interactedIndexes[TOTAL_INTERACTIVES];
-	int interactedIndex;
-	int previousInteractedIndex;
-
-	int noOfPickables;
-	std::string pickables[TOTAL_PICKABLES];
-	glm::vec3 pickablesPos[TOTAL_PICKABLES];
-
-	float interactedEUI_scale;
-	float interactedEUI_targetScale;
-	//
 
 	int projType = 1; // fix to 0 for orthographic, 1 for projection
 
