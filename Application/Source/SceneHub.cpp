@@ -243,6 +243,8 @@ void SceneHub::Render()
 
 		RenderMesh(meshList_hub[GEO_STALL], true);
 	}
+
+	BaseScene::RenderUI();
 }
 
 void SceneHub::Exit()

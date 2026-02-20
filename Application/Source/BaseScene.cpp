@@ -481,77 +481,6 @@ void BaseScene::Render()
 		RenderMesh(meshList[GEO_AXES], false);
 	}
 
-	{
-		// Render GUI
-		//RenderMeshOnScreen(meshList[GEO_MENU_GUI], 0, 0, 1600, 900);
-		//RenderMeshOnScreen(meshList[GEO_SWITCHSCENE_GUI], 0, 0, 1600, 900);
-		if (interactedIndex != -1) {
-			RenderMeshOnScreen(meshList[GEO_INTERACTFADE_GUI], interactGUI_positionOffset.x, interactGUI_positionOffset.y, 1600, 900);
-			RenderTextOnScreen(meshList[GEO_VCROSDMONO_FONT], interactives[interactedIndex], glm::vec3(1, 1, 1), 20, 410 + interactGUI_positionOffset.x * 1.5f, -10 + interactGUI_positionOffset.y, 'R', .6f);
-
-			//meshlist[font type], text, color, size, x, y, alignment, spacing percentage
-			if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_E))
-			{
-				RenderTextOnScreen(meshList[GEO_HOMEVIDEOBOLD_FONT], "[E]", glm::vec3(109 / 255.f, 41 / 255.f, 34 / 255.f), 26, 440 + interactGUI_positionOffset.x, -13 + interactGUI_positionOffset.y, 'L', .6f);
-			}
-			else {
-				RenderTextOnScreen(meshList[GEO_HOMEVIDEO_FONT], "[E]", glm::vec3(109 / 255.f, 41 / 255.f, 34 / 255.f), 26, 440 + interactGUI_positionOffset.x, -13 + interactGUI_positionOffset.y, 'L', .6f);
-			}
-		}
-
-		RenderTextOnScreen(meshList[GEO_CARNIVALEEFREAKSHOW_FONT], "SCORE", glm::vec3(0, 1, 0), 45, -795, 400, 'L', .6f);
-	}
-
-	{
-		// Render EUI
-		glDisable(GL_DEPTH_TEST);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-		glm::vec3 euiPos(0, 1000, 0);
-
-		for (int i = 0; i < noOfInteractives; i++) {
-			euiPos = interactivesPos[i] + glm::vec3(0, 0.5f, 0);
-
-			glm::vec3 dir = camera.position - euiPos;
-			dir = glm::normalize(dir);
-
-			float yaw = glm::degrees(atan2(dir.x, dir.z));
-			float pitch = glm::degrees(asin(dir.y));
-
-			if (interactedIndex == i) {
-				modelStack.PushMatrix();
-				modelStack.Translate(euiPos.x, euiPos.y, euiPos.z);
-				modelStack.Rotate(yaw, 0.f, 1.f, 0.f);
-				modelStack.Rotate(-pitch, 1.f, 0.f, 0.f);
-				modelStack.Scale(interactedEUI_scale, interactedEUI_scale, interactedEUI_scale);
-
-				meshList[GEO_INTERACTED_EUI]->material.kAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
-				meshList[GEO_INTERACTED_EUI]->material.kDiffuse = glm::vec3(1.f, 1.f, 1.f);
-				meshList[GEO_INTERACTED_EUI]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
-				meshList[GEO_INTERACTED_EUI]->material.kShininess = 1.0f;
-
-				RenderMesh(meshList[GEO_INTERACTED_EUI], enableLight);
-
-				modelStack.PopMatrix();
-			}
-
-			modelStack.PushMatrix();
-			modelStack.Translate(euiPos.x, euiPos.y, euiPos.z);
-			modelStack.Rotate(yaw, 0.f, 1.f, 0.f);
-			modelStack.Rotate(-pitch, 1.f, 0.f, 0.f);
-			modelStack.Scale(.05f, .05f, .05f);
-
-			meshList[GEO_INTERACT_EUI]->material.kAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
-			meshList[GEO_INTERACT_EUI]->material.kDiffuse = glm::vec3(1.f, 1.f, 1.f);
-			meshList[GEO_INTERACT_EUI]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
-			meshList[GEO_INTERACT_EUI]->material.kShininess = 1.0f;
-
-			RenderMesh(meshList[GEO_INTERACT_EUI], enableLight);
-
-			modelStack.PopMatrix();
-		}
-	}
 
 	{
 		PushPop skybox(modelStack);
@@ -862,6 +791,79 @@ void BaseScene::RenderSkybox()
 	modelStack.Rotate(270.f, 1.f, 0.f, 0.f);
 	RenderMesh(meshList[GEO_BOTTOM], false);
 	modelStack.PopMatrix();
+}
+
+void BaseScene::RenderUI()
+{
+	{
+		// Render GUI
+		//RenderMeshOnScreen(meshList[GEO_MENU_GUI], 0, 0, 1600, 900);
+		//RenderMeshOnScreen(meshList[GEO_SWITCHSCENE_GUI], 0, 0, 1600, 900);
+		if (interactedIndex != -1) {
+			RenderMeshOnScreen(meshList[GEO_INTERACTFADE_GUI], interactGUI_positionOffset.x, interactGUI_positionOffset.y, 1600, 900);
+			RenderTextOnScreen(meshList[GEO_VCROSDMONO_FONT], interactives[interactedIndex], glm::vec3(1, 1, 1), 20, 410 + interactGUI_positionOffset.x * 1.5f, -10 + interactGUI_positionOffset.y, 'R', .6f);
+
+			//meshlist[font type], text, color, size, x, y, alignment, spacing percentage
+			if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_E))
+			{
+				RenderTextOnScreen(meshList[GEO_HOMEVIDEOBOLD_FONT], "[E]", glm::vec3(109 / 255.f, 41 / 255.f, 34 / 255.f), 26, 440 + interactGUI_positionOffset.x, -13 + interactGUI_positionOffset.y, 'L', .6f);
+			}
+			else {
+				RenderTextOnScreen(meshList[GEO_HOMEVIDEO_FONT], "[E]", glm::vec3(109 / 255.f, 41 / 255.f, 34 / 255.f), 26, 440 + interactGUI_positionOffset.x, -13 + interactGUI_positionOffset.y, 'L', .6f);
+			}
+		}
+
+		RenderTextOnScreen(meshList[GEO_CARNIVALEEFREAKSHOW_FONT], "SCORE", glm::vec3(0, 1, 0), 45, -795, 400, 'L', .6f);
+	}
+
+	// Render EUI
+	glDisable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	glm::vec3 euiPos(0, 1000, 0);
+
+	for (int i = 0; i < noOfInteractives; i++) {
+		euiPos = interactivesPos[i] + glm::vec3(0, 0.5f, 0);
+
+		glm::vec3 dir = camera.position - euiPos;
+		dir = glm::normalize(dir);
+
+		float yaw = glm::degrees(atan2(dir.x, dir.z));
+		float pitch = glm::degrees(asin(dir.y));
+
+		if (interactedIndex == i) {
+			modelStack.PushMatrix();
+			modelStack.Translate(euiPos.x, euiPos.y, euiPos.z);
+			modelStack.Rotate(yaw, 0.f, 1.f, 0.f);
+			modelStack.Rotate(-pitch, 1.f, 0.f, 0.f);
+			modelStack.Scale(interactedEUI_scale, interactedEUI_scale, interactedEUI_scale);
+
+			meshList[GEO_INTERACTED_EUI]->material.kAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
+			meshList[GEO_INTERACTED_EUI]->material.kDiffuse = glm::vec3(1.f, 1.f, 1.f);
+			meshList[GEO_INTERACTED_EUI]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+			meshList[GEO_INTERACTED_EUI]->material.kShininess = 1.0f;
+
+			RenderMesh(meshList[GEO_INTERACTED_EUI], enableLight);
+
+			modelStack.PopMatrix();
+		}
+
+		modelStack.PushMatrix();
+		modelStack.Translate(euiPos.x, euiPos.y, euiPos.z);
+		modelStack.Rotate(yaw, 0.f, 1.f, 0.f);
+		modelStack.Rotate(-pitch, 1.f, 0.f, 0.f);
+		modelStack.Scale(.05f, .05f, .05f);
+
+		meshList[GEO_INTERACT_EUI]->material.kAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
+		meshList[GEO_INTERACT_EUI]->material.kDiffuse = glm::vec3(1.f, 1.f, 1.f);
+		meshList[GEO_INTERACT_EUI]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+		meshList[GEO_INTERACT_EUI]->material.kShininess = 1.0f;
+
+		RenderMesh(meshList[GEO_INTERACT_EUI], enableLight);
+
+		modelStack.PopMatrix();
+	}
 }
 
 void BaseScene::setCameraOrigin(glm::vec3 position, glm::vec3 target, glm::vec3 up)
