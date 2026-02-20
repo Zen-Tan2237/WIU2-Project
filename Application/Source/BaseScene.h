@@ -248,6 +248,8 @@ public:
 	
 	Light light[TOTAL_LIGHTS];
 	bool enableLight;
+
+	//next scene (will immediately switch when its not 0
 };
 
 #endif

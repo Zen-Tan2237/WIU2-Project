@@ -28,6 +28,8 @@ BaseScene::~BaseScene()
 
 void BaseScene::Init()
 {
+	nextScene = 0;
+
 	//call base scene stuff when current file is inherited from it
 	// BaseScene::Init();
 	
