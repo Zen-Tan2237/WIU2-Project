@@ -22,6 +22,17 @@ void GenerateTangentBitangent(const glm::vec3& normal, glm::vec3& outTangent, gl
 	outBitangent = SafeNormalize(glm::cross(normal, outTangent), glm::cross(fallback, normal));
 }
 
+// Helper function to get the support point of a box in a direction
+glm::vec3 GetSupportPoint(const glm::vec3& center, const glm::vec3 axes[3], const glm::vec3& halfExtents, const glm::vec3& direction)
+{
+	glm::vec3 point = center;
+	for (int i = 0; i < 3; ++i) {
+		float sign = (glm::dot(axes[i], direction) >= 0.0f) ? 1.0f : -1.0f;
+		point += axes[i] * (halfExtents[i] * sign);
+	}
+	return point;
+}
+
 bool CheckCollision(PhysicsObject& objA, PhysicsObject& objB, CollisionData& collisionData)
 {
 	bool aIsAABB = objA.boundingBox.getType() == BoundingBox::Type::OBB && objA.isOBBanAABB();
@@ -142,14 +153,259 @@ bool OverlapAABBAABB(PhysicsObject& objA, PhysicsObject& objB, CollisionData& co
 
 bool OverlapOBBOBB(PhysicsObject& objA, PhysicsObject& objB, CollisionData& collisionData)
 {
-	// Implement OBB vs OBB collision detection (To be done IF ABSOLUTELY REQUIRED.)
-	return false;
+	// Get OBB properties
+	glm::vec3 centerA = objA.position;
+	glm::vec3 centerB = objB.position;
+	glm::vec3 halfExtentsA = objA.boundingBox.getHalfExtents();
+	glm::vec3 halfExtentsB = objB.boundingBox.getHalfExtents();
+
+	// Get rotation matrices from orientations
+	glm::mat3 rotA = glm::mat3_cast(objA.orientation);
+	glm::mat3 rotB = glm::mat3_cast(objB.orientation);
+
+	// Extract axes
+	glm::vec3 axesA[3] = { rotA[0], rotA[1], rotA[2] };
+	glm::vec3 axesB[3] = { rotB[0], rotB[1], rotB[2] };
+
+	// Vector between centers
+	glm::vec3 translation = centerB - centerA;
+
+	// Separating Axis Theorem (SAT) - test 15 axes
+	// 3 axes from A, 3 axes from B, 9 cross products
+
+	float minPenetration = FLT_MAX;
+	glm::vec3 minAxis = glm::vec3(0.f);
+	int minAxisIndex = -1;
+
+	// Test axes from OBB A (3 axes)
+	for (int i = 0; i < 3; ++i) {
+		glm::vec3 axis = axesA[i];
+		float distOnAxis = std::abs(glm::dot(translation, axis));
+
+		// Project extents onto axis
+		float projA = halfExtentsA[i];
+		float projB = 0.0f;
+		for (int j = 0; j < 3; ++j) {
+			projB += halfExtentsB[j] * std::abs(glm::dot(axesB[j], axis));
+		}
+
+		float penetration = projA + projB - distOnAxis;
+		if (penetration < 0.0f) return false;
+
+		if (penetration < minPenetration) {
+			minPenetration = penetration;
+			minAxis = axis;
+			minAxisIndex = i;
+		}
+	}
+
+	// Test axes from OBB B (3 axes)
+	for (int i = 0; i < 3; ++i) {
+		glm::vec3 axis = axesB[i];
+		float distOnAxis = std::abs(glm::dot(translation, axis));
+
+		// Project extents onto axis
+		float projA = 0.0f;
+		for (int j = 0; j < 3; ++j) {
+			projA += halfExtentsA[j] * std::abs(glm::dot(axesA[j], axis));
+		}
+		float projB = halfExtentsB[i];
+
+		float penetration = projA + projB - distOnAxis;
+		if (penetration < 0.0f) return false;
+
+		if (penetration < minPenetration) {
+			minPenetration = penetration;
+			minAxis = axis;
+			minAxisIndex = 3 + i;
+		}
+	}
+
+	// Test cross product axes (9 axes)
+	for (int i = 0; i < 3; ++i) {
+		for (int j = 0; j < 3; ++j) {
+			glm::vec3 axis = glm::cross(axesA[i], axesB[j]);
+			float lengthSq = glm::dot(axis, axis);
+
+			// Skip near-parallel axes
+			if (lengthSq < 1e-6f) continue;
+
+			axis = axis / std::sqrt(lengthSq);
+			float distOnAxis = std::abs(glm::dot(translation, axis));
+
+			// Project extents onto axis
+			float projA = 0.0f;
+			for (int k = 0; k < 3; ++k) {
+				projA += halfExtentsA[k] * std::abs(glm::dot(axesA[k], axis));
+			}
+			float projB = 0.0f;
+			for (int k = 0; k < 3; ++k) {
+				projB += halfExtentsB[k] * std::abs(glm::dot(axesB[k], axis));
+			}
+
+			float penetration = projA + projB - distOnAxis;
+			if (penetration < 0.0f) return false;
+
+			if (penetration < minPenetration) {
+				minPenetration = penetration;
+				minAxis = axis;
+				minAxisIndex = 6 + i * 3 + j;
+			}
+		}
+	}
+
+	// Collision detected - fill collision data
+	collisionData.penetration = minPenetration;
+
+	// Ensure normal points from A to B
+	if (glm::dot(minAxis, translation) < 0.0f) {
+		minAxis = -minAxis;
+	}
+	collisionData.collisionNormal = SafeNormalize(minAxis, glm::vec3(0.f, 1.f, 0.f));
+
+	// Use support points for better contact approximation
+	collisionData.contactPoint = GetSupportPoint(centerA, axesA, halfExtentsA, collisionData.collisionNormal);
+	collisionData.contactPointB = GetSupportPoint(centerB, axesB, halfExtentsB, -collisionData.collisionNormal);
+
+	collisionData.pObjA = &objA;
+	collisionData.pObjB = &objB;
+
+	// Generate tangent and bitangent from normal
+	GenerateTangentBitangent(collisionData.collisionNormal, collisionData.tangent, collisionData.bitangent);
+
+	return true;
 }
 
 bool OverlapOBBAABB(PhysicsObject& OBB, PhysicsObject& AABB, CollisionData& collisionData)
 {
-	// Implement OBB vs AABB collision detection (To be done IF ABSOLUTELY REQUIRED.)
-	return false;
+	// Get OBB properties
+	glm::vec3 obbCenter = OBB.position;
+	glm::vec3 obbHalfExtents = OBB.boundingBox.getHalfExtents();
+
+	// Get OBB axes from orientation
+	glm::mat3 rotOBB = glm::mat3_cast(OBB.orientation);
+	glm::vec3 obbAxes[3] = { rotOBB[0], rotOBB[1], rotOBB[2] };
+
+	// Get AABB properties
+	glm::vec3 aabbCenter = AABB.position;
+	glm::vec3 aabbHalfExtents = AABB.boundingBox.getHalfExtents();
+
+	// AABB axes are world-aligned
+	glm::vec3 aabbAxes[3] = {
+		glm::vec3(1.f, 0.f, 0.f),
+		glm::vec3(0.f, 1.f, 0.f),
+		glm::vec3(0.f, 0.f, 1.f)
+	};
+
+	// Vector between centers
+	glm::vec3 translation = aabbCenter - obbCenter;
+
+	// Separating Axis Theorem (SAT) - test 15 axes
+	// 3 axes from OBB, 3 axes from AABB (world), 9 cross products
+
+	float minPenetration = FLT_MAX;
+	glm::vec3 minAxis = glm::vec3(0.f);
+
+	// Test OBB axes (3 axes)
+	for (int i = 0; i < 3; ++i) {
+		glm::vec3 axis = obbAxes[i];
+		float distOnAxis = std::abs(glm::dot(translation, axis));
+
+		// Project OBB extents onto axis
+		float projOBB = obbHalfExtents[i];
+
+		// Project AABB extents onto axis
+		float projAABB = 0.0f;
+		for (int j = 0; j < 3; ++j) {
+			projAABB += aabbHalfExtents[j] * std::abs(glm::dot(aabbAxes[j], axis));
+		}
+
+		float penetration = projOBB + projAABB - distOnAxis;
+		if (penetration < 0.0f) return false;
+
+		if (penetration < minPenetration) {
+			minPenetration = penetration;
+			minAxis = axis;
+		}
+	}
+
+	// Test AABB axes (3 axes - world aligned)
+	for (int i = 0; i < 3; ++i) {
+		glm::vec3 axis = aabbAxes[i];
+		float distOnAxis = std::abs(glm::dot(translation, axis));
+
+		// Project OBB extents onto axis
+		float projOBB = 0.0f;
+		for (int j = 0; j < 3; ++j) {
+			projOBB += obbHalfExtents[j] * std::abs(glm::dot(obbAxes[j], axis));
+		}
+
+		// Project AABB extents onto axis
+		float projAABB = aabbHalfExtents[i];
+
+		float penetration = projOBB + projAABB - distOnAxis;
+		if (penetration < 0.0f) return false;
+
+		if (penetration < minPenetration) {
+			minPenetration = penetration;
+			minAxis = axis;
+		}
+	}
+
+	// Test cross product axes (9 axes)
+	for (int i = 0; i < 3; ++i) {
+		for (int j = 0; j < 3; ++j) {
+			glm::vec3 axis = glm::cross(obbAxes[i], aabbAxes[j]);
+			float lengthSq = glm::dot(axis, axis);
+
+			// Skip near-parallel axes
+			if (lengthSq < 1e-6f) continue;
+
+			axis = axis / std::sqrt(lengthSq);
+			float distOnAxis = std::abs(glm::dot(translation, axis));
+
+			// Project OBB extents onto axis
+			float projOBB = 0.0f;
+			for (int k = 0; k < 3; ++k) {
+				projOBB += obbHalfExtents[k] * std::abs(glm::dot(obbAxes[k], axis));
+			}
+
+			// Project AABB extents onto axis
+			float projAABB = 0.0f;
+			for (int k = 0; k < 3; ++k) {
+				projAABB += aabbHalfExtents[k] * std::abs(glm::dot(aabbAxes[k], axis));
+			}
+
+			float penetration = projOBB + projAABB - distOnAxis;
+			if (penetration < 0.0f) return false;
+
+			if (penetration < minPenetration) {
+				minPenetration = penetration;
+				minAxis = axis;
+			}
+		}
+	}
+
+	// Collision detected - fill collision data
+	collisionData.penetration = minPenetration;
+
+	// Ensure normal points from OBB to AABB
+	if (glm::dot(minAxis, translation) < 0.0f) {
+		minAxis = -minAxis;
+	}
+	collisionData.collisionNormal = SafeNormalize(minAxis, glm::vec3(0.f, 1.f, 0.f));
+
+	// Use support points for better contact approximation
+	collisionData.contactPoint = GetSupportPoint(obbCenter, obbAxes, obbHalfExtents, collisionData.collisionNormal);
+	collisionData.contactPointB = GetSupportPoint(aabbCenter, aabbAxes, aabbHalfExtents, -collisionData.collisionNormal);
+
+	collisionData.pObjA = &OBB;
+	collisionData.pObjB = &AABB;
+
+	// Generate tangent and bitangent from normal
+	GenerateTangentBitangent(collisionData.collisionNormal, collisionData.tangent, collisionData.bitangent);
+
+	return true;
 }
 
 bool OverlapSphereSphere(PhysicsObject& objA, PhysicsObject& objB, CollisionData& collisionData)
@@ -303,7 +559,7 @@ void ResolveCollision(CollisionData& cd)
 {
 	// Get the two physics objects
 	PhysicsObject* A = cd.pObjA;
-	PhysicsObject * B = cd.pObjB;
+	PhysicsObject* B = cd.pObjB;
 	if (!A || !B) return;
 
 	// Get collision normal and penetration
@@ -331,36 +587,45 @@ void ResolveCollision(CollisionData& cd)
 
 	// Calculate relative velocity at contact point
 	glm::vec3 ra = cd.contactPoint - A->position;
-	glm::vec3 rb = cd.contactPoint - B->position;
-	glm::vec3 velA = A->velocity + glm::vec3(-ra.y, ra.x, 0.f) * A->angularVelocity;
-	glm::vec3 velB = B->velocity + glm::vec3(-rb.y, rb.x, 0.f) * B->angularVelocity;
+	glm::vec3 rb = cd.contactPointB - B->position;
+
+	// Calculate velocity at contact points including angular velocity contribution
+	glm::vec3 velA = A->velocity + glm::cross(A->angularVelocity, ra);
+	glm::vec3 velB = B->velocity + glm::cross(B->angularVelocity, rb);
 	glm::vec3 relVel = velB - velA;
 
 	float velAlongNormal = glm::dot(relVel, normal);
-	if (velAlongNormal > 0.0f) return;
+	if (velAlongNormal > 0.0f) return; // Objects separating
 
 	// Calculate bounciness coefficient
 	float e = (A->bounciness + B->bounciness) * 0.5f;
 
+	// Calculate cross products for rotational contribution
+	glm::vec3 raCrossN = glm::cross(ra, normal);
+	glm::vec3 rbCrossN = glm::cross(rb, normal);
 
-	// Calculate impulse scalar
-	float raCrossN = ra.x * normal.y - ra.y * normal.x;
-	float rbCrossN = rb.x * normal.y - rb.y * normal.x;
-	float raLengthSquared = glm::length(ra) * glm::length(ra);
-	float rbLengthSquared = glm::length(rb) * glm::length(rb);
-	float invInertiaA = (A->mass > 0.0f) ? 1.0f / (A->mass * (raLengthSquared + 1e-6f)) : 0.0f;
-	float invInertiaB = (B->mass > 0.0f) ? 1.0f / (B->mass * (rbLengthSquared + 1e-6f)) : 0.0f;
+	// Get inverse inertia tensors
+	glm::mat3 invInertiaA = A->invInertiaWorld;
+	glm::mat3 invInertiaB = B->invInertiaWorld;
+
+	// Calculate rotational contributions to impulse denominator
+	// Formula: (r × n)^T * I^-1 * (r × n)
+	float rotationalA = glm::dot(raCrossN, invInertiaA * raCrossN);
+	float rotationalB = glm::dot(rbCrossN, invInertiaB * rbCrossN);
 
 	// Denominator for impulse calculation
-	// Formula: j = -(1 + e) * velAlongNormal / (invMassA + invMassB + (raCrossN^2) * invInertiaA + (rbCrossN^2) * invInertiaB)
-	float denom = invMassSum + (raCrossN * raCrossN) * invInertiaA + (rbCrossN * rbCrossN) * invInertiaB;
-	float j = -(1.0f + e) * velAlongNormal;
-	// Avoid division by zero
-	if (denom > 0.0f) j /= denom;
-	else j = 0.0f;
+	float denom = invMassSum + rotationalA + rotationalB;
 
-	// Apply impulse along the collision normal * by the impulse scalar
+	// Calculate impulse magnitude
+	float j = -(1.0f + e) * velAlongNormal;
+	if (denom > 0.0f)
+		j /= denom;
+	else
+		j = 0.0f;
+
+	// Apply impulse along the collision normal
 	glm::vec3 impulse = normal * j;
+
 
 	// Update linear velocities
 	if (invMassA > 0.0f)
@@ -368,15 +633,13 @@ void ResolveCollision(CollisionData& cd)
 	if (invMassB > 0.0f)
 		B->velocity += impulse * invMassB;
 
-	// Update angular velocities (Yes, this thing can spin when hit off an angle!)
-	if (A->mass > 0.0f) {
-		float inertiaA = A->mass * (raLengthSquared + 1e-6f);
-		float torqueA = ra.x * impulse.y - ra.y * impulse.x;
-		A->angularVelocity -= torqueA / inertiaA;
+	// Calculate and apply angular impulses using the CORRECT contact points
+	if (invMassA > 0.0f) {
+		glm::vec3 angularImpulseA = glm::cross(ra, impulse);
+		A->angularVelocity -= invInertiaA * angularImpulseA;
 	}
-	if (B->mass > 0.0f) {
-		float inertiaB = B->mass * (rbLengthSquared + 1e-6f);
-		float torqueB = rb.x * impulse.y - rb.y * impulse.x;
-		B->angularVelocity += torqueB / inertiaB;
+	if (invMassB > 0.0f) {
+		glm::vec3 angularImpulseB = glm::cross(rb, impulse);
+		B->angularVelocity += invInertiaB * angularImpulseB;
 	}
 }

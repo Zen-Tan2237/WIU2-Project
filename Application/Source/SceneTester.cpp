@@ -155,9 +155,9 @@ void SceneTester::Init()
 	miscSettings[1] = true; // enable drag for ball
 	ball.InitPhysicsObject(glm::vec3(0, 5, 0), 0.75f, BoundingBox::Type::OBB, glm::vec3(0.5, 0.5, 0.5), miscSettings);
 
-	miscSettings[0] = false; // disable gravity for wall
-	miscSettings[1] = false; // disable drag for wall
-	wall.InitPhysicsObject(glm::vec3(-5, 5, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(5, 5, 1), 45, glm::vec3(1, 0, 0), miscSettings);
+	miscSettings[0] = true; // disable gravity for wall
+	miscSettings[1] = true; // disable drag for wall
+	wall.InitPhysicsObject(glm::vec3(-5, 5, 0), 10.f, BoundingBox::Type::OBB, glm::vec3(5, 5, 1), 45, glm::vec3(1, 0, 0), miscSettings);
 
 	floor.InitPhysicsObject(glm::vec3(0, 0, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(100, 5, 100), 0, glm::vec3(1, 1, 1), miscSettings);
 
@@ -253,20 +253,19 @@ void SceneTester::Update(double dt)
 	}
 	{
 		CollisionData cd;
-		if (CheckCollision(player, wall, cd))
+		if (CheckCollision(wall, floor, cd))
 		{
-			meshList[GEO_WALL]->material.kAmbient = glm::vec3(0.f, 1.f, 0.f);
-			//ResolveCollision(cd); // player is immovable, so no need to resolve collision since it won't react to it anyway
+			meshList[GEO_PLANE]->material.kAmbient = glm::vec3(0.f, 1.f, 0.f);
+			ResolveCollision(cd);
 		}
 		else
 		{
-			meshList[GEO_WALL]->material.kAmbient = glm::vec3(1.f, 0.f, 0.f);
+			meshList[GEO_PLANE]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
 		}
 	}
 
 
 	ball.UpdatePhysics(dt);
-
 }
 
 void SceneTester::Render()
@@ -367,8 +366,10 @@ void SceneTester::Render()
 	{
 		PushPop shootBall(modelStack);
 		modelStack.Translate(ball.position.x, ball.position.y, ball.position.z);
+		glm::mat4 rotation = glm::mat4_cast(ball.orientation);
+		modelStack.MultMatrix(rotation);
 		modelStack.Scale(ball.boundingBox.getWidth(), ball.boundingBox.getHeight(), ball.boundingBox.getDepth());
-		RenderMesh(meshList[GEO_SHOOT_BALL], true);
+		RenderMesh(meshList[GEO_WALL], true);
 	}
 	{
 		PushPop floorGuard(modelStack);
@@ -514,6 +515,7 @@ void SceneTester::HandleKeyPress()
 		ball.velocity = glm::vec3(0,0,0);
 		ball.AddImpulse(shootDirection * 25.f);
 		ball.position = camera.position;
+		ball.orientation = glm::quat(1, 0, 0, 0);
 	}
 
 }

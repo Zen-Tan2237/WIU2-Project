@@ -8,12 +8,19 @@
 #include <glm\gtc\type_ptr.hpp>
 #include <glm\gtc\matrix_inverse.hpp>
 
+
+// Usage Instructions:
+// 1. Create an instance of PhysicsObject for any objects to have physics properties and behaviors.
+// 1b. Feel free to inherit from this class to add more specific properties (ie. player being the first person cam)
+// 2. Call InitPhysicsObject() to init the physics properties of the object, like mass, position and bounding box properties.
+// 2b. The only bounding box properties needed to be set is the type and dimensions, the others are calculated during initialisation.
+// 2c. note that the dimensions are a glm::vec3, for spheres, x component is for radius, rest are ignored.
+// For OBB, x is width, y is height and z is depth.
+// 2d. miscSettings is a bool array of size 2. miscSettings[0] is for gravity and miscSettings[1] is for drag. Set to true to enable, false to disable.
+// 3. Call UpdatePhysics() at the end of every frame to update the physics properties of the object, like position and velocity, based on the forces applied to it.
+
 class PhysicsObject
 {
-	// Base class for all objects used in this physics engine.
-	// Can be used directly, inherit when you want to add more properties or functions.
-
-	// quaternions gon kill me rn. 
 public:
 	PhysicsObject() {}
 	virtual ~PhysicsObject() {}
@@ -26,8 +33,8 @@ public:
 	
 	// Angular physics properties
 	glm::vec3 angularVelocity{ 0.f }; // Angular velocity in radians per second
-	glm::mat3 invInertiaLocal{ 1.f }; // Local inverse inertia tensor (3x3 matrix)
-	glm::mat3 invInertiaWorld{ 1.f }; // World inverse inertia tensor (3x3 matrix)
+	glm::mat3 invInertiaLocal{ 0.f }; // Local inverse inertia tensor (3x3 matrix)
+	glm::mat3 invInertiaWorld{ 0.f }; // World inverse inertia tensor (3x3 matrix)
 
 
 	// misc properties for physics calculations
