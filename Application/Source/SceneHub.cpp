@@ -11,7 +11,7 @@ SceneHub::~SceneHub()
 
 void SceneHub::Init()
 {
-	meshList.resize(HUB_NUM_GEOMETRY);
+	//meshList.resize(HUB_NUM_GEOMETRY);
     BaseScene::Init();
 
 	//models
