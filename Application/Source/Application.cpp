@@ -143,7 +143,7 @@ void Application::Init()
 void Application::Run()
 {
 	//Main Loop
-	Scene* scene1 = new SceneFPCamera(); 
+	Scene* scene1 = new SceneTester(); 
 	Scene* scene2 = new SceneFPCamera();
 	/*Scene* scene3 = new Scene3();
 	Scene* scene4 = new Scene4();

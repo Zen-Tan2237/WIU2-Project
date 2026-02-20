@@ -129,6 +129,10 @@ private:
 	//debug
 	PhysicsObject ball;
 	PhysicsObject wall;
+	PhysicsObject floor;
+	PhysicsObject player;
+
+	bool isPaused = false;
 };
 
 #endif

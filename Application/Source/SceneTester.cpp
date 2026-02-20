@@ -149,23 +149,19 @@ void SceneTester::Init()
 	glUniform1f(m_parameters[U_LIGHT0_EXPONENT], light[0].exponent);
 
 	enableLight = true;
+	bool miscSettings[2] = { false, false }; // for gravity and drag. override in case of specific objects
 
-	ball.position = glm::vec3(0.f, 5.f, 0.f);
-	ball.mass = 10.f;
-	ball.bounciness = 0.5f;
-	ball.GravityEnabled = false;
-	ball.boundingBox.setType(BoundingBox::Type::SPHERE);
-	ball.boundingBox.setRadius(1.f);
+	miscSettings[0] = true; // enable gravity for ball
+	miscSettings[1] = true; // enable drag for ball
+	ball.InitPhysicsObject(glm::vec3(0, 5, 0), 0.75f, BoundingBox::Type::OBB, glm::vec3(0.5, 0.5, 0.5), miscSettings);
 
+	miscSettings[0] = false; // disable gravity for wall
+	miscSettings[1] = false; // disable drag for wall
+	wall.InitPhysicsObject(glm::vec3(-5, 5, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(5, 5, 1), 45, glm::vec3(1, 0, 0), miscSettings);
 
-	wall.position = glm::vec3(-5.f, 5.f, 0.f);
-	wall.mass = 0.f; // immovable object
-	wall.boundingBox.setType(BoundingBox::Type::OBB);
-	wall.boundingBox.setWidth(1.f);
-	wall.boundingBox.setHeight(10.f);
-	wall.boundingBox.setDepth(10.f);
-	wall.boundingBox.InitBB();
-	wall.velocity = glm::vec3(0.f);
+	floor.InitPhysicsObject(glm::vec3(0, 0, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(100, 5, 100), 0, glm::vec3(1, 1, 1), miscSettings);
+
+	player.InitPhysicsObject(camera.position, 0.f, BoundingBox::Type::OBB, glm::vec3(0.5f, 5.f, 0.5f), miscSettings);
 }
 
 void SceneTester::Update(double dt)
@@ -228,21 +224,49 @@ void SceneTester::Update(double dt)
 	float temp = 1.f / dt;
 	fps = glm::round(temp * 100.f) / 100.f;
 
+	player.position = camera.position;
 
 	//debug
+	{
+		CollisionData cd;
+		if (CheckCollision(ball, wall, cd))
+		{
+			meshList[GEO_SHOOT_BALL]->material.kAmbient = glm::vec3(0.f, 1.f, 0.f);
+			ResolveCollision(cd);
+		}
+		else
+		{
+			meshList[GEO_SHOOT_BALL]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+		}
+	}
+	{
+		CollisionData cd;
+		if (CheckCollision(ball, floor, cd))
+		{
+			meshList[GEO_SHOOT_BALL]->material.kAmbient = glm::vec3(0.f, 1.f, 0.f);
+			ResolveCollision(cd);
+		}
+		else
+		{
+			meshList[GEO_SHOOT_BALL]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
+		}
+	}
+	{
+		CollisionData cd;
+		if (CheckCollision(player, wall, cd))
+		{
+			meshList[GEO_WALL]->material.kAmbient = glm::vec3(0.f, 1.f, 0.f);
+			//ResolveCollision(cd); // player is immovable, so no need to resolve collision since it won't react to it anyway
+		}
+		else
+		{
+			meshList[GEO_WALL]->material.kAmbient = glm::vec3(1.f, 0.f, 0.f);
+		}
+	}
 
-	CollisionData cd;
-	if (CheckCollision(ball, wall, cd))
-	{
-		meshList[GEO_SHOOT_BALL]->material.kAmbient = glm::vec3(0.f, 1.f, 0.f);
-		ResolveCollision(cd);
-	}
-	else
-	{
-		meshList[GEO_SHOOT_BALL]->material.kAmbient = glm::vec3(1.f, 1.f, 1.f);
-	}
 
 	ball.UpdatePhysics(dt);
+
 }
 
 void SceneTester::Render()
@@ -343,8 +367,20 @@ void SceneTester::Render()
 	{
 		PushPop shootBall(modelStack);
 		modelStack.Translate(ball.position.x, ball.position.y, ball.position.z);
-		modelStack.Scale(ball.boundingBox.getRadius(), ball.boundingBox.getRadius(), ball.boundingBox.getRadius());
+		modelStack.Scale(ball.boundingBox.getWidth(), ball.boundingBox.getHeight(), ball.boundingBox.getDepth());
 		RenderMesh(meshList[GEO_SHOOT_BALL], true);
+	}
+	{
+		PushPop floorGuard(modelStack);
+		modelStack.Translate(floor.position.x, floor.position.y, floor.position.z);
+		glm::mat4 rotation = glm::mat4_cast(floor.orientation);
+		modelStack.MultMatrix(rotation);
+		modelStack.Scale(floor.boundingBox.getWidth(), floor.boundingBox.getHeight(), floor.boundingBox.getDepth());
+		meshList[GEO_WALL]->material.kAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
+		meshList[GEO_WALL]->material.kDiffuse = glm::vec3(1.0f, 1.0f, 1.0f);
+		meshList[GEO_WALL]->material.kSpecular = glm::vec3(0.0f, 0.0f, 0.0f);
+		meshList[GEO_WALL]->material.kShininess = 1.0f;
+		RenderMesh(meshList[GEO_WALL], true);
 	}
 
 	// Render text
@@ -476,9 +512,10 @@ void SceneTester::HandleKeyPress()
 	if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_SPACE)) {
 		glm::vec3 shootDirection = glm::normalize(camera.target - camera.position);
 		ball.velocity = glm::vec3(0,0,0);
-		ball.AddImpulse(shootDirection * 50.f);
+		ball.AddImpulse(shootDirection * 25.f);
 		ball.position = camera.position;
 	}
+
 }
 
 void SceneTester::RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizeX, float sizeY)

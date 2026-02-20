@@ -25,7 +25,6 @@ void BoundingBox::InitBB() {
 		maxPoint = center + halfExtents;
 	}
 	else if (type == Type::SPHERE) {
-		
 	}
 }
 

@@ -301,117 +301,82 @@ void ApplyPositionalCorrection(PhysicsObject* objA, PhysicsObject* objB, const C
 
 void ResolveCollision(CollisionData& cd)
 {
-	// Impulse based collision resolution with restitution and positional correction
-	PhysicsObject* objA = cd.pObjA;
-	PhysicsObject* objB = cd.pObjB;
+	// Get the two physics objects
+	PhysicsObject* A = cd.pObjA;
+	PhysicsObject * B = cd.pObjB;
+	if (!A || !B) return;
 
-	// Guard against null pointers
-	if (!objA || !objB) {
-		return;
+	// Get collision normal and penetration
+	glm::vec3 normal = cd.collisionNormal;
+	float penetration = cd.penetration;
+
+	// Calculate inverse masses
+	float invMassA = (A->mass > 0.0f) ? 1.0f / A->mass : 0.0f;
+	float invMassB = (B->mass > 0.0f) ? 1.0f / B->mass : 0.0f;
+	float invMassSum = invMassA + invMassB;
+
+	// Positional correction to avoid sinking
+	const float SLOP = 0.01f;
+	const float MAX_CORRECTION = 1.0f;
+
+	// Apply positional correction
+	if (invMassSum > 0.0f && penetration > SLOP) {
+		float correction = std::min((penetration - SLOP) / invMassSum, MAX_CORRECTION);
+		glm::vec3 separation = normal * correction;
+		if (invMassA > 0.0f)
+			A->position -= separation * invMassA;
+		if (invMassB > 0.0f)
+			B->position += separation * invMassB;
 	}
 
-	// Calculate relative position vectors from object centers to contact points
-	glm::vec3 rA = cd.contactPoint - objA->position;
-	glm::vec3 rB = cd.contactPointB - objB->position;
+	// Calculate relative velocity at contact point
+	glm::vec3 ra = cd.contactPoint - A->position;
+	glm::vec3 rb = cd.contactPoint - B->position;
+	glm::vec3 velA = A->velocity + glm::vec3(-ra.y, ra.x, 0.f) * A->angularVelocity;
+	glm::vec3 velB = B->velocity + glm::vec3(-rb.y, rb.x, 0.f) * B->angularVelocity;
+	glm::vec3 relVel = velB - velA;
 
-	// Calculate velocity at contact points (linear + rotational components)
-	glm::vec3 velA_contact = objA->velocity + glm::cross(objA->angularVelocity, rA);
-	glm::vec3 velB_contact = objB->velocity + glm::cross(objB->angularVelocity, rB);
-	glm::vec3 relativeVelocity = velB_contact - velA_contact;
+	float velAlongNormal = glm::dot(relVel, normal);
+	if (velAlongNormal > 0.0f) return;
 
-	// Check if objects are approaching (moving towards each other along collision normal)
-	float velocityAlongNormal = glm::dot(relativeVelocity, cd.collisionNormal);
-	if (velocityAlongNormal > -1e-6f) {
-		// Still apply positional correction even if not approaching
-		ApplyPositionalCorrection(objA, objB, cd);
-		return;
+	// Calculate bounciness coefficient
+	float e = (A->bounciness + B->bounciness) * 0.5f;
+
+
+	// Calculate impulse scalar
+	float raCrossN = ra.x * normal.y - ra.y * normal.x;
+	float rbCrossN = rb.x * normal.y - rb.y * normal.x;
+	float raLengthSquared = glm::length(ra) * glm::length(ra);
+	float rbLengthSquared = glm::length(rb) * glm::length(rb);
+	float invInertiaA = (A->mass > 0.0f) ? 1.0f / (A->mass * (raLengthSquared + 1e-6f)) : 0.0f;
+	float invInertiaB = (B->mass > 0.0f) ? 1.0f / (B->mass * (rbLengthSquared + 1e-6f)) : 0.0f;
+
+	// Denominator for impulse calculation
+	// Formula: j = -(1 + e) * velAlongNormal / (invMassA + invMassB + (raCrossN^2) * invInertiaA + (rbCrossN^2) * invInertiaB)
+	float denom = invMassSum + (raCrossN * raCrossN) * invInertiaA + (rbCrossN * rbCrossN) * invInertiaB;
+	float j = -(1.0f + e) * velAlongNormal;
+	// Avoid division by zero
+	if (denom > 0.0f) j /= denom;
+	else j = 0.0f;
+
+	// Apply impulse along the collision normal * by the impulse scalar
+	glm::vec3 impulse = normal * j;
+
+	// Update linear velocities
+	if (invMassA > 0.0f)
+		A->velocity -= impulse * invMassA;
+	if (invMassB > 0.0f)
+		B->velocity += impulse * invMassB;
+
+	// Update angular velocities (Yes, this thing can spin when hit off an angle!)
+	if (A->mass > 0.0f) {
+		float inertiaA = A->mass * (raLengthSquared + 1e-6f);
+		float torqueA = ra.x * impulse.y - ra.y * impulse.x;
+		A->angularVelocity -= torqueA / inertiaA;
 	}
-
-	// Calculate restitution (bounciness)
-	float e = std::min(objA->bounciness, objB->bounciness);
-
-	// Prepare inverse mass for impulse calculation
-	float invMassA = (objA->mass > 0.0f) ? 1.0f / objA->mass : 0.0f;
-	float invMassB = (objB->mass > 0.0f) ? 1.0f / objB->mass : 0.0f;
-
-	// If both objects are static, no resolution needed
-	if (invMassA < 1e-6f && invMassB < 1e-6f) {
-		return;
+	if (B->mass > 0.0f) {
+		float inertiaB = B->mass * (rbLengthSquared + 1e-6f);
+		float torqueB = rb.x * impulse.y - rb.y * impulse.x;
+		B->angularVelocity += torqueB / inertiaB;
 	}
-
-	// Calculate rotational effect on impulse denominator
-	glm::vec3 rACrossN = glm::cross(rA, cd.collisionNormal);
-	glm::vec3 rBCrossN = glm::cross(rB, cd.collisionNormal);
-	float rotEffectA = glm::dot(rACrossN, objA->invInertiaWorld * rACrossN);
-	float rotEffectB = glm::dot(rBCrossN, objB->invInertiaWorld * rBCrossN);
-
-	// Full inverse mass sum including rotational effects
-	float invMassSum = invMassA + invMassB + rotEffectA + rotEffectB;
-
-	// Guard against zero inverse mass sum
-	if (invMassSum < 1e-6f) {
-		ApplyPositionalCorrection(objA, objB, cd);
-		return;
-	}
-
-	// Impulse calculation for normal force
-	float j = -(1.0f + e) * velocityAlongNormal / invMassSum;
-	glm::vec3 impulse = j * cd.collisionNormal;
-
-	// Apply linear impulses
-	if (invMassA > 0.0f) {
-		objA->velocity -= invMassA * impulse;
-	}
-	if (invMassB > 0.0f) {
-		objB->velocity += invMassB * impulse;
-	}
-
-	// Apply angular impulses (torque from contact point offset)
-	glm::vec3 torqueA = glm::cross(rA, -impulse);
-	glm::vec3 torqueB = glm::cross(rB, impulse);
-	objA->angularVelocity += objA->invInertiaWorld * torqueA;
-	objB->angularVelocity += objB->invInertiaWorld * torqueB;
-
-	// Recalculate contact velocities after normal impulse
-	velA_contact = objA->velocity + glm::cross(objA->angularVelocity, rA);
-	velB_contact = objB->velocity + glm::cross(objB->angularVelocity, rB);
-	relativeVelocity = velB_contact - velA_contact;
-
-	// Calculate tangential velocity (velocity perpendicular to collision normal)
-	glm::vec3 tangentVelocity = relativeVelocity - glm::dot(relativeVelocity, cd.collisionNormal) * cd.collisionNormal;
-	float tangentSpeed = glm::length(tangentVelocity);
-
-	// Apply friction impulse if there's tangential motion
-	if (tangentSpeed > 1e-6f) {
-		glm::vec3 tangentDir = tangentVelocity / tangentSpeed;
-
-		// Use average friction coefficient
-		float mu = std::min(objA->friction, objB->friction);
-
-		// Calculate friction impulse magnitude
-		// Coulomb friction: friction cannot exceed j * mu
-		float frictionMagnitude = -tangentSpeed / invMassSum;
-
-		// Clamp friction to Coulomb limit
-		frictionMagnitude = std::max(frictionMagnitude, -j * mu);
-
-		glm::vec3 frictionImpulse = frictionMagnitude * tangentDir;
-
-		// Apply friction impulses
-		if (invMassA > 0.0f) {
-			objA->velocity -= invMassA * frictionImpulse;
-		}
-		if (invMassB > 0.0f) {
-			objB->velocity += invMassB * frictionImpulse;
-		}
-
-		// Apply friction torque
-		glm::vec3 frictionTorqueA = glm::cross(rA, -frictionImpulse);
-		glm::vec3 frictionTorqueB = glm::cross(rB, frictionImpulse);
-		objA->angularVelocity += objA->invInertiaWorld * frictionTorqueA;
-		objB->angularVelocity += objB->invInertiaWorld * frictionTorqueB;
-	}
-
-	// Positional Correction (prevent penetration drift)
-	ApplyPositionalCorrection(objA, objB, cd);
 }

@@ -38,6 +38,12 @@ void PhysicsObject::AddImpulseAtPoint(const glm::vec3& impulse, const glm::vec3&
 	angularVelocity += invInertiaWorld * angularImpulse;
 }
 
+void PhysicsObject::UpdateInertiaTensors() {
+	// Update world inverse inertia tensor based on current orientation
+	glm::mat3 rotationMatrix = glm::mat3_cast(orientation);
+	invInertiaWorld = rotationMatrix * invInertiaLocal * glm::transpose(rotationMatrix);
+}
+
 void PhysicsObject::UpdatePhysics(double dt) {
 	float fdt = static_cast<float>(dt);
 
@@ -54,7 +60,7 @@ void PhysicsObject::UpdatePhysics(double dt) {
 	}
 
 	// Important params
-	const float Drag = 1.5f; // Drag coefficient (tunable)
+	const float Drag = 0.5f; // Drag coefficient (tunable)
 	const float SpeedThreshold = 0.01f; // Threshold below which we consider the object to be at rest
 
 	// If drag is enabled, apply it as a force opposite to velocity
@@ -88,4 +94,130 @@ void PhysicsObject::UpdatePhysics(double dt) {
 void PhysicsObject::ForcesSetZero() {
 	totalForces = glm::vec3(0.f);
 	totalTorque = glm::vec3(0.f);
+}
+
+void PhysicsObject::InitPhysicsObject(glm::vec3 pos, float mass, BoundingBox::Type bbType, glm::vec3 bbDimensions, bool* miscSettings) {
+	position = pos;
+	this->mass = mass;
+	// misc settings is always size 2, where [0] is gravity enabled and [1] is drag enabled.
+	miscSettings[0] ? GravityEnabled = true : GravityEnabled = false;
+	miscSettings[1] ? DragEnabled = true : DragEnabled = false;
+
+	if (bbType == BoundingBox::Type::OBB) {
+		boundingBox.setType(bbType);
+		boundingBox.setWidth(bbDimensions.x);
+		boundingBox.setHeight(bbDimensions.y);
+		boundingBox.setDepth(bbDimensions.z);
+		boundingBox.InitBB();
+		// Calculate local inverse inertia tensor for OBB
+		float w = bbDimensions.x;
+		float h = bbDimensions.y;
+		float d = bbDimensions.z;
+		float ix = (1.f / 12.f) * mass * (h * h + d * d);
+		float iy = (1.f / 12.f) * mass * (w * w + d * d);
+		float iz = (1.f / 12.f) * mass * (w * w + h * h);
+
+		// Avoid division by zero for static objects
+		if (ix > 0.f) invInertiaLocal[0][0] = 1.f / ix;
+		else invInertiaLocal[0][0] = 0.f;
+		if (iy > 0.f) invInertiaLocal[1][1] = 1.f / iy;
+		else invInertiaLocal[1][1] = 0.f;
+		if (iz > 0.f) invInertiaLocal[2][2] = 1.f / iz;
+		else invInertiaLocal[2][2] = 0.f;
+	}
+	else if (bbType == BoundingBox::Type::SPHERE) {
+		boundingBox.setType(bbType);
+		boundingBox.setRadius(bbDimensions.x); // Use x component for radius
+
+		// Calculate local inverse inertia tensor for sphere
+		float r = bbDimensions.x;
+		float i = (2.f / 5.f) * mass * r * r;
+		if (i > 0.f) invInertiaLocal[0][0] = invInertiaLocal[1][1] = invInertiaLocal[2][2] = 1.f / i;
+		else invInertiaLocal[0][0] = invInertiaLocal[1][1] = invInertiaLocal[2][2] = 0.f;
+	}
+}
+
+
+void PhysicsObject::InitPhysicsObject(glm::vec3 pos, float mass, BoundingBox::Type bbType, glm::vec3 bbDimensions, glm::quat orientation, bool* miscSettings) {
+	position = pos;
+	this->mass = mass;
+	this->orientation = orientation;
+	miscSettings[0] ? GravityEnabled = true : GravityEnabled = false;
+	miscSettings[1] ? DragEnabled = true : DragEnabled = false;
+
+	if (bbType == BoundingBox::Type::OBB) {
+		boundingBox.setType(bbType);
+		boundingBox.setWidth(bbDimensions.x);
+		boundingBox.setHeight(bbDimensions.y);
+		boundingBox.setDepth(bbDimensions.z);
+		boundingBox.InitBB();
+		// Calculate local inverse inertia tensor for OBB
+		float w = bbDimensions.x;
+		float h = bbDimensions.y;
+		float d = bbDimensions.z;
+		float ix = (1.f / 12.f) * mass * (h * h + d * d);
+		float iy = (1.f / 12.f) * mass * (w * w + d * d);
+		float iz = (1.f / 12.f) * mass * (w * w + h * h);
+
+		// Avoid division by zero for static objects
+		if (ix > 0.f) invInertiaLocal[0][0] = 1.f / ix;
+		else invInertiaLocal[0][0] = 0.f;
+		if (iy > 0.f) invInertiaLocal[1][1] = 1.f / iy;
+		else invInertiaLocal[1][1] = 0.f;
+		if (iz > 0.f) invInertiaLocal[2][2] = 1.f / iz;
+		else invInertiaLocal[2][2] = 0.f;
+	}
+	else if (bbType == BoundingBox::Type::SPHERE) {
+		boundingBox.setType(bbType);
+		boundingBox.setRadius(bbDimensions.x); // Use x component for radius
+
+		// Calculate local inverse inertia tensor for sphere
+		float r = bbDimensions.x;
+		float i = (2.f / 5.f) * mass * r * r;
+		if (i > 0.f) invInertiaLocal[0][0] = invInertiaLocal[1][1] = invInertiaLocal[2][2] = 1.f / i;
+		else invInertiaLocal[0][0] = invInertiaLocal[1][1] = invInertiaLocal[2][2] = 0.f;
+	}
+}
+
+void PhysicsObject::InitPhysicsObject(glm::vec3 pos, float mass, BoundingBox::Type bbType, glm::vec3 bbDimensions, float angleDeg, glm::vec3 rotAxis, bool* miscSettings) {
+	position = pos;
+	this->mass = mass;
+	// Calculate orientation from angle and rotation axis
+	glm::quat newOrientation = glm::angleAxis(glm::radians(angleDeg), glm::normalize(rotAxis));
+	orientation = newOrientation;
+	miscSettings[0] ? GravityEnabled = true : GravityEnabled = false;
+	miscSettings[1] ? DragEnabled = true : DragEnabled = false;
+
+	if (bbType == BoundingBox::Type::OBB) {
+		boundingBox.setType(bbType);
+		boundingBox.setWidth(bbDimensions.x);
+		boundingBox.setHeight(bbDimensions.y);
+		boundingBox.setDepth(bbDimensions.z);
+		boundingBox.InitBB();
+		// Calculate local inverse inertia tensor for OBB
+		float w = bbDimensions.x;
+		float h = bbDimensions.y;
+		float d = bbDimensions.z;
+		float ix = (1.f / 12.f) * mass * (h * h + d * d);
+		float iy = (1.f / 12.f) * mass * (w * w + d * d);
+		float iz = (1.f / 12.f) * mass * (w * w + h * h);
+
+		// Avoid division by zero for static objects
+		if (ix > 0.f) invInertiaLocal[0][0] = 1.f / ix;
+		else invInertiaLocal[0][0] = 0.f;
+		if (iy > 0.f) invInertiaLocal[1][1] = 1.f / iy;
+		else invInertiaLocal[1][1] = 0.f;
+		if (iz > 0.f) invInertiaLocal[2][2] = 1.f / iz;
+		else invInertiaLocal[2][2] = 0.f;
+	}
+	else if (bbType == BoundingBox::Type::SPHERE) {
+		boundingBox.setType(bbType);
+		boundingBox.setRadius(bbDimensions.x); // Use x component for radius
+
+		// Calculate local inverse inertia tensor for sphere
+		float r = bbDimensions.x;
+		float i = (2.f / 5.f) * mass * r * r;
+		if (i > 0.f) invInertiaLocal[0][0] = invInertiaLocal[1][1] = invInertiaLocal[2][2] = 1.f / i;
+		else invInertiaLocal[0][0] = invInertiaLocal[1][1] = invInertiaLocal[2][2] = 0.f;
+	}
 }

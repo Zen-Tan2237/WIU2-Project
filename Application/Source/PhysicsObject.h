@@ -46,6 +46,10 @@ public:
 	void AddImpulseAtPoint(const glm::vec3& impulse, const glm::vec3& point);
 	void UpdatePhysics(double dt);
 	void AddBoundingBox(BoundingBox box);
+	void InitPhysicsObject(glm::vec3 pos, float mass, BoundingBox::Type bbType, glm::vec3 bbDimensions, bool* miscSettings);
+	void InitPhysicsObject(glm::vec3 pos, float mass, BoundingBox::Type bbType, glm::vec3 bbDimensions, glm::quat orientation, bool* miscSettings);
+	void InitPhysicsObject(glm::vec3 pos, float mass, BoundingBox::Type bbType, glm::vec3 bbDimensions, float angleDegrees, glm::vec3 rotationAxis, bool* miscSettings);
+	void UpdateInertiaTensors();
 
 	bool isOBBanAABB() const;
 
