@@ -137,6 +137,12 @@ void Application::Init()
 		//return -1;
 	}
 
+	ma_result result;
+	result = ma_engine_init(NULL, &audioEngine);
+	if (result != MA_SUCCESS)
+	{
+		return;
+	}
 
 }
 
@@ -208,6 +214,8 @@ void Application::Run()
 void Application::Exit()
 {
 	KeyboardController::DestroyInstance();
+
+	ma_engine_uninit(&audioEngine);
 
 	//Close OpenGL window and terminate GLFW
 	glfwDestroyWindow(m_window);
