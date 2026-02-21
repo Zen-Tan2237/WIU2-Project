@@ -32,6 +32,11 @@ public:
 		GEO_MENU_GUI,
 		GEO_SWITCHSCENE_GUI,
 		GEO_INTERACTFADE_GUI,
+		GEO_CROSSHAIR_GUI,
+
+		GEO_ITEMINHANDFADE_GUI,
+		GEO_ITEMINHANDBORDER_GUI,
+		GEO_ITEMINHANDFADEBACKGROUND_GUI,
 
 		// EUI
 		GEO_INTERACT_EUI,
@@ -239,13 +244,25 @@ public:
 
 	glm::vec2 interactGUI_positionOffset;
 	glm::vec2 interactGUI_targetPositionOffset;
+
+	//
+
+	std::string itemInHand;
+	std::string previousItemInHand;
+	double itemInHandElapsed;
+
+	bool itemInUse;
+
+	glm::vec3 itemInHandGUI_scaleOffset;
+	glm::vec3 itemInHandGUI_targetScaleOffset;
+
 	//
 
 	int projType = 1; // fix to 0 for orthographic, 1 for projection
 
 	MatrixStack modelStack, viewStack, projectionStack;
 
-	
+
 	Light light[TOTAL_LIGHTS];
 	bool enableLight;
 

@@ -32,7 +32,7 @@ void BaseScene::Init()
 
 	//call base scene stuff when current file is inherited from it
 	// BaseScene::Init();
-	
+
 	// Set background color to dark blue
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
 
@@ -46,8 +46,8 @@ void BaseScene::Init()
 	//enable blending
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	 
-	
+
+
 	//Default to fill mode
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
@@ -191,6 +191,19 @@ void BaseScene::Init()
 	meshList[GEO_INTERACTFADE_GUI] = MeshBuilder::GenerateQuad("Interact Fade GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
 	meshList[GEO_INTERACTFADE_GUI]->textureID = LoadTGA("Image//InteractFade_GUI.tga");
 
+	meshList[GEO_CROSSHAIR_GUI] = MeshBuilder::GenerateQuad("Crosshair GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
+	meshList[GEO_CROSSHAIR_GUI]->textureID = LoadTGA("Image//Crosshair_GUI.tga");
+
+	meshList[GEO_ITEMINHANDFADE_GUI] = MeshBuilder::GenerateQuad("ItemInHand Fade GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
+	meshList[GEO_ITEMINHANDFADE_GUI]->textureID = LoadTGA("Image//ItemInHandFade_GUI.tga");
+
+	meshList[GEO_ITEMINHANDBORDER_GUI] = MeshBuilder::GenerateQuad("ItemInHand Border GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
+	meshList[GEO_ITEMINHANDBORDER_GUI]->textureID = LoadTGA("Image//ItemInHandBorder_GUI.tga");
+
+	meshList[GEO_ITEMINHANDFADEBACKGROUND_GUI] = MeshBuilder::GenerateQuad("ItemInHand FadeBackground GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
+	meshList[GEO_ITEMINHANDFADEBACKGROUND_GUI]->textureID = LoadTGA("Image//ItemInHandFadeBackground_GUI.tga");
+
+
 	// EUI
 	meshList[GEO_INTERACT_EUI] = MeshBuilder::GenerateQuad("Interact EUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
 	meshList[GEO_INTERACT_EUI]->textureID = LoadTGA("Image//Interact_EUI.tga");
@@ -221,7 +234,7 @@ void BaseScene::Init()
 
 	glUniform1i(m_parameters[U_NUMLIGHTS], TOTAL_LIGHTS);
 
-	
+
 	enableLight = true;
 
 	// INTERACTIVES
@@ -243,6 +256,15 @@ void BaseScene::Init()
 
 	interactGUI_positionOffset = glm::vec2(-25.f, 0);
 	interactGUI_targetPositionOffset = glm::vec2(0, 0);
+
+	itemInHand = "Monkey";
+	previousItemInHand = "";
+	itemInUse = false;
+
+	itemInHandElapsed = 0.f;
+
+	itemInHandGUI_scaleOffset = glm::vec3(0, 0, 0);
+	itemInHandGUI_targetScaleOffset = glm::vec3(0, 0, 0);
 }
 
 void BaseScene::Update(double dt)
@@ -305,11 +327,31 @@ void BaseScene::Update(double dt)
 	float temp = 1.f / dt;
 	fps = glm::round(temp * 100.f) / 100.f;
 
+	//
+	if (itemInHand != previousItemInHand) {
+		previousItemInHand = itemInHand;
+		if (itemInHand != "") {
+			itemInHandElapsed = 0.f;
+		}
+	}
 
+	if (itemInHand != "") {
+		itemInHandElapsed += dt;
+	}
+
+	if (itemInHand != "" && itemInHandElapsed < 2.f) {
+		itemInHandGUI_targetScaleOffset = glm::vec3(20.f, 200.f, 0);
+	}
+	else {
+		itemInHandGUI_targetScaleOffset = glm::vec3(0, 0.f, 0);
+	}
+
+	//
 	float t1 = 1.f - std::exp(-5 * dt);
 	float t2 = 1.f - std::exp(-10 * dt);
 	interactedEUI_scale += (interactedEUI_targetScale - interactedEUI_scale) * t1;
 	interactGUI_positionOffset += (interactGUI_targetPositionOffset - interactGUI_positionOffset) * t2;
+	itemInHandGUI_scaleOffset += (itemInHandGUI_targetScaleOffset - itemInHandGUI_scaleOffset) * t2;
 
 	resetInteractives();
 }
@@ -573,11 +615,11 @@ void BaseScene::HandleKeyPress()
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); //wireframe mode
 	}
 
-	if (KeyboardController::GetInstance()->IsKeyPressed(VK_SPACE))
-	{
-		// Change to black background
-		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-	}
+	//if (KeyboardController::GetInstance()->IsKeyPressed(VK_SPACE))
+	//{
+	//	// Change to black background
+	//	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	//}
 
 	if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_0))
 	{
@@ -589,6 +631,44 @@ void BaseScene::HandleKeyPress()
 		else
 			light[0].power = 0.1f;
 		glUniform1f(m_parameters[U_LIGHT0_POWER], light[0].power);
+	}
+
+	//////////////////////////////////////////
+	// INTERACTIVES HANDLER
+	if (interactedIndex != -1 && KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_F)) { // means got prompt, is close to and facing smth
+		if (interactivesType[interactedIndex] == 'I') { // its an interactive
+
+		}
+		else if (interactivesType[interactedIndex] == 'P') { // its a pickable
+			std::string temp = interactives[interactedIndex];
+			removePickables(temp);
+			itemInHand = temp;
+		}
+	}
+
+	// HOLD ITEM HANDLER
+	if (itemInHand != "") { // hand has stuff
+		if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_E))
+		{
+			if (itemInUse) {
+				itemInUse = false;
+			}
+			else {
+				itemInUse = true;
+			}
+		}
+
+		if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_X))
+		{
+			std::string temp = itemInHand;
+			itemInUse = false;
+			itemInHand = "";
+
+			glm::vec3 playerPos = camera.target;
+			playerPos.y = 0.f;
+
+			addPickables(temp, playerPos);
+		}
 	}
 }
 
@@ -637,14 +717,14 @@ void BaseScene::HandleMouseInput() {
 	}
 	// Continue to do for right button
 
-	if (!isLeftUp && MouseController::GetInstance() -> IsButtonDown(GLFW_MOUSE_BUTTON_LEFT))
+	if (!isLeftUp && MouseController::GetInstance()->IsButtonDown(GLFW_MOUSE_BUTTON_LEFT))
 	{
 		isLeftUp = true;
 		std::cout << "LBUTTON DOWN" << std::endl;
 		// Step 3
 		// transform into UI space
-		double x = MouseController::GetInstance() -> GetMousePositionX();
-		double y = 600 - MouseController::GetInstance() -> GetMousePositionY();
+		double x = MouseController::GetInstance()->GetMousePositionX();
+		double y = 600 - MouseController::GetInstance()->GetMousePositionY();
 		// Check if mouse click position is within the GUI box
 		// Change the boundaries as necessary
 		if (x > 0 && x < 100 && y > 0 && y < 100) {
@@ -801,21 +881,45 @@ void BaseScene::RenderUI()
 		// Render GUI
 		//RenderMeshOnScreen(meshList[GEO_MENU_GUI], 0, 0, 1600, 900);
 		//RenderMeshOnScreen(meshList[GEO_SWITCHSCENE_GUI], 0, 0, 1600, 900);
+
+		glDisable(GL_DEPTH_TEST);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		RenderMeshOnScreen(meshList[GEO_CROSSHAIR_GUI], 0, 0, 1600, 900);
+
 		if (interactedIndex != -1) {
 			RenderMeshOnScreen(meshList[GEO_INTERACTFADE_GUI], interactGUI_positionOffset.x, interactGUI_positionOffset.y, 1600, 900);
 			RenderTextOnScreen(meshList[GEO_VCROSDMONO_FONT], interactives[interactedIndex], glm::vec3(1, 1, 1), 20, 410 + interactGUI_positionOffset.x * 1.5f, -10 + interactGUI_positionOffset.y, 'R', .6f);
 
 			//meshlist[font type], text, color, size, x, y, alignment, spacing percentage
-			if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_E))
+			if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_F))
 			{
-				RenderTextOnScreen(meshList[GEO_HOMEVIDEOBOLD_FONT], "[E]", glm::vec3(109 / 255.f, 41 / 255.f, 34 / 255.f), 26, 440 + interactGUI_positionOffset.x, -13 + interactGUI_positionOffset.y, 'L', .6f);
+				RenderTextOnScreen(meshList[GEO_HOMEVIDEOBOLD_FONT], "[F]", glm::vec3(109 / 255.f, 41 / 255.f, 34 / 255.f), 26, 440 + interactGUI_positionOffset.x, -13 + interactGUI_positionOffset.y, 'L', .6f);
 			}
 			else {
-				RenderTextOnScreen(meshList[GEO_HOMEVIDEO_FONT], "[E]", glm::vec3(109 / 255.f, 41 / 255.f, 34 / 255.f), 26, 440 + interactGUI_positionOffset.x, -13 + interactGUI_positionOffset.y, 'L', .6f);
+				RenderTextOnScreen(meshList[GEO_HOMEVIDEO_FONT], "[F]", glm::vec3(109 / 255.f, 41 / 255.f, 34 / 255.f), 26, 440 + interactGUI_positionOffset.x, -13 + interactGUI_positionOffset.y, 'L', .6f);
 			}
 		}
 
 		RenderTextOnScreen(meshList[GEO_CARNIVALEEFREAKSHOW_FONT], "SCORE", glm::vec3(0, 1, 0), 45, -795, 400, 'L', .6f);
+
+		if (itemInHand != "") {
+			glDisable(GL_DEPTH_TEST);
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+			RenderMeshOnScreen(meshList[GEO_ITEMINHANDBORDER_GUI], 603 - (itemInHandGUI_scaleOffset.x * .5f), -343.2f + (itemInHandGUI_scaleOffset.y * .5f), 214 + itemInHandGUI_scaleOffset.x, 33.7f + itemInHandGUI_scaleOffset.y);
+			RenderMeshOnScreen(meshList[GEO_ITEMINHANDFADEBACKGROUND_GUI], 603 - (itemInHandGUI_scaleOffset.x * .5f), -343.2f + (itemInHandGUI_scaleOffset.y * .5f), 214 + itemInHandGUI_scaleOffset.x, 33.7f + itemInHandGUI_scaleOffset.y);
+			RenderMeshOnScreen(meshList[GEO_ITEMINHANDFADE_GUI], 0, 0 + itemInHandGUI_scaleOffset.y, 1600, 900);
+
+			RenderTextOnScreen(meshList[GEO_VCROSDMONO_FONT], itemInHand, glm::vec3(1, 1, 1), 20, 690, -355 + itemInHandGUI_scaleOffset.y, 'R', .6f);
+
+			RenderTextOnScreen(meshList[GEO_HOMEVIDEO_FONT], "[E]", glm::vec3(1, 1, 1), 15, 700, -300 + itemInHandGUI_scaleOffset.y, 'R', .6f);
+			RenderTextOnScreen(meshList[GEO_VCROSDMONO_FONT], "Use", glm::vec3(1, 1, 1), 15, 660, -300 + itemInHandGUI_scaleOffset.y, 'R', .6f);
+
+			RenderTextOnScreen(meshList[GEO_HOMEVIDEO_FONT], "[X]", glm::vec3(1, 1, 1), 15, 700, -320 + itemInHandGUI_scaleOffset.y, 'R', .6f);
+			RenderTextOnScreen(meshList[GEO_VCROSDMONO_FONT], "Drop", glm::vec3(1, 1, 1), 15, 660, -320 + itemInHandGUI_scaleOffset.y, 'R', .6f);
+		}
 	}
 
 	// Render EUI
@@ -846,7 +950,7 @@ void BaseScene::RenderUI()
 			meshList[GEO_INTERACTED_EUI]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
 			meshList[GEO_INTERACTED_EUI]->material.kShininess = 1.0f;
 
-			RenderMesh(meshList[GEO_INTERACTED_EUI], enableLight);
+			RenderMesh(meshList[GEO_INTERACTED_EUI], false);
 
 			modelStack.PopMatrix();
 		}
@@ -862,7 +966,7 @@ void BaseScene::RenderUI()
 		meshList[GEO_INTERACT_EUI]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
 		meshList[GEO_INTERACT_EUI]->material.kShininess = 1.0f;
 
-		RenderMesh(meshList[GEO_INTERACT_EUI], enableLight);
+		RenderMesh(meshList[GEO_INTERACT_EUI], false);
 
 		modelStack.PopMatrix();
 	}

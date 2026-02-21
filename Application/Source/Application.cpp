@@ -151,7 +151,7 @@ void Application::Run()
 	/*Scene* scene4 = new Scene4();
 	Scene* scene5 = new Scene5();*/
 	
-	Scene* scene = scene3;
+	Scene* scene = scene1;
 	scene->Init();
 
 
