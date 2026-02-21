@@ -34,18 +34,20 @@ void FPCamera::Reset()
 
 void FPCamera::Update(double dt)
 {
-	static const float ROTATE_SPEED = 100.0f;
-	static const float ZOOM_SPEED = 2.0f;
-	static const float MOUSE_SENS = 0.1f;
+	glm::vec3 forwardFlat = glm::normalize(glm::vec3(
+		cos(glm::radians(yaw)),
+		0.0f,
+		sin(glm::radians(yaw))
+	));
 
-	glm::vec3 view = glm::normalize(target - position);
-	glm::vec3 right = glm::normalize(glm::cross(view, up));
-
-	glm::vec3 moveDir = glm::normalize(glm::vec3(view.x, 0, view.z));
-
+	glm::vec3 worldUp = glm::vec3(0, 1, 0);
+	glm::vec3 right = glm::normalize(glm::cross(forwardFlat, worldUp));
+	glm::vec3 moveDir = forwardFlat;
 	glm::vec3 input(0, 0, 0);
 
 	// Move Forward/Backward
+	float strafeAmount = 0.0f;
+
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_W)) {
 		input += moveDir;
 	}
@@ -54,34 +56,60 @@ void FPCamera::Update(double dt)
 	}
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_A)) {
 		input -= right;
+		strafeAmount += 1.f;
 	}
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_D)) {
 		input += right;
+		strafeAmount -= 1.f;
 	}
 
+	targetRoll = -strafeAmount * maxTilt;
+
+	//
+
 	if (glm::length(input) > 0.001f) {
-		position += glm::normalize(input) * ZOOM_SPEED * static_cast<float>(dt);
-		target += glm::normalize(input) * ZOOM_SPEED * static_cast<float>(dt);
+		position += glm::normalize(input) * movementSpeed * static_cast<float>(dt);
+		target += glm::normalize(input) * movementSpeed * static_cast<float>(dt);
 	}
 
 	double deltaX = MouseController::GetInstance()->GetMouseDeltaX();
 	double deltaY = MouseController::GetInstance()->GetMouseDeltaY();
 
-	float angle = -deltaX * ROTATE_SPEED * MOUSE_SENS * static_cast<float>(dt);
-	float angleY = deltaY * ROTATE_SPEED * MOUSE_SENS * static_cast<float>(dt);
+	targetYaw += deltaX * rotationSpeed * mouseSensitivity;
+	targetPitch += deltaY * rotationSpeed * mouseSensitivity;
+	targetPitch = glm::clamp(targetPitch, -89.0f, 89.0f); // clamp
 
-	glm::mat4 yaw = glm::rotate(
-		glm::mat4(1.f),// matrix to modify
-		glm::radians(angle),// rotation angle in degree and converted to radians
-		glm::vec3(up.x, up.y, up.z)// the axis to rotate along
+	float t1 = 1.0f - exp(-rotationSmoothness * static_cast<float>(dt));
+	float t2 = 1.0f - exp(-tiltSmoothness * static_cast<float>(dt));
+
+	yaw += (targetYaw - yaw) * t1;
+	pitch += (targetPitch - pitch) * t1;
+	roll += (targetRoll - roll) * t2;
+
+	glm::vec3 forward;
+	forward.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+	forward.y = sin(glm::radians(pitch));
+	forward.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+
+	forward = glm::normalize(forward);
+
+	glm::vec3 cameraRight = glm::normalize(glm::cross(forward, worldUp));
+	glm::vec3 baseUp = glm::normalize(glm::cross(cameraRight, forward)); // true camera up
+
+	// Apply roll around forward axis
+	glm::mat4 rollMat = glm::rotate(
+		glm::mat4(1.0f),
+		glm::radians(roll),
+		forward
 	);
 
-	glm::mat4 pitch = glm::rotate(glm::mat4(1.f), glm::radians(angleY), right);
+	glm::vec3 finalUp = glm::normalize(glm::vec3(
+		rollMat * glm::vec4(baseUp, 0.0f)
+	));
 
-	// calculate the rotated view vector
-	view = pitch * glm::vec4(view, 0.f);
-	glm::vec3 yawView = yaw * glm::vec4(view, 0.f);
-	target = position + yawView;
+	target = position + forward;
+	up = finalUp;
+
 	isDirty = true;
 }
 

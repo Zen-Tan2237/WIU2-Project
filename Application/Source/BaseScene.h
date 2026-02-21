@@ -213,9 +213,9 @@ public:
 	glm::vec3 cameraOriginPosition;
 	glm::vec3 cameraOriginTarget;
 	glm::vec3 cameraOriginUp;
-	float bobAmplitudeVertical = 0.035f;
-	float bobAmplitudeHorizontal = 0.025f;
-	float bobFrequency = 6.0f;
+	float bobAmplitudeVertical = 0.02f;
+	float bobAmplitudeHorizontal = 0.015f;
+	float bobFrequency = 12.0f;
 
 	float bobDistanceAccumulated = 0.0f;
 	float currentBobWeight = 0.0f;

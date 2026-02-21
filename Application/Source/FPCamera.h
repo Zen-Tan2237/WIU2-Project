@@ -21,6 +21,26 @@ public:
     void Update(double dt);
 
 private:
+    float rotationSpeed = 1.0f;
+    float movementSpeed = 1.0f;
+    float mouseSensitivity = 0.1f;
+
+
+    // camera rotaiotn
+    float yaw = -90.0f;
+    float pitch = 0.0f;
+
+    float targetYaw = -90.0f;
+    float targetPitch = 0.0f;
+
+    float rotationSmoothness = 20.0f; // higher is more snappier
+
+    // camera tilt
+    float roll = 0.0f;
+    float targetRoll = 0.0f;
+
+    float maxTilt = 2.f;
+    float tiltSmoothness = 10.0f;
 
     bool isDirty;   // indicate if there is a need to recalculate the camera attributes
 

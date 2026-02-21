@@ -324,6 +324,8 @@ void BaseScene::Update(double dt)
 
 	camera.Update(dt);
 
+	//
+
 	float temp = 1.f / dt;
 	fps = glm::round(temp * 100.f) / 100.f;
 
@@ -914,7 +916,13 @@ void BaseScene::RenderUI()
 
 			RenderTextOnScreen(meshList[GEO_VCROSDMONO_FONT], itemInHand, glm::vec3(1, 1, 1), 20, 690, -355 + itemInHandGUI_scaleOffset.y, 'R', .6f);
 
-			RenderTextOnScreen(meshList[GEO_HOMEVIDEO_FONT], "[E]", glm::vec3(1, 1, 1), 15, 700, -300 + itemInHandGUI_scaleOffset.y, 'R', .6f);
+			if (itemInUse) {
+				RenderTextOnScreen(meshList[GEO_HOMEVIDEOBOLD_FONT], "[E]", glm::vec3(1, 1, 1), 15, 700, -300 + itemInHandGUI_scaleOffset.y, 'R', .6f);
+			}
+			else {
+				RenderTextOnScreen(meshList[GEO_HOMEVIDEO_FONT], "[E]", glm::vec3(1, 1, 1), 15, 700, -300 + itemInHandGUI_scaleOffset.y, 'R', .6f);
+			}
+			
 			RenderTextOnScreen(meshList[GEO_VCROSDMONO_FONT], "Use", glm::vec3(1, 1, 1), 15, 660, -300 + itemInHandGUI_scaleOffset.y, 'R', .6f);
 
 			RenderTextOnScreen(meshList[GEO_HOMEVIDEO_FONT], "[X]", glm::vec3(1, 1, 1), 15, 700, -320 + itemInHandGUI_scaleOffset.y, 'R', .6f);
@@ -1104,10 +1112,10 @@ void BaseScene::getClosestInteractive()
 	if (temp > 0) {
 		for (int i = 0; i < temp; i++) {
 			itemPos = interactivesPos[interactedIndexes[i]];
-			toItem = itemPos - camera.position;
+			toItem = glm::normalize(itemPos - camera.position);
 			dot = glm::dot(forward, toItem);
 
-			if (dot > 0.98f && dot > closestDot) {
+			if (dot > 0.96f && dot > closestDot) {
 				closestDot = dot;
 				interactedIndex = interactedIndexes[i];
 			}

@@ -135,9 +135,7 @@
     <ClInclude Include="Source\SceneHub.h">
       <Filter>Scene</Filter>
     </ClInclude>
-    <ClInclude Include="audio.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
+    <ClInclude Include="Source\audio.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">
