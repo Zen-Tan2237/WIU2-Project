@@ -259,6 +259,11 @@ public:
 
 	//
 
+	float sceneSwitchUI_scalePercentage;
+	float sceneSwitchUI_targetScalePercentage;
+
+	//
+
 	int projType = 1; // fix to 0 for orthographic, 1 for projection
 
 	MatrixStack modelStack, viewStack, projectionStack;

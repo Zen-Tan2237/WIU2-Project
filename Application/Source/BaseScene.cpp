@@ -267,6 +267,9 @@ void BaseScene::Init()
 
 	itemInHandGUI_scaleOffset = glm::vec3(0, 0, 0);
 	itemInHandGUI_targetScaleOffset = glm::vec3(0, 0, 0);
+
+	sceneSwitchUI_scalePercentage = 0.35f;
+	sceneSwitchUI_targetScalePercentage = 0.35f;
 }
 
 void BaseScene::Update(double dt)
@@ -358,6 +361,7 @@ void BaseScene::Update(double dt)
 	interactedEUI_scale += (interactedEUI_targetScale - interactedEUI_scale) * t1;
 	interactGUI_positionOffset += (interactGUI_targetPositionOffset - interactGUI_positionOffset) * t2;
 	itemInHandGUI_scaleOffset += (itemInHandGUI_targetScaleOffset - itemInHandGUI_scaleOffset) * t2;
+	sceneSwitchUI_scalePercentage += (sceneSwitchUI_targetScalePercentage - sceneSwitchUI_scalePercentage) * t2;
 
 	resetInteractives();
 
@@ -654,6 +658,7 @@ void BaseScene::HandleKeyPress()
 			if (interactives[interactedIndex] == "Enter Scene 2 (SceneHub)") {
 				nextScene = 2;
 				nextSceneDelay = 1.f;
+				sceneSwitchUI_targetScalePercentage = 1.f;
 			}
 		}
 		else if (interactivesType[interactedIndex] == 'P') { // its a pickable
@@ -1005,7 +1010,7 @@ void BaseScene::RenderUI()
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-			RenderMeshOnScreen(meshList[GEO_SWITCHSCENE_GUI], 0.f, 0.f, 1200, 675);
+			RenderMeshOnScreen(meshList[GEO_SWITCHSCENE_GUI], 0.f, 0.f, 1200 * sceneSwitchUI_scalePercentage, 675 * sceneSwitchUI_scalePercentage);
 		}
 	}
 }
