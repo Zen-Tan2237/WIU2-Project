@@ -19,6 +19,9 @@
 #include "MouseController.h"
 #include "audio.h"
 
+#include <cstdlib>
+#include <ctime>
+
 //debug
 #include "SceneTester.h"
 #include "BaseScene.h"
@@ -140,6 +143,8 @@ void Application::Init()
 	}
 
 	Audio_Init();
+
+	srand(time(0));
 }
 
 void Application::Run()

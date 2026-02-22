@@ -10,7 +10,7 @@
 #include <vector> // added
 
 static const int TOTAL_INTERACTIVES = 100;
-static const int TOTAL_PICKABLES = 10;
+static const int TOTAL_PICKABLES = 50;
 static const int TOTAL_LIGHTS = 8;
 
 static const int TOTAL_PARTS = 30;
@@ -187,7 +187,7 @@ public:
 		MatrixStack& m_ms;
 	};
 
-	void HandleKeyPress();
+	void HandleKeyPress(double dt);
 	void HandleMouseInput();
 	void RenderMesh(Mesh* mesh, bool enableLight);
 	void RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizeX, float sizeY);
@@ -199,11 +199,14 @@ public:
 	void setCameraOrigin(glm::vec3 position, glm::vec3 target, glm::vec3 up);
 
 	void resetInteractives();
-	void addInteractives(std::string name, char type, glm::vec3 position);
+	void addInteractives(std::string name, char type, glm::vec3 position, int pickableIndex = 0.f);
 	void addPickables(std::string name, glm::vec3 position);
-	void removePickables(std::string name);
+	void removePickables(int index);
 	void initializePickablesInteractives();
 	void getClosestInteractive();
+
+	void dropItemInHand(int amountToRemove);
+	void addItemInHand();
 
 	unsigned m_vertexArrayID;
 	Mesh* meshList[NUM_GEOMETRY];
@@ -236,6 +239,7 @@ public:
 	glm::vec3 interactivesPos[TOTAL_INTERACTIVES];
 
 	int interactedIndexes[TOTAL_INTERACTIVES];
+	int interactivePickablesIndex[TOTAL_INTERACTIVES];
 	int interactedIndex;
 	int previousInteractedIndex;
 
@@ -252,6 +256,7 @@ public:
 	// ITEM IN HAND
 
 	std::string itemInHand;
+	int amountOfItem;
 	std::string previousItemInHand;
 	double itemInHandElapsed;
 
@@ -259,6 +264,9 @@ public:
 
 	glm::vec3 itemInHandGUI_scaleOffset;
 	glm::vec3 itemInHandGUI_targetScaleOffset;
+
+	double dropKeybindHeldElapsed;
+	bool droppedFirst;
 
 	// SCENE SWITCH UI
 

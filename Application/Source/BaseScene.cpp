@@ -246,6 +246,7 @@ void BaseScene::Init()
 	for (int i = 0; i < TOTAL_INTERACTIVES; i++) {
 		interactives[i] = "";
 		interactivesPos[i] = glm::vec3(0, 0, 0);
+		interactivePickablesIndex[i] = 0;
 	}
 
 	for (int i = 0; i < TOTAL_PICKABLES; i++) {
@@ -263,6 +264,7 @@ void BaseScene::Init()
 	interactGUI_targetPositionOffset = glm::vec2(0, 0);
 
 	itemInHand = "Monkey";
+	amountOfItem = 10;
 	previousItemInHand = "";
 	itemInUse = false;
 
@@ -270,6 +272,9 @@ void BaseScene::Init()
 
 	itemInHandGUI_scaleOffset = glm::vec3(0, 0, 0);
 	itemInHandGUI_targetScaleOffset = glm::vec3(0, 0, 0);
+
+	dropKeybindHeldElapsed = 0.f;
+	droppedFirst = false;
 
 	sceneSwitchUI_scalePercentage = 0.35f;
 	sceneSwitchUI_targetScalePercentage = 0.35f;
@@ -290,7 +295,7 @@ void BaseScene::Init()
 
 void BaseScene::Update(double dt)
 {
-	HandleKeyPress();
+	HandleKeyPress(dt);
 
 	if (KeyboardController::GetInstance()->IsKeyDown('I'))
 		light[0].position.z -= static_cast<float>(dt) * 5.f;
@@ -645,7 +650,7 @@ void BaseScene::Exit()
 	glDeleteProgram(m_programID);
 }
 
-void BaseScene::HandleKeyPress()
+void BaseScene::HandleKeyPress(double dt)
 {
 	if (KeyboardController::GetInstance()->IsKeyPressed(0x31))
 	{
@@ -693,9 +698,7 @@ void BaseScene::HandleKeyPress()
 			// do it in actual scene instead
 		}
 		else if (interactivesType[interactedIndex] == 'P') { // its a pickable
-			std::string temp = interactives[interactedIndex];
-			removePickables(temp);
-			itemInHand = temp;
+			addItemInHand();
 		}
 	}
 
@@ -711,16 +714,24 @@ void BaseScene::HandleKeyPress()
 			}
 		}
 
-		if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_X))
+		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_X))
 		{
-			std::string temp = itemInHand;
-			itemInUse = false;
-			itemInHand = "";
-
-			glm::vec3 playerPos = camera.target;
-			playerPos.y = 0.f;
-
-			addPickables(temp, playerPos);
+			dropKeybindHeldElapsed += dt;
+			
+			if (dropKeybindHeldElapsed < .5f) {
+				if (droppedFirst == false) {
+					dropItemInHand(1);
+					droppedFirst = true;
+				}
+			}
+			else {
+				dropItemInHand(1);
+			}
+			
+		}
+		else {
+			dropKeybindHeldElapsed = 0.f;
+			droppedFirst = false;
 		}
 	}
 }
@@ -969,7 +980,7 @@ void BaseScene::RenderUI()
 			RenderMeshOnScreen(meshList[GEO_ITEMINHANDFADEBACKGROUND_GUI], 603 - (itemInHandGUI_scaleOffset.x * .5f), -343.2f + (itemInHandGUI_scaleOffset.y * .5f), 214 + itemInHandGUI_scaleOffset.x, 33.7f + itemInHandGUI_scaleOffset.y);
 			RenderMeshOnScreen(meshList[GEO_ITEMINHANDFADE_GUI], 0, 0 + itemInHandGUI_scaleOffset.y, 1600, 900);
 
-			RenderTextOnScreen(meshList[GEO_VCROSDMONO_FONT], itemInHand, glm::vec3(1, 1, 1), 20, 690, -355 + itemInHandGUI_scaleOffset.y, 'R', .6f);
+			RenderTextOnScreen(meshList[GEO_VCROSDMONO_FONT], "(" + std::to_string(amountOfItem) + "x) " + itemInHand, glm::vec3(1, 1, 1), 20, 690, -355 + itemInHandGUI_scaleOffset.y, 'R', .6f);
 
 			if (itemInUse) {
 				RenderTextOnScreen(meshList[GEO_HOMEVIDEOBOLD_FONT], "[E]", glm::vec3(1, 1, 1), 15, 700, -300 + itemInHandGUI_scaleOffset.y, 'R', .6f);
@@ -1072,7 +1083,7 @@ void BaseScene::resetInteractives()
 	interactedIndex = -1;
 }
 
-void BaseScene::addInteractives(std::string name, char type, glm::vec3 position)
+void BaseScene::addInteractives(std::string name, char type, glm::vec3 position, int pickableIndex)
 {
 	int temp = -1;
 
@@ -1081,6 +1092,10 @@ void BaseScene::addInteractives(std::string name, char type, glm::vec3 position)
 			interactives[i] = name;
 			interactivesType[i] = type;
 			interactivesPos[i] = position;
+
+			if (type == 'P') {
+				interactivePickablesIndex[i] = pickableIndex;
+			}
 
 			temp = i;
 			noOfInteractives++;
@@ -1119,22 +1134,16 @@ void BaseScene::addPickables(std::string name, glm::vec3 position)
 	}
 }
 
-void BaseScene::removePickables(std::string name)
+void BaseScene::removePickables(int index)
 {
-	int temp = -1;
+	std::string name = pickables[index];
 
-	for (int i = 0; i < TOTAL_PICKABLES; i++) {
-		if (pickables[i] == name) { // found
-			pickables[i] = "";
-			pickablesPos[i] = glm::vec3(0, 0, 0);
+	if (pickables[index] != "") {
+		pickables[index] = "";
+		pickablesPos[index] = glm::vec3(0, 0, 0);
 
-			temp = i;
-			noOfPickables--;
-			break;
-		}
-	}
+		noOfPickables--;
 
-	if (temp != -1) {
 		//std::cout << "[PICKABLES] Successfully removed " << name << ". Initial index data is now " << pickables[temp] <<	" (" << pickablesPos[temp].x << ", " << pickablesPos[temp].y << ", " << pickablesPos[temp].z << ") " << std::endl;
 	}
 	else {
@@ -1146,7 +1155,7 @@ void BaseScene::initializePickablesInteractives()
 {
 	for (int i = 0; i < TOTAL_PICKABLES; i++) {
 		if (pickables[i] != "") { // found item
-			addInteractives(pickables[i], 'P', pickablesPos[i]);
+			addInteractives(pickables[i], 'P', pickablesPos[i], i);
 		}
 	}
 }
@@ -1179,6 +1188,7 @@ void BaseScene::getClosestInteractive()
 	float dot = 0.f;
 
 	if (temp > 0) {
+		interactedIndex = -1;
 		for (int i = 0; i < temp; i++) {
 			itemPos = interactivesPos[interactedIndexes[i]];
 			toItem = glm::normalize(itemPos - camera.position);
@@ -1198,5 +1208,61 @@ void BaseScene::getClosestInteractive()
 		previousInteractedIndex = interactedIndex;
 		interactedEUI_scale = 0.05f;
 		interactGUI_positionOffset = glm::vec2(-25.f, 0);
+	}
+}
+
+void BaseScene::dropItemInHand(int amountToRemove)
+{
+	std::string itemToDrop = itemInHand;
+
+	if (amountOfItem > amountToRemove) {
+		for (int i = 0; i < amountToRemove; i++) {
+			amountOfItem--;
+			glm::vec3 placementPos = camera.target;
+			placementPos.y = 0.f;
+			placementPos += glm::vec3(((rand() % 5) - 2) / 100.f, 0, ((rand() % 5) - 2) / 100.f);
+
+			addPickables(itemToDrop, placementPos);
+		}
+	}
+	else {
+		for (int i = 0; i < amountOfItem; i++) {
+			amountOfItem--;
+			glm::vec3 placementPos = camera.target;
+			placementPos.y = 0.f;
+			placementPos += glm::vec3(((rand() % 5) - 2) / 100.f, 0, ((rand() % 5) - 2) / 100.f);
+
+			addPickables(itemToDrop, placementPos);
+		}
+
+		itemInHand = "";
+		amountOfItem = 0;
+		itemInUse = false;
+	}
+}
+
+void BaseScene::addItemInHand()
+{
+	std::string itemToHold = interactives[interactedIndex];
+
+	if (itemInHand != "") { // if holding smth already
+		if (itemInHand == interactives[interactedIndex]) { // same item
+			std::cout << interactivePickablesIndex[interactedIndex] << std::endl;
+			removePickables(interactivePickablesIndex[interactedIndex]);
+			amountOfItem++;
+		}
+		else {
+			dropItemInHand(amountOfItem);
+			std::cout << interactivePickablesIndex[interactedIndex] << std::endl;
+			removePickables(interactivePickablesIndex[interactedIndex]);
+			itemInHand = itemToHold;
+			amountOfItem++;
+		}
+	}
+	else {
+		std::cout << interactivePickablesIndex[interactedIndex] << std::endl;
+		removePickables(interactivePickablesIndex[interactedIndex]);
+		itemInHand = itemToHold;
+		amountOfItem++;
 	}
 }
