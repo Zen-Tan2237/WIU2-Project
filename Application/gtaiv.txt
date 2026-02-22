@@ -15,3 +15,15 @@ else {
 	teaser = true;
 	graphics = not very good;
 }
+
+//dialogue 
+
+SceneHub
+- Welcome to our crooked carnival, today you will be earning points through our various minigames and challenges.
+- you can redeem your points for fantastic prizes such as, a anime figure or A GEFORCE RTX 5090!
+- But be careful, if you lose all your points, you will be trapped here forever!
+
+SceneTiltingTable
+- Welcome to the tilting table challenge, here you will be balancing a ball on a platform
+- Avoid the red holes, they will cause you to lose points, and try to get the ball into the green hole for 50 points!
+- Good luck, and remember, if you lose all your points, you will be trapped here forever!
