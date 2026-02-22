@@ -216,12 +216,12 @@ void SceneHub::Update(double dt)
 	BaseScene::Update(dt);
 
 	// name of interactive, I = interactive, coords
-	addInteractives("Chicken", 'I', glm::vec3(1, 0, 0));
-	addInteractives("Chicken1", 'I', glm::vec3(-1, 0, 0));
-	addInteractives("Chicken2", 'I', glm::vec3(0, 0, 1));
-	addInteractives("Chicken3", 'I', glm::vec3(0, 0, -1));
+	addInteractives("Enter Scene 2 (SceneHub)", 'I', glm::vec3(1, 0, 0));
+	addInteractives("1", 'I', glm::vec3(-1, 0, 0));
+	addInteractives("2", 'I', glm::vec3(0, 0, 1));
+	addInteractives("3", 'I', glm::vec3(0, 0, -1));
 
-	addInteractives("Y", 'I', glm::vec3(0.f, -1.f, 0.f));
+	addInteractives("4", 'I', glm::vec3(0.f, 1.f, 0.f));
 
 	//addPickables("Halal Pork", glm::vec3(0, 0, 0));
 	initializePickablesInteractives();

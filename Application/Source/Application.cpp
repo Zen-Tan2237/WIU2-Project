@@ -158,92 +158,52 @@ void Application::Run()
 	m_timer.startTimer();    // Start timer to calculate how long it takes to render this frame
 	while (!glfwWindowShouldClose(m_window) && !IsKeyPressed(VK_ESCAPE))
 	{
-		//change stuff later (scene switching)
-		if (!isEnterUp && KeyboardController::GetInstance() -> IsKeyDown(GLFW_KEY_ENTER)) {
-			if (sceneNum == SCENE1) {
-				scene1->Exit(); // Ensure you exit previous screen and remove the previous shader
-				scene2->Init(); // Initialise the next screen
-				scene = scene2;
-				sceneNum = SCENE2;
-			}
-			else if (sceneNum == SCENE2) {
-				scene2->Exit();
-				scene1->Init();
-				scene = scene1;
-				sceneNum = SCENE1;
-			}
-
-			////uncomment after game properly implemented
-			//if (scene->nextScene != 0)
-			//{
-			//	switch (scene->nextScene)
-			//	{
-			//	case 1:
-			//		scene->Exit();
-
-			//		scene1->Init();
-			//		scene = scene1;
-			//		break;
-
-			//	case 2:
-			//		scene->Exit();
-
-			//		scene1->Init();
-			//		scene = scene2;
-			//		break;
-
-			//	case 3:
-			//		scene->Exit();
-
-			//		scene1->Init();
-			//		scene = scene3;
-			//		break;
-
-			//	case 4:
-			//		scene->Exit();
-
-			//		scene1->Init();
-			//		scene = scene4;
-			//		break;
-
-			//	case 5:
-			//		scene->Exit();
-
-			//		scene1->Init();
-			//		scene = scene5;
-			//		break;
-
-			//	default:
-			//		scene->nextScene = 0;
-			//		break;
-			//	}
-			//}
-
-			isEnterUp = true;
-		}
-		else if (isEnterUp && KeyboardController::GetInstance() -> IsKeyUp(GLFW_KEY_ENTER)) //change later
-		{
-			isEnterUp = false;
-		}
-
 		scene->Update(m_timer.getElapsedTime());
+
+		// Scene switching system
+		if (scene->nextScene != 0 && scene->nextSceneDelay == 0.f)
+		{
+			Scene* newScene = nullptr;
+
+			switch (scene->nextScene)
+			{
+			case 1:
+				newScene = scene1;
+				break;
+			case 2:
+				newScene = scene2;
+				break;
+			case 3:
+				newScene = scene3;
+				break;
+
+			default:
+				break;
+			}
+
+			if (newScene)
+			{
+				scene->Exit();
+				newScene->Init();
+				scene = newScene;
+			}
+
+			scene->nextScene = 0; // reset trigger
+		}
+
 		scene->Render();
-		//Swap buffers	
 		glfwSwapBuffers(m_window);
 
 		KeyboardController::GetInstance()->PostUpdate();
-
 		MouseController::GetInstance()->PostUpdate();
+
 		double mouse_x, mouse_y;
 		glfwGetCursorPos(m_window, &mouse_x, &mouse_y);
 		MouseController::GetInstance()->UpdateMousePosition(mouse_x, mouse_y);
 
-
-		//Get and organize events, like keyboard and mouse input, window resizing, etc...
 		glfwPollEvents();
-        m_timer.waitUntil(frameTime);       // Frame rate limiter. Limits each frame to a specified time in ms.   
-
-	} //Check if the ESC key had been pressed or if the window had been closed
+		m_timer.waitUntil(frameTime);
+	}
 	scene->Exit();
 	delete scene; //delete when scene switching implimented
 	/*delete scene1;

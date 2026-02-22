@@ -12,7 +12,8 @@ public:
 	virtual void Render() = 0;
 	virtual void Exit() = 0;
 
-	int nextScene;
+	int nextScene = 0;
+	double nextSceneDelay = 0.f;
 };
 
 #endif

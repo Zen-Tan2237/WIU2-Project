@@ -324,7 +324,9 @@ void BaseScene::Update(double dt)
 
 	previousBobOffset = currentBobOffset;
 
-	camera.Update(dt);
+	if (nextScene == 0) {
+		camera.Update(dt);
+	}
 
 	//
 
@@ -358,6 +360,14 @@ void BaseScene::Update(double dt)
 	itemInHandGUI_scaleOffset += (itemInHandGUI_targetScaleOffset - itemInHandGUI_scaleOffset) * t2;
 
 	resetInteractives();
+
+	//
+	if (nextSceneDelay > 0.f) {
+		nextSceneDelay -= dt;
+	}
+	else {
+		nextSceneDelay = 0.f;
+	}
 }
 
 void BaseScene::Render()
@@ -641,7 +651,10 @@ void BaseScene::HandleKeyPress()
 	// INTERACTIVES HANDLER
 	if (interactedIndex != -1 && KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_F)) { // means got prompt, is close to and facing smth
 		if (interactivesType[interactedIndex] == 'I') { // its an interactive
-
+			if (interactives[interactedIndex] == "Enter Scene 2 (SceneHub)") {
+				nextScene = 2;
+				nextSceneDelay = 1.f;
+			}
 		}
 		else if (interactivesType[interactedIndex] == 'P') { // its a pickable
 			std::string temp = interactives[interactedIndex];
@@ -983,6 +996,17 @@ void BaseScene::RenderUI()
 		RenderMesh(meshList[GEO_INTERACT_EUI], false);
 
 		modelStack.PopMatrix();
+	}
+
+	{
+		// Render Switch Scene UI
+		if (nextScene != 0) {
+			glDisable(GL_DEPTH_TEST);
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+			RenderMeshOnScreen(meshList[GEO_SWITCHSCENE_GUI], 0.f, 0.f, 1200, 675);
+		}
 	}
 }
 
