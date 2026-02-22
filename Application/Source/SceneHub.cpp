@@ -206,16 +206,18 @@ void SceneHub::Init()
 		glUniform1f(m_parameters[U_LIGHT7_COSCUTOFF], cosf(glm::radians<float>(light[7].cosCutoff)));
 		glUniform1f(m_parameters[U_LIGHT7_COSINNER], cosf(glm::radians<float>(light[7].cosInner)));
 		glUniform1f(m_parameters[U_LIGHT7_EXPONENT], light[7].exponent);
-	}
+	} 
 
 	//models
 	//meshList[GEO_STALL] = MeshBuilder::GenerateOBJMTL("Stall", "OBJ//stall.obj", "OBJ//stall.mtl");
 	meshList_hub[GEO_STALL] = MeshBuilder::GenerateOBJ("Stall", "Models//mannequin.obj"); //placeholder
 	meshList_hub[GEO_STALL]->textureID = LoadTGA("Image//Menu_GUI.tga");
 
-	// setup phase durations here
-	phaseDurations[0][0] = 1.f;
-	phaseDurations[0][1] = 2.f;
+	// setup phase durations here ([first one is part][second one is phase]. phase means like u want a constant stream of dialgoues
+	// make sure whenver u do part++, u have like (if part == <the number they should be at>) then part++
+	phaseDurations[0][0] = 6.7f;
+	phaseDurations[0][1] = 6.7f;
+	phaseDurations[0][2] = 6.7f;
 }
 
 void SceneHub::Update(double dt)
@@ -244,6 +246,21 @@ void SceneHub::Update(double dt)
 				nextSceneDelay = 1.f;
 				sceneSwitchUI_targetScalePercentage = 1.f;
 			}
+			else if (interactives[interactedIndex] == "1") {
+				if (part == 0)
+				{
+					addPickables("Halal Pork", glm::vec3(0, 0, 0));
+				}
+			}
+			else if (interactives[interactedIndex] == "2") {
+				// do something
+			}
+			else if (interactives[interactedIndex] == "3") {
+				// do something
+			}
+			else if (interactives[interactedIndex] == "4") {
+				// do something
+			}
 		}
 	}
 }
@@ -270,10 +287,13 @@ void SceneHub::Render()
 		case 0: // part 1
 			switch (phase) {
 			case 0:
-				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "UR DIALOGUE HERE", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
+				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Welcome to our crooked carnival, today you will be earning points through our various minigames and challenges.", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
 				break;
 			case 1:
-				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "UR DIALOGUE HERE 2", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
+				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "you can redeem your points for fantastic prizes such as, a anime figure or A GEFORCE RTX 5090!", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
+				break;
+			case 2:
+				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "But be careful, if you lose all your points, you will be trapped here forever!", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
 				break;
 			default:
 				break;
