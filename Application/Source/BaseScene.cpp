@@ -1075,7 +1075,7 @@ void BaseScene::resetInteractives()
 		interactives[i] = "";
 		interactivesType[i] = ' ';
 		interactivesPos[i] = glm::vec3(0, 0, 0);
-
+		interactivePickablesIndex[i] = 0;
 		interactedIndexes[i] = -1;
 	}
 
@@ -1227,7 +1227,6 @@ void BaseScene::dropItemInHand(int amountToRemove)
 	}
 	else {
 		for (int i = 0; i < amountOfItem; i++) {
-			amountOfItem--;
 			glm::vec3 placementPos = camera.target;
 			placementPos.y = 0.f;
 			placementPos += glm::vec3(((rand() % 5) - 2) / 100.f, 0, ((rand() % 5) - 2) / 100.f);
@@ -1247,20 +1246,20 @@ void BaseScene::addItemInHand()
 
 	if (itemInHand != "") { // if holding smth already
 		if (itemInHand == interactives[interactedIndex]) { // same item
-			std::cout << interactivePickablesIndex[interactedIndex] << std::endl;
+			//std::cout << interactivePickablesIndex[interactedIndex] << std::endl;
 			removePickables(interactivePickablesIndex[interactedIndex]);
 			amountOfItem++;
 		}
 		else {
 			dropItemInHand(amountOfItem);
-			std::cout << interactivePickablesIndex[interactedIndex] << std::endl;
+			//std::cout << interactivePickablesIndex[interactedIndex] << std::endl;
 			removePickables(interactivePickablesIndex[interactedIndex]);
 			itemInHand = itemToHold;
 			amountOfItem++;
 		}
 	}
 	else {
-		std::cout << interactivePickablesIndex[interactedIndex] << std::endl;
+		//std::cout << interactivePickablesIndex[interactedIndex] << std::endl;
 		removePickables(interactivePickablesIndex[interactedIndex]);
 		itemInHand = itemToHold;
 		amountOfItem++;
