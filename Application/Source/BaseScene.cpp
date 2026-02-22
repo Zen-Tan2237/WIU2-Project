@@ -996,7 +996,7 @@ void BaseScene::RenderUI()
 	glm::vec3 euiPos(0, 1000, 0);
 
 	for (int i = 0; i < noOfInteractives; i++) {
-		euiPos = interactivesPos[i] + glm::vec3(0, 0.5f, 0);
+		euiPos = interactivesPos[i] + glm::vec3(0, 0.25f, 0);
 
 		glm::vec3 dir = camera.position - euiPos;
 		dir = glm::normalize(dir);

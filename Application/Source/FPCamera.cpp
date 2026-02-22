@@ -12,6 +12,16 @@ FPCamera::FPCamera() : isDirty(false)
 	this->position = glm::vec3(0, 0, 0);
 	this->target = glm::vec3(0, 0, 0);
 	this->up = glm::vec3(0, 1, 0);
+
+	glm::vec3 forward = glm::normalize(target - position);
+
+	yaw = glm::degrees(atan2(forward.z, forward.x));
+	pitch = glm::degrees(asin(forward.y));
+
+	targetYaw = yaw;
+	targetPitch = pitch;
+	roll = 0.f;
+	targetRoll = 0.f;
 }
 
 FPCamera::~FPCamera()
@@ -24,6 +34,17 @@ void FPCamera::Init(glm::vec3 position, glm::vec3 target, glm::vec3 up)
 	this->target = target;
 	this->up = up;
 	this->isDirty = true;
+
+	// Reset rotation state
+	glm::vec3 forward = glm::normalize(target - position);
+
+	yaw = glm::degrees(atan2(forward.z, forward.x));
+	pitch = glm::degrees(asin(forward.y));
+
+	targetYaw = yaw;
+	targetPitch = pitch;
+	roll = 0.f;
+	targetRoll = 0.f;
 
 	Refresh();
 }
