@@ -33,7 +33,7 @@ private:
     float targetYaw = -90.0f;
     float targetPitch = 0.0f;
 
-    float rotationSmoothness = 20.0f; // higher is more snappier
+    float rotationSmoothness = 40.0f; // higher is more snappier
 
     // camera tilt
     float roll = 0.0f;

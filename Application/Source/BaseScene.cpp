@@ -191,8 +191,10 @@ void BaseScene::Init()
 	meshList[GEO_INTERACTFADE_GUI] = MeshBuilder::GenerateQuad("Interact Fade GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
 	meshList[GEO_INTERACTFADE_GUI]->textureID = LoadTGA("Image//InteractFade_GUI.tga");
 
-	meshList[GEO_CROSSHAIR_GUI] = MeshBuilder::GenerateQuad("Crosshair GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
-	meshList[GEO_CROSSHAIR_GUI]->textureID = LoadTGA("Image//Crosshair_GUI.tga");
+	meshList[GEO_CROSSHAIRTRANSLUCENT_GUI] = MeshBuilder::GenerateQuad("Crosshair Translucent GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
+	meshList[GEO_CROSSHAIRTRANSLUCENT_GUI]->textureID = LoadTGA("Image//CrosshairTranslucent_GUI.tga");
+	meshList[GEO_CROSSHAIROPAQUE_GUI] = MeshBuilder::GenerateQuad("Crosshair Opaque GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
+	meshList[GEO_CROSSHAIROPAQUE_GUI]->textureID = LoadTGA("Image//CrosshairOpaque_GUI.tga");
 
 	meshList[GEO_ITEMINHANDFADE_GUI] = MeshBuilder::GenerateQuad("ItemInHand Fade GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
 	meshList[GEO_ITEMINHANDFADE_GUI]->textureID = LoadTGA("Image//ItemInHandFade_GUI.tga");
@@ -887,9 +889,10 @@ void BaseScene::RenderUI()
 		glDisable(GL_DEPTH_TEST);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		RenderMeshOnScreen(meshList[GEO_CROSSHAIR_GUI], 0, 0, 1600, 900);
 
 		if (interactedIndex != -1) {
+			RenderMeshOnScreen(meshList[GEO_CROSSHAIROPAQUE_GUI], 0, 0, 1600, 900);
+
 			RenderMeshOnScreen(meshList[GEO_INTERACTFADE_GUI], interactGUI_positionOffset.x, interactGUI_positionOffset.y, 1600, 900);
 			RenderTextOnScreen(meshList[GEO_VCROSDMONO_FONT], interactives[interactedIndex], glm::vec3(1, 1, 1), 20, 410 + interactGUI_positionOffset.x * 1.5f, -10 + interactGUI_positionOffset.y, 'R', .6f);
 
@@ -901,6 +904,9 @@ void BaseScene::RenderUI()
 			else {
 				RenderTextOnScreen(meshList[GEO_HOMEVIDEO_FONT], "[F]", glm::vec3(109 / 255.f, 41 / 255.f, 34 / 255.f), 26, 440 + interactGUI_positionOffset.x, -13 + interactGUI_positionOffset.y, 'L', .6f);
 			}
+		}
+		else {
+			RenderMeshOnScreen(meshList[GEO_CROSSHAIRTRANSLUCENT_GUI], 0, 0, 1600, 900);
 		}
 
 		RenderTextOnScreen(meshList[GEO_CARNIVALEEFREAKSHOW_FONT], "SCORE", glm::vec3(0, 1, 0), 45, -795, 400, 'L', .6f);
