@@ -229,6 +229,9 @@ void BaseScene::Init()
 	meshList[GEO_VCROSDMONO_FONT] = MeshBuilder::GenerateText("VCROSD Mono Font", 16, 16);
 	meshList[GEO_VCROSDMONO_FONT]->textureID = LoadTGA("Fonts//VCROSDMono.tga");
 
+	meshList[GEO_MINGLIUEXTB_FONT] = MeshBuilder::GenerateText("MingLiuExtB Font", 16, 16);
+	meshList[GEO_MINGLIUEXTB_FONT]->textureID = LoadTGA("Fonts//MingLiuExtB.tga");
+
 
 	glm::mat4 projection = glm::perspective(45.0f, 16.0f / 9.0f, 0.1f, 1000.0f);
 	projectionStack.LoadMatrix(projection);
@@ -270,6 +273,19 @@ void BaseScene::Init()
 
 	sceneSwitchUI_scalePercentage = 0.35f;
 	sceneSwitchUI_targetScalePercentage = 0.35f;
+
+	// DIALGOUE
+
+	oldPart = 0;
+	part = 0;
+	oldPhase = 0;
+	phase = 0;
+
+	for (int k = 0; k < TOTAL_PARTS; k++) {
+		for (int i = 0; i < TOTAL_PHASES; i++) {
+			phaseDurations[k][i] = 0.f;
+		}
+	}
 }
 
 void BaseScene::Update(double dt)
@@ -371,6 +387,25 @@ void BaseScene::Update(double dt)
 	}
 	else {
 		nextSceneDelay = 0.f;
+	}
+
+	//
+	if (oldPart != part) {
+		oldPart = part;
+	}
+	if (oldPhase != phase) {
+		oldPhase = phase;
+	}
+
+	if (currPhaseElapsed >= phaseDurations[part][phase]) {
+		if (phase + 1 <= TOTAL_PHASES - 1) {
+			phase++;
+		}
+		
+		currPhaseElapsed = 0.f;
+	}
+	else {
+		currPhaseElapsed += dt;
 	}
 }
 
@@ -655,11 +690,7 @@ void BaseScene::HandleKeyPress()
 	// INTERACTIVES HANDLER
 	if (interactedIndex != -1 && KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_F)) { // means got prompt, is close to and facing smth
 		if (interactivesType[interactedIndex] == 'I') { // its an interactive
-			if (interactives[interactedIndex] == "Enter Scene 2 (SceneHub)") {
-				nextScene = 2;
-				nextSceneDelay = 1.f;
-				sceneSwitchUI_targetScalePercentage = 1.f;
-			}
+			// do it in actual scene instead
 		}
 		else if (interactivesType[interactedIndex] == 'P') { // its a pickable
 			std::string temp = interactives[interactedIndex];
@@ -952,6 +983,9 @@ void BaseScene::RenderUI()
 			RenderTextOnScreen(meshList[GEO_HOMEVIDEO_FONT], "[X]", glm::vec3(1, 1, 1), 15, 700, -320 + itemInHandGUI_scaleOffset.y, 'R', .6f);
 			RenderTextOnScreen(meshList[GEO_VCROSDMONO_FONT], "Drop", glm::vec3(1, 1, 1), 15, 660, -320 + itemInHandGUI_scaleOffset.y, 'R', .6f);
 		}
+
+		// Debug
+		RenderTextOnScreen(meshList[GEO_HOMEVIDEOBOLD_FONT], "PART: " + std::to_string(part) + " PHASE: " + std::to_string(phase), glm::vec3(1, 1, 1), 15, 0, 435, 'C', .6f);
 	}
 
 	// Render EUI

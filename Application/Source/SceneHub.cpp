@@ -13,6 +13,9 @@
 #include <iostream>
 #include "LoadTGA.h"
 
+#include "KeyboardController.h"
+#include "MouseController.h"
+
 SceneHub::SceneHub()
 {
 }
@@ -209,6 +212,10 @@ void SceneHub::Init()
 	//meshList[GEO_STALL] = MeshBuilder::GenerateOBJMTL("Stall", "OBJ//stall.obj", "OBJ//stall.mtl");
 	meshList_hub[GEO_STALL] = MeshBuilder::GenerateOBJ("Stall", "Models//mannequin.obj"); //placeholder
 	meshList_hub[GEO_STALL]->textureID = LoadTGA("Image//Menu_GUI.tga");
+
+	// setup phase durations here
+	phaseDurations[0][0] = 1.f;
+	phaseDurations[0][1] = 2.f;
 }
 
 void SceneHub::Update(double dt)
@@ -226,6 +233,19 @@ void SceneHub::Update(double dt)
 	//addPickables("Halal Pork", glm::vec3(0, 0, 0));
 	initializePickablesInteractives();
 	getClosestInteractive();
+
+
+	// handle what type of interactive, what type of event
+	if (interactedIndex != -1 && KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_F)) { // means got prompt, is close to and facing smth
+		if (interactivesType[interactedIndex] == 'I') { // its an interactive
+			// do it in actual scene instead
+			if (interactives[interactedIndex] == "Enter Scene 2 (SceneHub)") {
+				nextScene = 2;
+				nextSceneDelay = 1.f;
+				sceneSwitchUI_targetScalePercentage = 1.f;
+			}
+		}
+	}
 }
 
 void SceneHub::Render()
@@ -242,6 +262,26 @@ void SceneHub::Render()
 		meshList_hub[GEO_STALL]->material.kShininess = 1.0f;
 
 		RenderMesh(meshList_hub[GEO_STALL], true);
+	}
+
+	{
+		// Render Dialogue
+		switch (part) {
+		case 0: // part 1
+			switch (phase) {
+			case 0:
+				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "UR DIALOGUE HERE", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
+				break;
+			case 1:
+				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "UR DIALOGUE HERE 2", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
+				break;
+			default:
+				break;
+			}
+
+		default:
+			break;
+		}
 	}
 
 	BaseScene::RenderUI();

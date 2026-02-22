@@ -13,6 +13,9 @@ static const int TOTAL_INTERACTIVES = 100;
 static const int TOTAL_PICKABLES = 10;
 static const int TOTAL_LIGHTS = 8;
 
+static const int TOTAL_PARTS = 30;
+static const int TOTAL_PHASES = 30;
+
 class BaseScene : public Scene
 {
 public:
@@ -49,6 +52,7 @@ public:
 		GEO_HOMEVIDEO_FONT,
 		GEO_HOMEVIDEOBOLD_FONT,
 		GEO_VCROSDMONO_FONT,
+		GEO_MINGLIUEXTB_FONT,
 
 		//debug
 
@@ -223,7 +227,6 @@ public:
 
 	glm::vec3 currentPlayerPosition, previousPlayerPosition;
 	glm::vec3 previousBobOffset = glm::vec3(0.0f);
-	//
 
 	// INTERACTIVES
 	int noOfInteractives;
@@ -246,7 +249,7 @@ public:
 	glm::vec2 interactGUI_positionOffset;
 	glm::vec2 interactGUI_targetPositionOffset;
 
-	//
+	// ITEM IN HAND
 
 	std::string itemInHand;
 	std::string previousItemInHand;
@@ -257,12 +260,22 @@ public:
 	glm::vec3 itemInHandGUI_scaleOffset;
 	glm::vec3 itemInHandGUI_targetScaleOffset;
 
-	//
+	// SCENE SWITCH UI
 
 	float sceneSwitchUI_scalePercentage;
 	float sceneSwitchUI_targetScalePercentage;
 
-	//
+	// DIALOGUE HANDLING
+
+	int oldPart;
+	int part;
+	int oldPhase;
+	int phase;
+
+	double currPhaseElapsed;
+	double phaseDurations[TOTAL_PARTS][TOTAL_PHASES];
+
+	// OTHERS
 
 	int projType = 1; // fix to 0 for orthographic, 1 for projection
 
