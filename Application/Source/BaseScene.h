@@ -10,8 +10,11 @@
 #include <vector> // added
 
 static const int TOTAL_INTERACTIVES = 100;
-static const int TOTAL_PICKABLES = 10;
+static const int TOTAL_PICKABLES = 50;
 static const int TOTAL_LIGHTS = 8;
+
+static const int TOTAL_PARTS = 30;
+static const int TOTAL_PHASES = 30;
 
 class BaseScene : public Scene
 {
@@ -32,6 +35,12 @@ public:
 		GEO_MENU_GUI,
 		GEO_SWITCHSCENE_GUI,
 		GEO_INTERACTFADE_GUI,
+		GEO_CROSSHAIRTRANSLUCENT_GUI,
+		GEO_CROSSHAIROPAQUE_GUI,
+
+		GEO_ITEMINHANDFADE_GUI,
+		GEO_ITEMINHANDBORDER_GUI,
+		GEO_ITEMINHANDFADEBACKGROUND_GUI,
 
 		// EUI
 		GEO_INTERACT_EUI,
@@ -43,6 +52,7 @@ public:
 		GEO_HOMEVIDEO_FONT,
 		GEO_HOMEVIDEOBOLD_FONT,
 		GEO_VCROSDMONO_FONT,
+		GEO_MINGLIUEXTB_FONT,
 
 		//debug
 
@@ -177,7 +187,7 @@ public:
 		MatrixStack& m_ms;
 	};
 
-	void HandleKeyPress();
+	void HandleKeyPress(double dt);
 	void HandleMouseInput();
 	void RenderMesh(Mesh* mesh, bool enableLight);
 	void RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizeX, float sizeY);
@@ -189,11 +199,14 @@ public:
 	void setCameraOrigin(glm::vec3 position, glm::vec3 target, glm::vec3 up);
 
 	void resetInteractives();
-	void addInteractives(std::string name, char type, glm::vec3 position);
+	void addInteractives(std::string name, char type, glm::vec3 position, int pickableIndex = 0.f);
 	void addPickables(std::string name, glm::vec3 position);
-	void removePickables(std::string name);
+	void removePickables(int index);
 	void initializePickablesInteractives();
 	void getClosestInteractive();
+
+	void dropItemInHand(int amountToRemove);
+	void addItemInHand();
 
 	unsigned m_vertexArrayID;
 	Mesh* meshList[NUM_GEOMETRY];
@@ -208,16 +221,15 @@ public:
 	glm::vec3 cameraOriginPosition;
 	glm::vec3 cameraOriginTarget;
 	glm::vec3 cameraOriginUp;
-	float bobAmplitudeVertical = 0.035f;
-	float bobAmplitudeHorizontal = 0.025f;
-	float bobFrequency = 6.0f;
+	float bobAmplitudeVertical = 0.02f;
+	float bobAmplitudeHorizontal = 0.015f;
+	float bobFrequency = 12.0f;
 
 	float bobDistanceAccumulated = 0.0f;
 	float currentBobWeight = 0.0f;
 
 	glm::vec3 currentPlayerPosition, previousPlayerPosition;
 	glm::vec3 previousBobOffset = glm::vec3(0.0f);
-	//
 
 	// INTERACTIVES
 	int noOfInteractives;
@@ -227,6 +239,7 @@ public:
 	glm::vec3 interactivesPos[TOTAL_INTERACTIVES];
 
 	int interactedIndexes[TOTAL_INTERACTIVES];
+	int interactivePickablesIndex[TOTAL_INTERACTIVES];
 	int interactedIndex;
 	int previousInteractedIndex;
 
@@ -239,13 +252,44 @@ public:
 
 	glm::vec2 interactGUI_positionOffset;
 	glm::vec2 interactGUI_targetPositionOffset;
-	//
+
+	// ITEM IN HAND
+
+	std::string itemInHand;
+	int amountOfItem;
+	std::string previousItemInHand;
+	double itemInHandElapsed;
+
+	bool itemInUse;
+
+	glm::vec3 itemInHandGUI_scaleOffset;
+	glm::vec3 itemInHandGUI_targetScaleOffset;
+
+	double dropKeybindHeldElapsed;
+	bool droppedFirst;
+
+	// SCENE SWITCH UI
+
+	float sceneSwitchUI_scalePercentage;
+	float sceneSwitchUI_targetScalePercentage;
+
+	// DIALOGUE HANDLING
+
+	int oldPart;
+	int part;
+	int oldPhase;
+	int phase;
+
+	double currPhaseElapsed;
+	double phaseDurations[TOTAL_PARTS][TOTAL_PHASES];
+
+	// OTHERS
 
 	int projType = 1; // fix to 0 for orthographic, 1 for projection
 
 	MatrixStack modelStack, viewStack, projectionStack;
 
-	
+
 	Light light[TOTAL_LIGHTS];
 	bool enableLight;
 

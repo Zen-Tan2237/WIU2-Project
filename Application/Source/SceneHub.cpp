@@ -13,6 +13,9 @@
 #include <iostream>
 #include "LoadTGA.h"
 
+#include "KeyboardController.h"
+#include "MouseController.h"
+
 SceneHub::SceneHub()
 {
 }
@@ -203,12 +206,18 @@ void SceneHub::Init()
 		glUniform1f(m_parameters[U_LIGHT7_COSCUTOFF], cosf(glm::radians<float>(light[7].cosCutoff)));
 		glUniform1f(m_parameters[U_LIGHT7_COSINNER], cosf(glm::radians<float>(light[7].cosInner)));
 		glUniform1f(m_parameters[U_LIGHT7_EXPONENT], light[7].exponent);
-	}
+	} 
 
 	//models
 	//meshList[GEO_STALL] = MeshBuilder::GenerateOBJMTL("Stall", "OBJ//stall.obj", "OBJ//stall.mtl");
-	meshList_hub[GEO_STALL] = MeshBuilder::GenerateOBJ("Stall", "Models//mannequin.obj"); //placeholder
-	meshList_hub[GEO_STALL]->textureID = LoadTGA("Image//Menu_GUI.tga");
+	meshList_hub[GEO_STALL] = MeshBuilder::GenerateOBJMTL("Stall", "Models//baseball.obj", "Models//baseball.mtl");
+	meshList_hub[GEO_STALL]->textureID = LoadTGA("Textures//baseball.tga");
+
+	// setup phase durations here ([first one is part][second one is phase]. phase means like u want a constant stream of dialgoues
+	// make sure whenver u do part++, u have like (if part == <the number they should be at>) then part++
+	phaseDurations[0][0] = 6.7f;
+	phaseDurations[0][1] = 6.7f;
+	phaseDurations[0][2] = 6.7f;
 }
 
 void SceneHub::Update(double dt)
@@ -216,16 +225,44 @@ void SceneHub::Update(double dt)
 	BaseScene::Update(dt);
 
 	// name of interactive, I = interactive, coords
-	addInteractives("Chicken", 'I', glm::vec3(1, 0, 0));
-	addInteractives("Chicken1", 'I', glm::vec3(-1, 0, 0));
-	addInteractives("Chicken2", 'I', glm::vec3(0, 0, 1));
-	addInteractives("Chicken3", 'I', glm::vec3(0, 0, -1));
+	addInteractives("Enter Scene 2 (SceneHub)", 'I', glm::vec3(1, 0, 0));
+	addInteractives("1", 'I', glm::vec3(-1, 0, 0));
+	addInteractives("2", 'I', glm::vec3(0, 0, 1));
+	addInteractives("3", 'I', glm::vec3(0, 0, -1));
 
-	addInteractives("Y", 'I', glm::vec3(0.f, -1.f, 0.f));
+	addInteractives("4", 'I', glm::vec3(0.f, 1.f, 0.f));
 
 	//addPickables("Halal Pork", glm::vec3(0, 0, 0));
 	initializePickablesInteractives();
 	getClosestInteractive();
+
+
+	// handle what type of interactive, what type of event
+	if (interactedIndex != -1 && KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_F)) { // means got prompt, is close to and facing smth
+		if (interactivesType[interactedIndex] == 'I') { // its an interactive
+			// do it in actual scene instead
+			if (interactives[interactedIndex] == "Enter Scene 2 (SceneHub)") {
+				nextScene = 2;
+				nextSceneDelay = 1.f;
+				sceneSwitchUI_targetScalePercentage = 1.f;
+			}
+			else if (interactives[interactedIndex] == "1") {
+				if (part == 0)
+				{
+					addPickables("Halal Pork", glm::vec3(0, 0, 0));
+				}
+			}
+			else if (interactives[interactedIndex] == "2") {
+				// do something
+			}
+			else if (interactives[interactedIndex] == "3") {
+				// do something
+			}
+			else if (interactives[interactedIndex] == "4") {
+				// do something
+			}
+		}
+	}
 }
 
 void SceneHub::Render()
@@ -235,13 +272,36 @@ void SceneHub::Render()
 	{
 		PushPop stall(modelStack);
 		modelStack.Translate(0, 0, 0);
-		modelStack.Scale(10.1f, 10.1f, 10.1f);
+		modelStack.Scale(1.1f, 1.1f, 1.1f);
 		meshList_hub[GEO_STALL]->material.kAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
 		meshList_hub[GEO_STALL]->material.kDiffuse = glm::vec3(1.0f, 1.0f, 1.0f);
 		meshList_hub[GEO_STALL]->material.kSpecular = glm::vec3(0.0f, 0.0f, 0.0f);
 		meshList_hub[GEO_STALL]->material.kShininess = 1.0f;
 
 		RenderMesh(meshList_hub[GEO_STALL], true);
+	}
+
+	{
+		// Render Dialogue
+		switch (part) {
+		case 0: // part 1
+			switch (phase) {
+			case 0:
+				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Welcome to our crooked carnival, today you will be earning points through our various minigames and challenges.", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
+				break;
+			case 1:
+				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "you can redeem your points for fantastic prizes such as, a anime figure or A GEFORCE RTX 5090!", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
+				break;
+			case 2:
+				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "But be careful, if you lose all your points, you will be trapped here forever!", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
+				break;
+			default:
+				break;
+			}
+
+		default:
+			break;
+		}
 	}
 
 	BaseScene::RenderUI();
