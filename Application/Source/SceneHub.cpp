@@ -213,11 +213,23 @@ void SceneHub::Init()
 	meshList_hub[GEO_STALL] = MeshBuilder::GenerateOBJ("Stall", "Models//mannequin.obj"); //placeholder
 	meshList_hub[GEO_STALL]->textureID = LoadTGA("Image//Menu_GUI.tga");
 
+	meshList_hub[GEO_WALL] = MeshBuilder::GenerateCube("wall", glm::vec3(1.f, 0.f, 0.f), 1.f);
+
 	// setup phase durations here ([first one is part][second one is phase]. phase means like u want a constant stream of dialgoues
 	// make sure whenver u do part++, u have like (if part == <the number they should be at>) then part++
 	phaseDurations[0][0] = 6.7f;
 	phaseDurations[0][1] = 6.7f;
 	phaseDurations[0][2] = 6.7f;
+
+	// world objects
+	bool miscSettings[2] = { false, false }; // for gravity and drag. override in case of specific objects
+	PhysicsObject wall;
+
+	miscSettings[0] = true; // disable gravity for wall
+	miscSettings[1] = true; // disable drag for wall
+	wall.InitPhysicsObject(glm::vec3(0, 0, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(1, 1, 1), 45, glm::vec3(1, 0, 0), miscSettings);
+
+	worldObjects[0] = wall;
 }
 
 void SceneHub::Update(double dt)
@@ -268,6 +280,22 @@ void SceneHub::Update(double dt)
 void SceneHub::Render()
 {
 	BaseScene::Render();
+
+	{
+		PushPop wallGuard(modelStack);
+		modelStack.Translate(worldObjects[0].position.x, worldObjects[0].position.y, worldObjects[0].position.z);
+		glm::mat4 rotation = glm::mat4_cast(worldObjects[0].orientation);
+		modelStack.MultMatrix(rotation);
+		modelStack.Scale(worldObjects[0].boundingBox.getWidth(), worldObjects[0].boundingBox.getHeight(), worldObjects[0].boundingBox.getDepth());
+		//modelStack.Scale(5.f, 0.1f, 5.f);
+
+		meshList_hub[GEO_WALL]->material.kAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
+		meshList_hub[GEO_WALL]->material.kDiffuse = glm::vec3(1.0f, 1.0f, 1.0f);
+		meshList_hub[GEO_WALL]->material.kSpecular = glm::vec3(0.0f, 0.0f, 0.0f);
+		meshList_hub[GEO_WALL]->material.kShininess = 1.0f;
+
+		RenderMesh(meshList_hub[GEO_WALL], true);
+	}
 
 	{
 		PushPop stall(modelStack);

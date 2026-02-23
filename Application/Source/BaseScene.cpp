@@ -17,6 +17,7 @@
 #include "KeyboardController.h"
 #include "MouseController.h"
 #include "LoadTGA.h"
+#include "CollisionDetection.h"
 
 BaseScene::BaseScene()
 {
@@ -167,6 +168,16 @@ void BaseScene::Init()
 
 	// Initialise camera properties
 	setCameraOrigin(glm::vec3(0.f, 1.f, -1.f), glm::vec3(0.f, 1.f, 1.f), glm::vec3(0.f, 2.f, -1.f));
+
+	bool settings[2] = { false, false };
+
+	cameraBody.InitPhysicsObject(
+		camera.position,
+		67.0f, // mass = 0 (treated as static in impulses)
+		BoundingBox::Type::SPHERE,
+		glm::vec3(1.f, 2.f, 1.f),
+		settings
+	);
 
 	// Init VBO here
 	for (int i = 0; i < NUM_GEOMETRY; ++i)
@@ -351,6 +362,23 @@ void BaseScene::Update(double dt)
 	if (nextScene == 0) {
 		camera.Update(dt);
 	}
+
+	// Sync collider to camera
+	cameraBody.position = camera.position;
+	cameraBody.velocity = glm::vec3(0.f); // we don't use physics movement
+
+	// Run collision checks manually against world objects
+	for (auto& obj : worldObjects)
+	{
+		CollisionData cd;
+		if (CheckCollision(cameraBody, obj, cd))
+		{
+			ResolveCollision(cd);
+		}
+	}
+
+	// Copy corrected position back
+	camera.position = cameraBody.position;
 
 	//
 

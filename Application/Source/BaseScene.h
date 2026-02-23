@@ -7,6 +7,7 @@
 #include "MatrixStack.h"
 #include "Light.h"
 #include "FPCamera.h"
+#include "PhysicsObject.h"
 #include <vector> // added
 
 static const int TOTAL_INTERACTIVES = 100;
@@ -15,6 +16,8 @@ static const int TOTAL_LIGHTS = 8;
 
 static const int TOTAL_PARTS = 30;
 static const int TOTAL_PHASES = 30;
+
+static const int TOTAL_PHYSICSOBJECT = 100;
 
 class BaseScene : public Scene
 {
@@ -218,6 +221,8 @@ public:
 
 	// CAMERA PROPERTIES
 	FPCamera camera;
+	PhysicsObject cameraBody;
+
 	glm::vec3 cameraOriginPosition;
 	glm::vec3 cameraOriginTarget;
 	glm::vec3 cameraOriginUp;
@@ -284,6 +289,7 @@ public:
 	double phaseDurations[TOTAL_PARTS][TOTAL_PHASES];
 
 	// OTHERS
+	PhysicsObject worldObjects[TOTAL_PHYSICSOBJECT];
 
 	int projType = 1; // fix to 0 for orthographic, 1 for projection
 
