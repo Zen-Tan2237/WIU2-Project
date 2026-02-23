@@ -210,8 +210,8 @@ void SceneHub::Init()
 
 	//models
 	//meshList[GEO_STALL] = MeshBuilder::GenerateOBJMTL("Stall", "OBJ//stall.obj", "OBJ//stall.mtl");
-	meshList_hub[GEO_STALL] = MeshBuilder::GenerateOBJ("Stall", "Models//mannequin.obj"); //placeholder
-	meshList_hub[GEO_STALL]->textureID = LoadTGA("Image//Menu_GUI.tga");
+	meshList_hub[GEO_STALL] = MeshBuilder::GenerateOBJMTL("Stall", "Models//baseball.obj", "Models//baseball.mtl");
+	meshList_hub[GEO_STALL]->textureID = LoadTGA("Textures//baseball.tga");
 
 	// setup phase durations here ([first one is part][second one is phase]. phase means like u want a constant stream of dialgoues
 	// make sure whenver u do part++, u have like (if part == <the number they should be at>) then part++
@@ -272,7 +272,7 @@ void SceneHub::Render()
 	{
 		PushPop stall(modelStack);
 		modelStack.Translate(0, 0, 0);
-		modelStack.Scale(10.1f, 10.1f, 10.1f);
+		modelStack.Scale(1.1f, 1.1f, 1.1f);
 		meshList_hub[GEO_STALL]->material.kAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
 		meshList_hub[GEO_STALL]->material.kDiffuse = glm::vec3(1.0f, 1.0f, 1.0f);
 		meshList_hub[GEO_STALL]->material.kSpecular = glm::vec3(0.0f, 0.0f, 0.0f);
