@@ -192,6 +192,22 @@ void BaseScene::Init()
 
 	meshList[GEO_AXES] = MeshBuilder::GenerateAxes("Axes", 10000.f, 10000.f, 10000.f);
 
+	// MODELS
+	meshList[GEO_BASEBALL] = MeshBuilder::GenerateOBJ("Baseball", "Models//baseball.obj");
+	meshList[GEO_BASEBALL]->textureID = LoadTGA("Textures//baseball.tga");
+
+	meshList[GEO_CANSCOKE] = MeshBuilder::GenerateOBJ("Coke Can", "Models//Cans_Coke.obj");
+	meshList[GEO_CANSCOKE]->textureID = LoadTGA("Textures//Cans_Coke.tga");
+
+	meshList[GEO_CANSMTNDEW] = MeshBuilder::GenerateOBJ("Mtn Dew Can", "Models//Cans_Coke.obj");
+	meshList[GEO_CANSMTNDEW]->textureID = LoadTGA("Textures//Cans_MtnDew.tga");
+
+	meshList[GEO_CANSSPRITE] = MeshBuilder::GenerateOBJ("Sprite Can", "Models//Cans_Sprite.obj");
+	meshList[GEO_CANSSPRITE]->textureID = LoadTGA("Textures//Cans_Sprite.tga");
+
+	meshList[GEO_CANSPEPSI] = MeshBuilder::GenerateOBJ("Pepsi Can", "Models//Cans_Pepsi.obj");
+	meshList[GEO_CANSPEPSI]->textureID = LoadTGA("Textures//Cans_Pepsi.tga");
+
 	// GUI
 	meshList[GEO_MENU_GUI] = MeshBuilder::GenerateQuad("Menu GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
 	meshList[GEO_MENU_GUI]->textureID = LoadTGA("Image//Menu_GUI.tga");
@@ -274,8 +290,8 @@ void BaseScene::Init()
 	interactGUI_positionOffset = glm::vec2(-25.f, 0);
 	interactGUI_targetPositionOffset = glm::vec2(0, 0);
 
-	itemInHand = "Monkey";
-	amountOfItem = 10;
+	itemInHand = "";
+	amountOfItem = 0;
 	previousItemInHand = "";
 	itemInUse = false;
 
