@@ -24,6 +24,23 @@ SceneHub
 - But be careful, if you lose all your points, you will be trapped here forever!
 
 SceneTiltingTable
-- Welcome to the tilting table challenge, here you will be balancing a ball on a platform
+- Welcome to the tilting table challenge, here you will be balancing a ball on a platform.
 - Avoid the red holes, they will cause you to lose points, and try to get the ball into the green hole for 50 points!
 - Good luck, and remember, if you lose all your points, you will be trapped here forever!
+
+SceneKnockCans
+- Welcome to the can knocking challenge, here you will be knocking cans over with a baseball.
+- Each can is worth 10 points, but be careful, if you MISS, you will lose 5 points!
+- Good luck, and remember, if you lose all your points, you will be trapped here forever!
+
+SceneLebryani
+- Welcome to rise to the top, here you will be balancing a baseball on a tilting plank up a course.
+- Avoid falling off the course, and try to get to the end for 100 points!
+- However, if you fall off, you will lose 20 points :(
+- Good Luck, and remember, if you lose all your points, you will be trapped here forever!
+
+ScenePopBalloons
+- Welcome to the balloon popping challenge, here you will be popping balloons with a throwing knife!
+- Each balloon is worth 20 points, but be careful, if you MISS, you will lose 10 points!
+- Good luck, and remember, if you lose all your points, you will be trapped here forever!
+

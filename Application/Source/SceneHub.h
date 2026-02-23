@@ -7,7 +7,7 @@ class SceneHub : public BaseScene
 public:
     enum GEOMETRY_TYPE_HUB
     {
-        GEO_STALL,
+        GEO_WALL,
         NUM_GEOMETRY,
 	};
 

@@ -1,0 +1,13 @@
+# Blender 3.3.21 MTL File: 'hub (1).blend'
+# www.blender.org
+
+newmtl Background_Night_Buildings
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd C:/Users/Zen/Downloads/hub (2)/models/textures/Diffuse.png
+map_Ns C:/Users/Zen/Downloads/hub (2)/works/low-poly-night-city-building-skyline/source/BACKGROUND NIGHT BUILDINGS SKYLINE/BACKGROUND NIGHT BUILDING SKYLINE/SOURCE/Roughness.png
+map_Ke C:/Users/Zen/Downloads/hub (2)/models/textures/Emmsive.png
+map_Bump -bm 0.500000 C:/Users/Zen/Downloads/hub (2)/works/low-poly-night-city-building-skyline/source/BACKGROUND NIGHT BUILDINGS SKYLINE/BACKGROUND NIGHT BUILDING SKYLINE/SOURCE/Normal.png
