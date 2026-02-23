@@ -174,6 +174,10 @@ void SceneTester::Init()
 	if (result != MA_SUCCESS) {
 		std::cout << "Error loading sound" << std::endl; // error cout
 	}
+	ma_sound_set_position(&pop, 0.f, 5.f, 5.f);
+
+	//ma_sound_set_pinned_listener_index(&pop, 0);
+	ma_engine_listener_set_cone(Audio_GetEngine(), 0, 0.5f, 1.f, 50.f);
 }
 
 void SceneTester::Update(double dt)
@@ -196,6 +200,10 @@ void SceneTester::Update(double dt)
 		ma_sound_seek_to_pcm_frame(&pop, 0);
 		ma_sound_start(&pop);
 	}
+
+	// Update spatial audio data
+	ma_engine_listener_set_position(Audio_GetEngine(), 0, camera.position.x, camera.position.y, camera.position.z);
+	ma_engine_listener_set_direction(Audio_GetEngine(), 0, camera.target.x, camera.target.y, camera.target.z);
 
 	// CAMERA BOBBING
 	camera.position -= previousBobOffset;
@@ -408,6 +416,15 @@ void SceneTester::Render()
 	RenderTextOnScreen(meshList[GEO_TEXT], "Hello Screen", glm::vec3(0, 1, 0), 40, 0, 0, 'C', 1.f);
 	std::string temp("FPS:" + std::to_string(fps));
 	RenderTextOnScreen(meshList[GEO_TEXT], temp.substr(0, 9), glm::vec3(0, 1, 0), 40, 0, 550, 'C', 1.f);
+
+
+	//{
+	//	PushPop cameraTarget(modelStack);
+
+	//	modelStack.Translate(0.f, 5.f, 5.f);
+	//	modelStack.Scale(0.1f, 0.1f, 0.1f);
+	//	RenderMesh(meshList[GEO_SPHERE], true);
+	//}
 }
 
 void SceneTester::RenderMesh(Mesh* mesh, bool enableLight)
