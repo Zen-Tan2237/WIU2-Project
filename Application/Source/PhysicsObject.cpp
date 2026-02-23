@@ -237,3 +237,12 @@ void PhysicsObject::InitPhysicsObject(glm::vec3 pos, float mass, BoundingBox::Ty
 		else invInertiaLocal[0][0] = invInertiaLocal[1][1] = invInertiaLocal[2][2] = 0.f;
 	}
 }
+
+void PhysicsObject::ResetPhysicsProperties() {
+	position = glm::vec3(0.f);
+	velocity = glm::vec3(0.f);
+	acceleration = glm::vec3(0.f);
+	orientation = glm::quat(1.f, 0.f, 0.f, 0.f);
+	angularVelocity = glm::vec3(0.f);
+	ForcesSetZero();
+}
