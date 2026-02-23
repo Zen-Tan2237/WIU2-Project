@@ -63,13 +63,13 @@ void PhysicsObject::UpdatePhysics(double dt) {
 	const float AngularSpeedThreshold = 0.01f; // Threshold below which we consider the object to be at rest in terms of rotation
 
 	// If gravity is enabled, apply it as a force
-	if (GravityEnabled) {
+	if (GravityEnabled && mass > 0) {
 		glm::vec3 gravityForce = glm::vec3(0.f, -9.81f, 0.f);
 		totalForces += gravityForce * mass;
 	}
 
 	// If drag is enabled, apply it as a force opposite to the velocity
-	if (DragEnabled) {
+	if (DragEnabled && mass > 0) {
 		glm::vec3 dragForce = -Drag * velocity;
 		totalForces += dragForce;
 		acceleration += dragForce * (1.f / mass);
