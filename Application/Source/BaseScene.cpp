@@ -174,8 +174,8 @@ void BaseScene::Init()
 	cameraBody.InitPhysicsObject(
 		camera.position,
 		67.0f, // mass = 0 (treated as static in impulses)
-		BoundingBox::Type::SPHERE,
-		glm::vec3(1.f, 2.f, 1.f),
+		BoundingBox::Type::OBB,
+		glm::vec3(.5f, 5.f, .5f),
 		settings
 	);
 
@@ -276,9 +276,21 @@ void BaseScene::Init()
 		interactivePickablesIndex[i] = 0;
 	}
 
+	settings[0] = true;
+	settings[1] = false;
+
 	for (int i = 0; i < TOTAL_PICKABLES; i++) {
-		pickables[i] = "";
-		pickablesPos[i] = glm::vec3(0, 0, 0);
+		pickables[i].name = "";
+		pickables[i].body.position = glm::vec3(0, 0, 0);
+		pickables[i].isHeld = false;
+
+		pickables[i].body.InitPhysicsObject(
+			glm::vec3(0, 0, 0),
+			1.0f, // mass = 0 (treated as static in impulses)
+			BoundingBox::Type::OBB,
+			glm::vec3(.5f, .5f, .1f),
+			settings
+		);
 	}
 
 	noOfInteractives = 0;
@@ -290,9 +302,9 @@ void BaseScene::Init()
 	interactGUI_positionOffset = glm::vec2(-25.f, 0);
 	interactGUI_targetPositionOffset = glm::vec2(0, 0);
 
-	itemInHand = "";
+	itemInHand = nullptr;
 	amountOfItem = 0;
-	previousItemInHand = "";
+	previousItemInHandName = "";
 	itemInUse = false;
 
 	itemInHandElapsed = 0.f;
@@ -318,6 +330,31 @@ void BaseScene::Init()
 			phaseDurations[k][i] = 0.f;
 		}
 	}
+
+	meshList[GEO_BASEBALL]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	meshList[GEO_BASEBALL]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
+	meshList[GEO_BASEBALL]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+	meshList[GEO_BASEBALL]->material.kShininess = 1.0f;
+
+	meshList[GEO_CANSCOKE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	meshList[GEO_CANSCOKE]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
+	meshList[GEO_CANSCOKE]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+	meshList[GEO_CANSCOKE]->material.kShininess = 1.0f;
+
+	meshList[GEO_CANSSPRITE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	meshList[GEO_CANSSPRITE]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
+	meshList[GEO_CANSSPRITE]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+	meshList[GEO_CANSSPRITE]->material.kShininess = 1.0f;
+
+	meshList[GEO_CANSPEPSI]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	meshList[GEO_CANSPEPSI]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
+	meshList[GEO_CANSPEPSI]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+	meshList[GEO_CANSPEPSI]->material.kShininess = 1.0f;
+
+	meshList[GEO_CANSMTNDEW]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	meshList[GEO_CANSMTNDEW]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
+	meshList[GEO_CANSMTNDEW]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+	meshList[GEO_CANSMTNDEW]->material.kShininess = 1.0f;
 }
 
 void BaseScene::Update(double dt)
@@ -379,41 +416,70 @@ void BaseScene::Update(double dt)
 		camera.Update(dt);
 	}
 
-	// Sync collider to camera
+	// COLLISIONS
 	cameraBody.position = camera.position;
-	cameraBody.velocity = glm::vec3(0.f); // we don't use physics movement
+	cameraBody.velocity = glm::vec3(0.f);
 
-	// Run collision checks manually against world objects
-	for (auto& obj : worldObjects)
-	{
-		CollisionData cd;
+	// Camera - World Objects
+	CollisionData cd;
+	for (auto& obj : worldObjects) {
 		if (CheckCollision(cameraBody, obj, cd))
 		{
 			ResolveCollision(cd);
 		}
 	}
 
-	// Copy corrected position back
+	// Pickables - World Objects
+	for (int i = 0; i < TOTAL_PICKABLES; ++i) {
+		for (auto& obj : worldObjects) {
+			if (!pickables[i].isHeld) {
+				if (CheckCollision(pickables[i].body, obj, cd)) {
+					ResolveCollision(cd);
+				}
+			}	
+		}
+	}
+
+	// Pickables - Camera
+	//for (int i = 0; i < TOTAL_PICKABLES; ++i) {
+	//	if (!pickables[i].isHeld) {
+	//		if (CheckCollision(cameraBody, pickables[i].body, cd)) {
+	//			ResolveCollision(cd);
+	//		}
+	//	}
+	//}
+
+	// UPDATE PHYSICS
+	//cameraBody.UpdatePhysics(dt);
+
+	for (int i = 0; i < TOTAL_PICKABLES; ++i) {
+		if (!pickables[i].isHeld) {
+			pickables[i].body.UpdatePhysics(dt);
+		}
+	}
+
+	for (auto& obj : worldObjects) {
+		obj.UpdatePhysics(dt);
+	}
+
 	camera.position = cameraBody.position;
 
-	//
-
+	// FPS
 	float temp = 1.f / dt;
 	fps = glm::round(temp * 100.f) / 100.f;
 
 	//
-	if (itemInHand != previousItemInHand) {
-		previousItemInHand = itemInHand;
-		if (itemInHand != "") {
+	if (itemInHand != nullptr)
+	{
+		if (itemInHand->name != previousItemInHandName) {
+			previousItemInHandName = itemInHand->name;
 			itemInHandElapsed = 0.f;
 		}
-	}
 
-	if (itemInHand != "") {
 		itemInHandElapsed += dt;
 	}
 
-	if (itemInHand != "" && itemInHandElapsed < 2.f) {
+	if (itemInHand != nullptr && itemInHandElapsed < 2.f) {
 		itemInHandGUI_targetScaleOffset = glm::vec3(20.f, 200.f, 0);
 	}
 	else {
@@ -741,13 +807,17 @@ void BaseScene::HandleKeyPress(double dt)
 		if (interactivesType[interactedIndex] == 'I') { // its an interactive
 			// do it in actual scene instead
 		}
-		else if (interactivesType[interactedIndex] == 'P') { // its a pickable
-			addItemInHand();
+		else if (interactivesType[interactedIndex] == 'P')
+		{
+			int pickIndex = interactivePickablesIndex[interactedIndex];
+
+			addItemInHand(pickIndex);
+			//removePickables(pickIndex);
 		}
 	}
 
 	// HOLD ITEM HANDLER
-	if (itemInHand != "") { // hand has stuff
+	if (itemInHand != nullptr) { // hand has stuff
 		if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_E))
 		{
 			if (itemInUse) {
@@ -1015,7 +1085,7 @@ void BaseScene::RenderUI()
 
 		RenderTextOnScreen(meshList[GEO_CARNIVALEEFREAKSHOW_FONT], "SCORE", glm::vec3(0, 1, 0), 45, -795, 400, 'L', .6f);
 
-		if (itemInHand != "") {
+		if (itemInHand != nullptr) {
 			glDisable(GL_DEPTH_TEST);
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -1024,7 +1094,7 @@ void BaseScene::RenderUI()
 			RenderMeshOnScreen(meshList[GEO_ITEMINHANDFADEBACKGROUND_GUI], 603 - (itemInHandGUI_scaleOffset.x * .5f), -343.2f + (itemInHandGUI_scaleOffset.y * .5f), 214 + itemInHandGUI_scaleOffset.x, 33.7f + itemInHandGUI_scaleOffset.y);
 			RenderMeshOnScreen(meshList[GEO_ITEMINHANDFADE_GUI], 0, 0 + itemInHandGUI_scaleOffset.y, 1600, 900);
 
-			RenderTextOnScreen(meshList[GEO_VCROSDMONO_FONT], "(" + std::to_string(amountOfItem) + "x) " + itemInHand, glm::vec3(1, 1, 1), 20, 690, -355 + itemInHandGUI_scaleOffset.y, 'R', .6f);
+			RenderTextOnScreen(meshList[GEO_VCROSDMONO_FONT], "(" + std::to_string(amountOfItem) + "x) " + itemInHand->name, glm::vec3(1, 1, 1), 20, 690, -355 + itemInHandGUI_scaleOffset.y, 'R', .6f);
 
 			if (itemInUse) {
 				RenderTextOnScreen(meshList[GEO_HOMEVIDEOBOLD_FONT], "[E]", glm::vec3(1, 1, 1), 15, 700, -300 + itemInHandGUI_scaleOffset.y, 'R', .6f);
@@ -1051,45 +1121,47 @@ void BaseScene::RenderUI()
 	glm::vec3 euiPos(0, 1000, 0);
 
 	for (int i = 0; i < noOfInteractives; i++) {
-		euiPos = interactivesPos[i] + glm::vec3(0, 0.25f, 0);
+		if (interactivesType[i] == 'I' || !pickables[interactivePickablesIndex[i]].isHeld) {
+			euiPos = interactivesPos[i] + glm::vec3(0, 0.25f, 0);
 
-		glm::vec3 dir = camera.position - euiPos;
-		dir = glm::normalize(dir);
+			glm::vec3 dir = camera.position - euiPos;
+			dir = glm::normalize(dir);
 
-		float yaw = glm::degrees(atan2(dir.x, dir.z));
-		float pitch = glm::degrees(asin(dir.y));
+			float yaw = glm::degrees(atan2(dir.x, dir.z));
+			float pitch = glm::degrees(asin(dir.y));
 
-		if (interactedIndex == i) {
+			if (interactedIndex == i) {
+				modelStack.PushMatrix();
+				modelStack.Translate(euiPos.x, euiPos.y, euiPos.z);
+				modelStack.Rotate(yaw, 0.f, 1.f, 0.f);
+				modelStack.Rotate(-pitch, 1.f, 0.f, 0.f);
+				modelStack.Scale(interactedEUI_scale, interactedEUI_scale, interactedEUI_scale);
+
+				meshList[GEO_INTERACTED_EUI]->material.kAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
+				meshList[GEO_INTERACTED_EUI]->material.kDiffuse = glm::vec3(1.f, 1.f, 1.f);
+				meshList[GEO_INTERACTED_EUI]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+				meshList[GEO_INTERACTED_EUI]->material.kShininess = 1.0f;
+
+				RenderMesh(meshList[GEO_INTERACTED_EUI], false);
+
+				modelStack.PopMatrix();
+			}
+
 			modelStack.PushMatrix();
 			modelStack.Translate(euiPos.x, euiPos.y, euiPos.z);
 			modelStack.Rotate(yaw, 0.f, 1.f, 0.f);
 			modelStack.Rotate(-pitch, 1.f, 0.f, 0.f);
-			modelStack.Scale(interactedEUI_scale, interactedEUI_scale, interactedEUI_scale);
+			modelStack.Scale(.05f, .05f, .05f);
 
-			meshList[GEO_INTERACTED_EUI]->material.kAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
-			meshList[GEO_INTERACTED_EUI]->material.kDiffuse = glm::vec3(1.f, 1.f, 1.f);
-			meshList[GEO_INTERACTED_EUI]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
-			meshList[GEO_INTERACTED_EUI]->material.kShininess = 1.0f;
+			meshList[GEO_INTERACT_EUI]->material.kAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
+			meshList[GEO_INTERACT_EUI]->material.kDiffuse = glm::vec3(1.f, 1.f, 1.f);
+			meshList[GEO_INTERACT_EUI]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+			meshList[GEO_INTERACT_EUI]->material.kShininess = 1.0f;
 
-			RenderMesh(meshList[GEO_INTERACTED_EUI], false);
+			RenderMesh(meshList[GEO_INTERACT_EUI], false);
 
 			modelStack.PopMatrix();
 		}
-
-		modelStack.PushMatrix();
-		modelStack.Translate(euiPos.x, euiPos.y, euiPos.z);
-		modelStack.Rotate(yaw, 0.f, 1.f, 0.f);
-		modelStack.Rotate(-pitch, 1.f, 0.f, 0.f);
-		modelStack.Scale(.05f, .05f, .05f);
-
-		meshList[GEO_INTERACT_EUI]->material.kAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
-		meshList[GEO_INTERACT_EUI]->material.kDiffuse = glm::vec3(1.f, 1.f, 1.f);
-		meshList[GEO_INTERACT_EUI]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
-		meshList[GEO_INTERACT_EUI]->material.kShininess = 1.0f;
-
-		RenderMesh(meshList[GEO_INTERACT_EUI], false);
-
-		modelStack.PopMatrix();
 	}
 
 	{
@@ -1132,7 +1204,7 @@ void BaseScene::addInteractives(std::string name, char type, glm::vec3 position,
 	int temp = -1;
 
 	for (int i = 0; i < TOTAL_INTERACTIVES; i++) {
-		if (interactives[i] == "") { // empty slot
+		if (interactives[i] == "") {
 			interactives[i] = name;
 			interactivesType[i] = type;
 			interactivesPos[i] = position;
@@ -1147,12 +1219,12 @@ void BaseScene::addInteractives(std::string name, char type, glm::vec3 position,
 		}
 	}
 
-	if (temp != -1) {
-		//std::cout << "[INTERACTIVES] Successfully added " << interactivesType[temp] << " " << interactives[temp] << " (" << interactivesPos[temp].x << ", " << interactivesPos[temp].y << ", " << interactivesPos[temp].z << ") to index " << temp << std::endl;
-	}
-	else {
-		//std::cout << "[INTERACTIVES] Insufficient space. Operation failed" << std::endl;
-	}
+	//if (temp != -1) {
+	//	//std::cout << "[INTERACTIVES] Successfully added " << interactivesType[temp] << " " << interactives[temp] << " (" << interactivesPos[temp].x << ", " << interactivesPos[temp].y << ", " << interactivesPos[temp].z << ") to index " << temp << std::endl;
+	//}
+	//else {
+	//	//std::cout << "[INTERACTIVES] Insufficient space. Operation failed" << std::endl;
+	//}
 }
 
 void BaseScene::addPickables(std::string name, glm::vec3 position)
@@ -1160,9 +1232,11 @@ void BaseScene::addPickables(std::string name, glm::vec3 position)
 	int temp = -1;
 
 	for (int i = 0; i < TOTAL_PICKABLES; i++) {
-		if (pickables[i] == "") { // empty slot
-			pickables[i] = name;
-			pickablesPos[i] = position;
+		if (pickables[i].name == "") {
+			pickables[i].body.ResetPhysicsProperties();
+			pickables[i].name = name;
+			pickables[i].body.position = position;
+			pickables[i].isHeld = false;
 
 			temp = i;
 			noOfPickables++;
@@ -1170,36 +1244,28 @@ void BaseScene::addPickables(std::string name, glm::vec3 position)
 		}
 	}
 
-	if (temp != -1) {
-		//std::cout << "[PICKABLES] Successfully added " << pickables[temp] << " (" << pickablesPos[temp].x << ", " << pickablesPos[temp].y << ", " << pickablesPos[temp].z << ") to index " << temp << std::endl;
-	}
-	else {
-		//std::cout << "[PICKABLES] Insufficient space. Operation failed" << std::endl;
-	}
+	//if (temp != -1) {
+	//	//std::cout << "[PICKABLES] Successfully added " << pickables[temp] << " (" << pickablesPos[temp].x << ", " << pickablesPos[temp].y << ", " << pickablesPos[temp].z << ") to index " << temp << std::endl;
+	//}
+	//else {
+	//	//std::cout << "[PICKABLES] Insufficient space. Operation failed" << std::endl;
+	//}
 }
 
 void BaseScene::removePickables(int index)
 {
-	std::string name = pickables[index];
+	pickables[index].name = "";
+	pickables[index].body.ResetPhysicsProperties();
+	pickables[index].isHeld = false;
 
-	if (pickables[index] != "") {
-		pickables[index] = "";
-		pickablesPos[index] = glm::vec3(0, 0, 0);
-
-		noOfPickables--;
-
-		//std::cout << "[PICKABLES] Successfully removed " << name << ". Initial index data is now " << pickables[temp] <<	" (" << pickablesPos[temp].x << ", " << pickablesPos[temp].y << ", " << pickablesPos[temp].z << ") " << std::endl;
-	}
-	else {
-		//std::cout << "[PICKABLES] Unable to find " << name << ". Operation failed" << std::endl;
-	}
+	noOfPickables--;
 }
 
 void BaseScene::initializePickablesInteractives()
 {
 	for (int i = 0; i < TOTAL_PICKABLES; i++) {
-		if (pickables[i] != "") { // found item
-			addInteractives(pickables[i], 'P', pickablesPos[i], i);
+		if (pickables[i].name != "") {
+			addInteractives(pickables[i].name, 'P', pickables[i].body.position, i);
 		}
 	}
 }
@@ -1257,55 +1323,86 @@ void BaseScene::getClosestInteractive()
 
 void BaseScene::dropItemInHand(int amountToRemove)
 {
-	std::string itemToDrop = itemInHand;
+	std::string itemToDropName = itemInHand->name;
 
-	if (amountOfItem > amountToRemove) {
+	if (amountOfItem >= amountToRemove) {
 		for (int i = 0; i < amountToRemove; i++) {
 			amountOfItem--;
 			glm::vec3 placementPos = camera.target;
-			placementPos.y = 0.f;
-			placementPos += glm::vec3(((rand() % 5) - 2) / 100.f, 0, ((rand() % 5) - 2) / 100.f);
-
-			addPickables(itemToDrop, placementPos);
+			if (amountOfItem != 0) {
+				placementPos += glm::vec3(((rand() % 5) - 2) / 100.f, 0, ((rand() % 5) - 2) / 100.f);
+				addPickables(itemToDropName, placementPos);
+			}
+			else {
+				itemInHand->body.position = placementPos;
+			}
 		}
 	}
 	else {
 		for (int i = 0; i < amountOfItem; i++) {
+			amountOfItem--;
 			glm::vec3 placementPos = camera.target;
-			placementPos.y = 0.f;
-			placementPos += glm::vec3(((rand() % 5) - 2) / 100.f, 0, ((rand() % 5) - 2) / 100.f);
-
-			addPickables(itemToDrop, placementPos);
+			if (amountOfItem != 0) {
+				placementPos += glm::vec3(((rand() % 5) - 2) / 100.f, 0, ((rand() % 5) - 2) / 100.f);
+				addPickables(itemToDropName, placementPos);
+			}
+			else {
+				itemInHand->body.position = placementPos;
+			}
+			
 		}
+	}
 
-		itemInHand = "";
+	if (amountOfItem == 0) {
+		itemInHand->isHeld = false;
+		itemInHand = nullptr;
 		amountOfItem = 0;
 		itemInUse = false;
 	}
+	//std::string itemToDrop = itemInHand;
+
+	//if (amountOfItem > amountToRemove) {
+	//	for (int i = 0; i < amountToRemove; i++) {
+	//		amountOfItem--;
+	//		glm::vec3 placementPos = camera.target;
+	//		placementPos += glm::vec3(((rand() % 5) - 2) / 100.f, 0, ((rand() % 5) - 2) / 100.f);
+
+	//		addPickables(itemToDrop, placementPos);
+	//	}
+	//}
+	//else {
+	//	for (int i = 0; i < amountOfItem; i++) {
+	//		glm::vec3 placementPos = camera.target;
+	//		placementPos += glm::vec3(((rand() % 5) - 2) / 100.f, 0, ((rand() % 5) - 2) / 100.f);
+
+	//		addPickables(itemToDrop, placementPos);
+	//	}
+
+	//	itemInHand = "";
+	//	amountOfItem = 0;
+	//	itemInUse = false;
+	//}
 }
 
-void BaseScene::addItemInHand()
+void BaseScene::addItemInHand(int index)
 {
-	std::string itemToHold = interactives[interactedIndex];
+	if (itemInHand == nullptr)
+    {
+        itemInHand = &pickables[index];
+		pickables[index].isHeld = true;
+        amountOfItem = 1;
+    }
+    else if (itemInHand->name == pickables[index].name)
+    {
+		removePickables(index);
+        amountOfItem++;
+    }
+    else {
+		dropItemInHand(amountOfItem);
 
-	if (itemInHand != "") { // if holding smth already
-		if (itemInHand == interactives[interactedIndex]) { // same item
-			//std::cout << interactivePickablesIndex[interactedIndex] << std::endl;
-			removePickables(interactivePickablesIndex[interactedIndex]);
-			amountOfItem++;
-		}
-		else {
-			dropItemInHand(amountOfItem);
-			//std::cout << interactivePickablesIndex[interactedIndex] << std::endl;
-			removePickables(interactivePickablesIndex[interactedIndex]);
-			itemInHand = itemToHold;
-			amountOfItem++;
-		}
-	}
-	else {
-		//std::cout << interactivePickablesIndex[interactedIndex] << std::endl;
-		removePickables(interactivePickablesIndex[interactedIndex]);
-		itemInHand = itemToHold;
-		amountOfItem++;
-	}
+		itemInHand = &pickables[index];
+		pickables[index].isHeld = true;
+		amountOfItem = 1;
+		removePickables(amountOfItem);
+    }
 }

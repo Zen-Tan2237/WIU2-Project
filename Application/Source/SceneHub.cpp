@@ -214,9 +214,11 @@ void SceneHub::Init()
 	meshList_hub[GEO_WALL] = MeshBuilder::GenerateCube("wall", glm::vec3(1.f, 0.f, 0.f), 1.f);
 
 	// setup initial item in hand
-	itemInHand = "Baseball";
-	amountOfItem = 1;
-	previousItemInHand = "";
+	addPickables("Baseball", glm::vec3(0, 0, 0));
+	itemInHand = &pickables[0];
+	pickables[0].isHeld = true;
+	amountOfItem = 10;
+	previousItemInHandName = "";
 	itemInUse = false;
 
 	// setup phase durations here ([first one is part][second one is phase]. phase means like u want a constant stream of dialgoues
@@ -267,7 +269,7 @@ void SceneHub::Update(double dt)
 			else if (interactives[interactedIndex] == "1") {
 				if (part == 0)
 				{
-					addPickables("Halal Pork", glm::vec3(0, 0, 0));
+					addPickables("Pepsi", glm::vec3(.5, 5, 0));
 				}
 			}
 			else if (interactives[interactedIndex] == "2") {
@@ -304,68 +306,7 @@ void SceneHub::Render()
 	}
 
 	{
-		// Render pickable items
-		for (int i = 0; i < TOTAL_PICKABLES; i++) {
-			if (pickables[i] != "") {
-				modelStack.PushMatrix();
-				modelStack.Translate(pickablesPos[i].x, pickablesPos[i].y, pickablesPos[i].z);
-
-				if (pickables[i] == "Baseball") {
-					modelStack.Scale(0.15f, 0.15f, 0.15f);
-					meshList[GEO_BASEBALL]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
-					meshList[GEO_BASEBALL]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
-					meshList[GEO_BASEBALL]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
-					meshList[GEO_BASEBALL]->material.kShininess = 1.0f;
-
-					RenderMesh(meshList[GEO_BASEBALL], enableLight);
-				}
-				else if (pickables[i] == "Coke") {
-					modelStack.Scale(0.15f, 0.15f, 0.15f);
-					meshList[GEO_CANSCOKE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
-					meshList[GEO_CANSCOKE]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
-					meshList[GEO_CANSCOKE]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
-					meshList[GEO_CANSCOKE]->material.kShininess = 1.0f;
-
-					RenderMesh(meshList[GEO_CANSCOKE], enableLight);
-				}
-				else if (pickables[i] == "Mountain Dew") {
-					modelStack.Scale(0.15f, 0.15f, 0.15f);
-					meshList[GEO_CANSMTNDEW]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
-					meshList[GEO_CANSMTNDEW]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
-					meshList[GEO_CANSMTNDEW]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
-					meshList[GEO_CANSMTNDEW]->material.kShininess = 1.0f;
-
-					RenderMesh(meshList[GEO_CANSMTNDEW], enableLight);
-				}
-				else if (pickables[i] == "Spite") {
-					modelStack.Scale(0.15f, 0.15f, 0.15f);
-					meshList[GEO_CANSSPRITE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
-					meshList[GEO_CANSSPRITE]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
-					meshList[GEO_CANSSPRITE]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
-					meshList[GEO_CANSSPRITE]->material.kShininess = 1.0f;
-
-					RenderMesh(meshList[GEO_CANSSPRITE], enableLight);
-				}
-				else if (pickables[i] == "Pepsi") {
-					modelStack.Scale(0.15f, 0.15f, 0.15f);
-					meshList[GEO_CANSPEPSI]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
-					meshList[GEO_CANSPEPSI]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
-					meshList[GEO_CANSPEPSI]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
-					meshList[GEO_CANSPEPSI]->material.kShininess = 1.0f;
-
-					RenderMesh(meshList[GEO_CANSPEPSI], enableLight);
-				}
-
-				modelStack.PopMatrix();
-			}
-		}
-	}
-
-	{
-		// Render models in hand
-		
-		if (itemInHand != "None" && itemInUse) {
-			modelStack.PushMatrix();
+		if (itemInHand != nullptr) {
 			// Camera forward, right, and up vectors
 			glm::vec3 forward = glm::normalize(camera.target - camera.position);
 			glm::vec3 right = glm::normalize(glm::cross(forward, camera.up));
@@ -381,80 +322,41 @@ void SceneHub::Render()
 				+ right * rightOffset
 				+ up * upOffset;
 
-			// Move flashlight to calculated position
-			modelStack.Translate(itemInHandPos.x, itemInHandPos.y, itemInHandPos.z);
+			itemInHand->body.position = itemInHandPos;
+		}
 
-			modelStack.Rotate(90.f, 1.f, 0.f, 0.f);
 
-			// Yaw: rotation around Y (horizontal)
-			float yaw = glm::degrees(atan2(forward.x, forward.z));
+		// Render pickable items
+		for (int i = 0; i < TOTAL_PICKABLES; i++) {
+			if (pickables[i].name != "") {
+				modelStack.PushMatrix();
+				modelStack.Translate(pickables[i].body.position.x, pickables[i].body.position.y, pickables[i].body.position.z);
+				glm::mat4 rotation = glm::mat4_cast(pickables[i].body.orientation);
+				modelStack.MultMatrix(rotation);
 
-			// Pitch: rotation around X (vertical)
-			float pitch = glm::degrees(asin(forward.y));
+				if (pickables[i].name == "Baseball") {
+					modelStack.Scale(0.15f, 0.15f, 0.15f);
+					RenderMesh(meshList[GEO_BASEBALL], enableLight);
+				}
+				else if (pickables[i].name == "Coke") {
+					modelStack.Scale(0.15f, 0.15f, 0.15f);
+					RenderMesh(meshList[GEO_CANSCOKE], enableLight);
+				}
+				else if (pickables[i].name == "Mountain Dew") {
+					modelStack.Scale(0.15f, 0.15f, 0.15f);
+					RenderMesh(meshList[GEO_CANSMTNDEW], enableLight);
+				}
+				else if (pickables[i].name == "Spite") {
+					modelStack.Scale(0.15f, 0.15f, 0.15f);
+					RenderMesh(meshList[GEO_CANSSPRITE], enableLight);
+				}
+				else if (pickables[i].name == "Pepsi") {
+					modelStack.Scale(0.15f, 0.15f, 0.15f);
+					RenderMesh(meshList[GEO_CANSPEPSI], enableLight);
+				}
 
-			// Rotate flashlight
-			modelStack.Rotate(-yaw, 0.f, 0.f, 1.f);   // horizontal rotation
-			modelStack.Rotate(-pitch, 1.f, 0.f, 0.f); // vertical rotation
-
-			modelStack.Rotate(-90.f, 0.f, 1.f, 0.f);
-
-			if (itemInHand == "Baseball") {
-				modelStack.Scale(0.15f, 0.15f, 0.15f);
-				meshList[GEO_BASEBALL]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
-				meshList[GEO_BASEBALL]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
-				meshList[GEO_BASEBALL]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
-				meshList[GEO_BASEBALL]->material.kShininess = 1.0f;
-
-				RenderMesh(meshList[GEO_BASEBALL], enableLight);
+				modelStack.PopMatrix();
 			}
-			else if (itemInHand == "Coke") {
-				modelStack.Scale(0.15f, 0.15f, 0.15f);
-				meshList[GEO_CANSCOKE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
-				meshList[GEO_CANSCOKE]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
-				meshList[GEO_CANSCOKE]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
-				meshList[GEO_CANSCOKE]->material.kShininess = 1.0f;
-
-				RenderMesh(meshList[GEO_CANSCOKE], enableLight);
-			}
-			else if (itemInHand == "Mountain Dew") {
-				modelStack.Scale(0.15f, 0.15f, 0.15f);
-				meshList[GEO_CANSMTNDEW]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
-				meshList[GEO_CANSMTNDEW]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
-				meshList[GEO_CANSMTNDEW]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
-				meshList[GEO_CANSMTNDEW]->material.kShininess = 1.0f;
-
-				RenderMesh(meshList[GEO_CANSMTNDEW], enableLight);
-			}
-			else if (itemInHand == "Spite") {
-				modelStack.Scale(0.15f, 0.15f, 0.15f);
-				meshList[GEO_CANSSPRITE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
-				meshList[GEO_CANSSPRITE]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
-				meshList[GEO_CANSSPRITE]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
-				meshList[GEO_CANSSPRITE]->material.kShininess = 1.0f;
-
-				RenderMesh(meshList[GEO_CANSSPRITE], enableLight);
-			}
-			else if (itemInHand == "Pepsi") {
-				modelStack.Scale(0.15f, 0.15f, 0.1f);
-				meshList[GEO_CANSPEPSI]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
-				meshList[GEO_CANSPEPSI]->material.kDiffuse = glm::vec3(.9f, .9f, .9f);
-				meshList[GEO_CANSPEPSI]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
-				meshList[GEO_CANSPEPSI]->material.kShininess = 1.0f;
-
-				RenderMesh(meshList[GEO_CANSPEPSI], enableLight);
-			}
-			//else if (itemInHand == "Key") {
-			//	modelStack.Scale(0.005f, 0.005f, 0.005f);
-
-			//	meshList[GEO_KEY]->material.kAmbient = glm::vec3(0.f, 0.f, 0.f);
-			//	meshList[GEO_KEY]->material.kDiffuse = glm::vec3(.7f, .7f, .7f);
-			//	meshList[GEO_KEY]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
-			//	meshList[GEO_KEY]->material.kShininess = 1.0f;
-
-			//	RenderMesh(meshList[GEO_KEY], enableLight);
-			//}
-
-			modelStack.PopMatrix();
 		}
 	}
 

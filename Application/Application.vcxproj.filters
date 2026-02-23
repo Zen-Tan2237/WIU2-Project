@@ -147,9 +147,6 @@
     <Filter Include="Header Files">
       <UniqueIdentifier>{224584f1-e5d5-4c79-a972-f92bb738260d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{17d6cd75-9df2-4efe-9424-9a1ac3556704}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Scene">
       <UniqueIdentifier>{dd894fa8-bd4b-4aef-88eb-e2782cc38216}</UniqueIdentifier>
     </Filter>
@@ -158,6 +155,9 @@
     </Filter>
     <Filter Include="SFX">
       <UniqueIdentifier>{b7b19d2e-596a-4ea8-a6cf-8f5665538152}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{17d6cd75-9df2-4efe-9424-9a1ac3556704}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

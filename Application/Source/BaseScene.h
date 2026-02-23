@@ -17,7 +17,7 @@ static const int TOTAL_LIGHTS = 8;
 static const int TOTAL_PARTS = 30;
 static const int TOTAL_PHASES = 30;
 
-static const int TOTAL_PHYSICSOBJECT = 100;
+static const int TOTAL_PHYSICSOBJECT = 50;
 
 class BaseScene : public Scene
 {
@@ -175,6 +175,12 @@ public:
 		U_TOTAL,
 	};
 
+	struct Pickable {
+		std::string name;
+		PhysicsObject body;
+		bool isHeld;
+	};
+
 	BaseScene();
 	~BaseScene();
 
@@ -216,7 +222,7 @@ public:
 	void getClosestInteractive();
 
 	void dropItemInHand(int amountToRemove);
-	void addItemInHand();
+	void addItemInHand(int index);
 
 	unsigned m_vertexArrayID;
 	Mesh* meshList[NUM_GEOMETRY];
@@ -256,8 +262,7 @@ public:
 	int previousInteractedIndex;
 
 	int noOfPickables;
-	std::string pickables[TOTAL_PICKABLES];
-	glm::vec3 pickablesPos[TOTAL_PICKABLES];
+	Pickable pickables[TOTAL_PICKABLES];
 
 	float interactedEUI_scale;
 	float interactedEUI_targetScale;
@@ -266,10 +271,9 @@ public:
 	glm::vec2 interactGUI_targetPositionOffset;
 
 	// ITEM IN HAND
-
-	std::string itemInHand;
+	Pickable* itemInHand;
 	int amountOfItem;
-	std::string previousItemInHand;
+	std::string previousItemInHandName;
 	double itemInHandElapsed;
 
 	bool itemInUse;
@@ -281,12 +285,10 @@ public:
 	bool droppedFirst;
 
 	// SCENE SWITCH UI
-
 	float sceneSwitchUI_scalePercentage;
 	float sceneSwitchUI_targetScalePercentage;
 
 	// DIALOGUE HANDLING
-
 	int oldPart;
 	int part;
 	int oldPhase;
