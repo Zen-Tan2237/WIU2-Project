@@ -8,6 +8,11 @@ public:
     enum GEOMETRY_TYPE_HUB
     {
         GEO_WALL,
+        GEO_FOUNTAIN,
+        GEO_STALL,
+        GEO_TABLE,
+        GEO_FOODSTAND,
+		GEO_FERRISWHEEL,
         NUM_GEOMETRY,
 	};
 
@@ -16,6 +21,7 @@ public:
     void Init() override;
     void Update(double dt) override;
     void Render() override;
+    void RenderUI();
     void Exit() override;
 
 	Mesh* meshList_hub[NUM_GEOMETRY];
