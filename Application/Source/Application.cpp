@@ -21,6 +21,7 @@
 
 #include <cstdlib>
 #include <ctime>
+//#include <iostream>
 
 //debug
 #include "SceneTester.h"
@@ -154,7 +155,7 @@ void Application::Run()
 {
 	//Main Loop
 	Scene* scene1 = new SceneHub(); 
-	Scene* scene2 = new SceneHub();
+	Scene* scene2 = new SceneTester();
 	Scene* scene3 = new SceneTester();
 	/*Scene* scene4 = new Scene4();
 	Scene* scene5 = new Scene5();*/
