@@ -3,7 +3,7 @@
 #define APPLICATION_H
 
 #include "timer.h"
-
+ 
 class Application
 {
 public:
