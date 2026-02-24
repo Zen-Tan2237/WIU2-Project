@@ -32,6 +32,9 @@ public:
 		GEO_CANSMTNDEW,
 		GEO_CANSSPRITE,
 		GEO_CANSPEPSI,
+		GEO_BACKGROUND_BUILDINGS,
+		GEO_FLOOR,
+		GEO_FENCE,
 
 		// SKYBOX
 		GEO_FRONT,
@@ -262,7 +265,7 @@ public:
 	int previousInteractedIndex;
 
 	int noOfPickables;
-	Pickable pickables[TOTAL_PICKABLES];
+	Pickable* pickables[TOTAL_PICKABLES];
 
 	float interactedEUI_scale;
 	float interactedEUI_targetScale;

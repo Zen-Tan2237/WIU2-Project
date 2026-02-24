@@ -12,13 +12,3 @@ map_Kd C:/Users/Zen/Downloads/modeliing/frieren-plushie/textures/Frieren_Plushie
 map_Ns C:/Users/Zen/Downloads/modeliing/frieren-plushie/textures/Frieren_Plushie_Roughness.png
 map_refl C:/Users/Zen/Downloads/modeliing/frieren-plushie/source/Frieren Plushie Textures/Frieren Plushie_Metallic.png
 map_Bump -bm 1.000000 C:/Users/Zen/Downloads/modeliing/frieren-plushie/source/Frieren Plushie Textures/Frieren Plushie_Normal_OpenGL.png
-
-newmtl lambert2SG
-Ns 0.000000
-Ka 1.000000 1.000000 1.000000
-Kd 0.800000 0.800000 0.800000
-Ks 0.000000 0.000000 0.000000
-Ke 0.000000 0.000000 0.000000
-Ni 1.450000
-d 1.000000
-illum 1

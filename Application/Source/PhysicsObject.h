@@ -58,6 +58,10 @@ public:
 	void InitPhysicsObject(glm::vec3 pos, float mass, BoundingBox::Type bbType, glm::vec3 bbDimensions, float angleDegrees, glm::vec3 rotationAxis, bool* miscSettings);
 	void UpdateInertiaTensors();
 	void ResetPhysicsProperties();
+	void RotateOrientation(float angleDegrees, glm::vec3 rotationAxis);
+	void RotateOrientation(float xDegrees, float yDegrees, float zDegrees);
+	void SetOrientation(float angleDegrees, glm::vec3 rotationAxis);
+	void SetOrientation(float xDegrees, float yDegrees, float zDegrees);
 
 	bool isOBBanAABB() const;
 

@@ -208,6 +208,28 @@ void BaseScene::Init()
 	meshList[GEO_CANSPEPSI] = MeshBuilder::GenerateOBJ("Pepsi Can", "Models//Cans_Pepsi.obj");
 	meshList[GEO_CANSPEPSI]->textureID = LoadTGA("Textures//Cans_Pepsi.tga");
 
+	meshList[GEO_FLOOR] = MeshBuilder::GenerateOBJ("floor", "Models//Grass_base.obj");
+	meshList[GEO_FLOOR]->textureID = LoadTGA("Textures//Ground_texture.tga");
+
+	meshList[GEO_BACKGROUND_BUILDINGS] = MeshBuilder::GenerateOBJ("Background Buildings", "Models//Buildings_Background.obj");
+	meshList[GEO_BACKGROUND_BUILDINGS]->textureID = LoadTGA("Textures//skyscrapers.tga");
+
+	meshList[GEO_FENCE] = MeshBuilder::GenerateOBJ("Fence", "Models//Fence.obj");
+
+	// skybox
+	meshList[GEO_FRONT] = MeshBuilder::GenerateQuad("Front", glm::vec3(1.f, 1.f, 1.f), 100.f);
+	meshList[GEO_FRONT]->textureID = LoadTGA("Textures//Skybox//front.tga");
+	meshList[GEO_BACK] = MeshBuilder::GenerateQuad("Back", glm::vec3(1.f, 1.f, 1.f), 100.f);
+	meshList[GEO_BACK]->textureID = LoadTGA("Textures//Skybox//back.tga");
+	meshList[GEO_LEFT] = MeshBuilder::GenerateQuad("Left", glm::vec3(1.f, 1.f, 1.f), 100.f);
+	meshList[GEO_LEFT]->textureID = LoadTGA("Textures//Skybox//left.tga");
+	meshList[GEO_RIGHT] = MeshBuilder::GenerateQuad("Right", glm::vec3(1.f, 1.f, 1.f), 100.f);
+	meshList[GEO_RIGHT]->textureID = LoadTGA("Textures//Skybox//right.tga");
+	meshList[GEO_TOP] = MeshBuilder::GenerateQuad("top", glm::vec3(1.f, 1.f, 1.f), 100.f);
+	meshList[GEO_TOP]->textureID = LoadTGA("Textures//Skybox//top.tga");
+	meshList[GEO_BOTTOM] = MeshBuilder::GenerateQuad("bottom", glm::vec3(1.f, 1.f, 1.f), 100.f);
+	meshList[GEO_BOTTOM]->textureID = LoadTGA("Textures//Skybox//bottom.tga");
+
 	// GUI
 	meshList[GEO_MENU_GUI] = MeshBuilder::GenerateQuad("Menu GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
 	meshList[GEO_MENU_GUI]->textureID = LoadTGA("Image//Menu_GUI.tga");
@@ -231,7 +253,6 @@ void BaseScene::Init()
 
 	meshList[GEO_ITEMINHANDFADEBACKGROUND_GUI] = MeshBuilder::GenerateQuad("ItemInHand FadeBackground GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
 	meshList[GEO_ITEMINHANDFADEBACKGROUND_GUI]->textureID = LoadTGA("Image//ItemInHandFadeBackground_GUI.tga");
-
 
 	// EUI
 	meshList[GEO_INTERACT_EUI] = MeshBuilder::GenerateQuad("Interact EUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
@@ -280,17 +301,7 @@ void BaseScene::Init()
 	settings[1] = false;
 
 	for (int i = 0; i < TOTAL_PICKABLES; i++) {
-		pickables[i].name = "";
-		pickables[i].body.position = glm::vec3(0, 0, 0);
-		pickables[i].isHeld = false;
-
-		pickables[i].body.InitPhysicsObject(
-			glm::vec3(0, 0, 0),
-			1.0f, // mass = 0 (treated as static in impulses)
-			BoundingBox::Type::OBB,
-			glm::vec3(.5f, .5f, .1f),
-			settings
-		);
+		pickables[i] = nullptr;
 	}
 
 	noOfInteractives = 0;
@@ -355,6 +366,21 @@ void BaseScene::Init()
 	meshList[GEO_CANSMTNDEW]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
 	meshList[GEO_CANSMTNDEW]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
 	meshList[GEO_CANSMTNDEW]->material.kShininess = 1.0f;
+
+	meshList[GEO_FLOOR]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	meshList[GEO_FLOOR]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
+	meshList[GEO_FLOOR]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+	meshList[GEO_FLOOR]->material.kShininess = 1.0f;
+
+	meshList[GEO_BACKGROUND_BUILDINGS]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	meshList[GEO_BACKGROUND_BUILDINGS]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
+	meshList[GEO_BACKGROUND_BUILDINGS]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+	meshList[GEO_BACKGROUND_BUILDINGS]->material.kShininess = 1.0f;
+
+	meshList[GEO_FENCE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	meshList[GEO_FENCE]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
+	meshList[GEO_FENCE]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+	meshList[GEO_FENCE]->material.kShininess = 1.0f;
 }
 
 void BaseScene::Update(double dt)
@@ -416,6 +442,18 @@ void BaseScene::Update(double dt)
 		camera.Update(dt);
 	}
 
+	// set isHeld
+	for (int i = 0; i < TOTAL_PICKABLES; i++) {
+		if (pickables[i] != nullptr && itemInHand != nullptr) {
+			if (pickables[i] == itemInHand) {
+				pickables[i]->isHeld = true;
+			}
+			else {
+				pickables[i]->isHeld = false;
+			}
+		}
+	}
+
 	// COLLISIONS
 	cameraBody.position = camera.position;
 	cameraBody.velocity = glm::vec3(0.f);
@@ -432,11 +470,13 @@ void BaseScene::Update(double dt)
 	// Pickables - World Objects
 	for (int i = 0; i < TOTAL_PICKABLES; ++i) {
 		for (auto& obj : worldObjects) {
-			if (!pickables[i].isHeld) {
-				if (CheckCollision(pickables[i].body, obj, cd)) {
-					ResolveCollision(cd);
+			if (pickables[i] != nullptr) {
+				if (!pickables[i]->isHeld) {
+					if (CheckCollision(pickables[i]->body, obj, cd)) {
+						ResolveCollision(cd);
+					}
 				}
-			}	
+			}
 		}
 	}
 
@@ -453,8 +493,10 @@ void BaseScene::Update(double dt)
 	//cameraBody.UpdatePhysics(dt);
 
 	for (int i = 0; i < TOTAL_PICKABLES; ++i) {
-		if (!pickables[i].isHeld) {
-			pickables[i].body.UpdatePhysics(dt);
+		if (pickables[i] != nullptr) {
+			if (!pickables[i]->isHeld) {
+				pickables[i]->body.UpdatePhysics(dt);
+			}
 		}
 	}
 
@@ -693,12 +735,43 @@ void BaseScene::Render()
 		RenderMesh(meshList[GEO_AXES], false);
 	}
 
-
 	{
 		PushPop skybox(modelStack);
-		modelStack.Translate(0, 0, 0); //later change to follow player class
-		modelStack.Scale(20.f, 20.f, 20.f);
-		//RenderSkybox();
+		modelStack.Scale(2.f, 2.f, 2.f);
+		RenderSkybox();
+	}
+
+	{
+		PushPop multi(modelStack);
+		modelStack.Scale(0.3f, 0.3f, 0.3f);
+
+		{
+			PushPop skybox(modelStack);
+			modelStack.Translate(0, 0, 0); //later change to follow player class
+			modelStack.Scale(20.f, 20.f, 20.f);
+			//RenderSkybox();
+		}
+
+		{
+			PushPop backgroundBuildings(modelStack);
+			modelStack.Translate(0.f, -15.f, 0.f);
+			modelStack.Scale(1.f, 2.f, 1.f);
+			RenderMesh(meshList[GEO_BACKGROUND_BUILDINGS], true);
+		}
+
+		{
+			PushPop floor(modelStack);
+			//modelStack.Translate(helloworld.position.x, helloworld.position.y, helloworld.position.z);
+			//glm::mat4 rotationMat = glm::mat4_cast(helloworld.orientation);
+			//modelStack.MultMatrix(rotationMat);
+			modelStack.Scale(1, 1, 1);
+			RenderMesh(meshList[GEO_FLOOR], true);
+		}
+
+		{
+			PushPop fence(modelStack);
+			RenderMesh(meshList[GEO_FENCE], true);
+		}
 	}
 }
 
@@ -1121,7 +1194,12 @@ void BaseScene::RenderUI()
 	glm::vec3 euiPos(0, 1000, 0);
 
 	for (int i = 0; i < noOfInteractives; i++) {
-		if (interactivesType[i] == 'I' || !pickables[interactivePickablesIndex[i]].isHeld) {
+		bool temp = interactivesType[i] == 'I';
+		if (!temp && pickables[interactivePickablesIndex[i]] != nullptr) {
+			temp = !pickables[interactivePickablesIndex[i]]->isHeld;
+		}
+
+		if (temp) {
 			euiPos = interactivesPos[i] + glm::vec3(0, 0.25f, 0);
 
 			glm::vec3 dir = camera.position - euiPos;
@@ -1232,15 +1310,16 @@ void BaseScene::addPickables(std::string name, glm::vec3 position)
 	int temp = -1;
 
 	for (int i = 0; i < TOTAL_PICKABLES; i++) {
-		if (pickables[i].name == "") {
-			pickables[i].body.ResetPhysicsProperties();
-			pickables[i].name = name;
-			pickables[i].isHeld = false;
+		if (pickables[i] == nullptr) {
+			pickables[i] = new Pickable;
+			pickables[i]->body.ResetPhysicsProperties();
+			pickables[i]->name = name;
+			pickables[i]->isHeld = false;
 
 			bool settings[2] = { true, false };
 
 			if (name == "Baseball") {
-				pickables[i].body.InitPhysicsObject(
+				pickables[i]->body.InitPhysicsObject(
 					position,
 					1.0f, // mass = 0 (treated as static in impulses)
 					BoundingBox::Type::SPHERE,
@@ -1249,7 +1328,7 @@ void BaseScene::addPickables(std::string name, glm::vec3 position)
 				);
 			}
 			else if (name == "Coke" || name == "Mountain Dew" || name == "Sprite" || name == "Pepsi") {
-				pickables[i].body.InitPhysicsObject(
+				pickables[i]->body.InitPhysicsObject(
 					position,
 					1.0f, // mass = 0 (treated as static in impulses)
 					BoundingBox::Type::OBB,
@@ -1275,9 +1354,8 @@ void BaseScene::addPickables(std::string name, glm::vec3 position)
 
 void BaseScene::removePickables(int index)
 {
-	pickables[index].name = "";
-	pickables[index].body.ResetPhysicsProperties();
-	pickables[index].isHeld = false;
+	delete pickables[index];
+	pickables[index] = nullptr;
 
 	noOfPickables--;
 }
@@ -1285,8 +1363,8 @@ void BaseScene::removePickables(int index)
 void BaseScene::initializePickablesInteractives()
 {
 	for (int i = 0; i < TOTAL_PICKABLES; i++) {
-		if (pickables[i].name != "") {
-			addInteractives(pickables[i].name, 'P', pickables[i].body.position, i);
+		if (pickables[i] != nullptr) {
+			addInteractives(pickables[i]->name, 'P', pickables[i]->body.position, i);
 		}
 	}
 }
@@ -1366,6 +1444,7 @@ void BaseScene::dropItemInHand(int amountToRemove)
 			addPickables(itemToDropName, placementPos);
 		}
 		else {
+			itemInHand->body.ResetPhysicsProperties();
 			itemInHand->body.position = placementPos;
 		}
 	}
@@ -1404,21 +1483,20 @@ void BaseScene::addItemInHand(int index)
 {
 	if (itemInHand == nullptr)
     {
-        itemInHand = &pickables[index];
-		pickables[index].isHeld = true;
+        itemInHand = pickables[index];
         amountOfItem = 1;
     }
-    else if (itemInHand->name == pickables[index].name)
+    else if (itemInHand->name == pickables[index]->name)
     {
 		removePickables(index);
         amountOfItem++;
     }
-    else {
-		dropItemInHand(amountOfItem);
-
-		itemInHand = &pickables[index];
-		pickables[index].isHeld = true;
+	else {
+		Pickable* newItem = pickables[index]; // save it first
+		dropItemInHand(amountOfItem);         // now safe to drop
+		itemInHand = newItem;                 // use saved pointer
 		amountOfItem = 1;
-		removePickables(amountOfItem);
-    }
+		// DON'T removePickables here - newItem is now itemInHand,
+		// isHeld will be set to true in Update, no need to remove it
+	}
 }
