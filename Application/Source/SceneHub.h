@@ -14,6 +14,7 @@ public:
         GEO_TABLE,
         GEO_FOODSTAND,
         GEO_FERRISWHEEL,
+        GEO_MONKEY,
         NUM_GEOMETRY,
     };
 

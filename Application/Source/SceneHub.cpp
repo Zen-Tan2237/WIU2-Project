@@ -33,7 +33,7 @@ void SceneHub::Init()
 		light[0].position = glm::vec3(0, 5, 0);
 		light[0].color = glm::vec3(1, 1, 1);
 		light[0].type = Light::DIRECTIONAL;
-		light[0].power = 1;
+		light[0].power = 0.3f;
 		light[0].kC = 1.f;
 		light[0].kL = 0.01f;
 		light[0].kQ = 0.001f;
@@ -228,6 +228,9 @@ void SceneHub::Init()
 	meshList_hub[GEO_FERRISWHEEL] = MeshBuilder::GenerateOBJ("ferriswheel", "Models//FerrisWheel.obj");
 	meshList_hub[GEO_FERRISWHEEL]->textureID = LoadTGA("Textures//FerrisWheel.tga");
 
+	meshList_hub[GEO_MONKEY] = MeshBuilder::GenerateOBJ("monkey", "Models//Monkey.obj");
+
+
 
 	// setup initial item in hand
 	addPickables("Baseball", glm::vec3(0, 0, 0));
@@ -277,10 +280,10 @@ void SceneHub::Init()
 	meshList_hub[GEO_STALL]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
 	meshList_hub[GEO_STALL]->material.kShininess = 1.0f;
 
-	meshList_hub[GEO_TABLE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
-	meshList_hub[GEO_TABLE]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
-	meshList_hub[GEO_TABLE]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
-	meshList_hub[GEO_TABLE]->material.kShininess = 1.0f;
+	/*meshList_hub[GEO_MONKEY]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	meshList_hub[GEO_MONKEY]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
+	meshList_hub[GEO_MONKEY]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+	meshList_hub[GEO_MONKEY]->material.kShininess = 1.0f;*/
 
 	meshList_hub[GEO_TABLE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
 	meshList_hub[GEO_TABLE]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
@@ -508,7 +511,7 @@ void SceneHub::Render()
 	{
 		PushPop axesGuard(modelStack);
 		// Render objects
-		RenderMesh(meshList[GEO_AXES], false);
+		//RenderMesh(meshList[GEO_AXES], false);
 	}
 
 	{
@@ -559,12 +562,17 @@ void SceneHub::Render()
 			PushPop stall(modelStack);
 			RenderMesh(meshList_hub[GEO_STALL], true);
 		}
+
+		{
+		PushPop monkey(modelStack);
+		RenderMesh(meshList_hub[GEO_MONKEY], true);
+		}
 	}
 
 
 	{
 		PushPop fountain(modelStack);
-		RenderMesh(meshList_hub[GEO_FOUNTAIN], true);
+		//RenderMesh(meshList_hub[GEO_FOUNTAIN], true);
 	}
 
 	{
@@ -580,7 +588,7 @@ void SceneHub::Render()
 		meshList_hub[GEO_WALL]->material.kSpecular = glm::vec3(0.0f, 0.0f, 0.0f);
 		meshList_hub[GEO_WALL]->material.kShininess = 1.0f;
 
-		RenderMesh(meshList_hub[GEO_WALL], true);
+		//RenderMesh(meshList_hub[GEO_WALL], true);
 	}
 
 	{
