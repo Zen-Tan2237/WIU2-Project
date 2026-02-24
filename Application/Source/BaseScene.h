@@ -262,7 +262,7 @@ public:
 	int previousInteractedIndex;
 
 	int noOfPickables;
-	Pickable pickables[TOTAL_PICKABLES];
+	Pickable* pickables[TOTAL_PICKABLES];
 
 	float interactedEUI_scale;
 	float interactedEUI_targetScale;
