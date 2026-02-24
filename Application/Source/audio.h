@@ -62,17 +62,17 @@ public:
     // Access the singleton instance
     static AudioManager& Instance();
 
-    // Initialize/shutdown engine
+    // Initialise/shutdown engine
     bool Init();
     void Shutdown();
 
-    // Load a sound file by name (stores internally)
+    // Load a sound file by name
     bool LoadSound(const std::string& name, const std::string& path);
 
     // Play a loaded sound
     void Play(const std::string& name);
 
-    // Optional: set 3D position for spatial audio
+    // set 3D position for spatial audio
     void SetSoundPosition(const std::string& name, float x, float y, float z);
 
 private:
