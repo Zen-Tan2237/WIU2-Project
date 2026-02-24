@@ -184,6 +184,7 @@ void SceneTester::Update(double dt)
 {
 	HandleKeyPress();
 
+	// Move light (legacy from DXGL-FRAMEWORK)
 	if (KeyboardController::GetInstance()->IsKeyDown('I'))
 		light[0].position.z -= static_cast<float>(dt) * 5.f;
 	if (KeyboardController::GetInstance()->IsKeyDown('K'))
@@ -196,10 +197,6 @@ void SceneTester::Update(double dt)
 		light[0].position.y -= static_cast<float>(dt) * 5.f;
 	if (KeyboardController::GetInstance()->IsKeyDown('P'))
 		light[0].position.y += static_cast<float>(dt) * 5.f;
-	if (KeyboardController::GetInstance()->IsKeyPressed('Y')) { // test key to play pop sound
-		ma_sound_seek_to_pcm_frame(&pop, 0);
-		ma_sound_start(&pop);
-	}
 
 	// Update spatial audio data
 	ma_engine_listener_set_position(Audio_GetEngine(), 0, camera.position.x, camera.position.y, camera.position.z);
@@ -551,6 +548,12 @@ void SceneTester::HandleKeyPress()
 		ball.AddImpulse(shootDirection * 25.f);
 		ball.position = camera.position;
 		ball.orientation = glm::quat(1, 0, 0, 0);
+	}
+
+
+	if (KeyboardController::GetInstance()->IsKeyPressed('Y')) { // test key to play pop sound
+		ma_sound_seek_to_pcm_frame(&pop, 0);
+		ma_sound_start(&pop);
 	}
 
 }
