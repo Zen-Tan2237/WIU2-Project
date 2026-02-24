@@ -15,6 +15,7 @@
 
 #include "KeyboardController.h"
 #include "MouseController.h"
+#include "CollisionDetection.h"
 
 SceneHub::SceneHub()
 {
@@ -211,10 +212,9 @@ void SceneHub::Init()
 	//models
 	//meshList[GEO_STALL] = MeshBuilder::GenerateOBJMTL("Stall", "OBJ//stall.obj", "OBJ//stall.mtl");
 
+	//debug
 	meshList_hub[GEO_WALL] = MeshBuilder::GenerateCube("wall", glm::vec3(1.f, 0.f, 0.f), 1.f);
-
-	meshList_hub[GEO_FOUNTAIN] = MeshBuilder::GenerateOBJ("fountain", "Models//Fountain.obj");
-	meshList_hub[GEO_FOUNTAIN]->textureID = LoadTGA("Textures//Fountain.tga");
+	meshList_hub[GEO_SPHERE] = MeshBuilder::GenerateSphere("sphere", glm::vec3(0.f, 1.f, 0.f), 1.f, 36, 18);
 
 	meshList_hub[GEO_STALL] = MeshBuilder::GenerateOBJ("stall", "Models//minigame_Stall.obj");
 	meshList_hub[GEO_STALL]->textureID = LoadTGA("Textures//minigameStall.tga");
@@ -227,22 +227,6 @@ void SceneHub::Init()
 
 	meshList_hub[GEO_FERRISWHEEL] = MeshBuilder::GenerateOBJ("ferriswheel", "Models//FerrisWheel.obj");
 	meshList_hub[GEO_FERRISWHEEL]->textureID = LoadTGA("Textures//FerrisWheel.tga");
-
-	meshList_hub[GEO_MONKEY] = MeshBuilder::GenerateOBJ("monkey", "Models//Monkey.obj");
-
-	//collectibles
-	meshList_hub[GEO_FIGURINE] = MeshBuilder::GenerateOBJ("figurine", "Models//Figurine.obj");
-	meshList_hub[GEO_FIGURINE]->textureID = LoadTGA("Textures//Figurine.tga");
-
-	meshList_hub[GEO_PIG] = MeshBuilder::GenerateOBJ("pig", "Models//Pig.obj");
-	meshList_hub[GEO_PIG]->textureID = LoadTGA("Textures//Pig.tga");
-
-	meshList_hub[GEO_PLUSHIE] = MeshBuilder::GenerateOBJ("plushie", "Models//Plushie.obj");
-	meshList_hub[GEO_PLUSHIE]->textureID = LoadTGA("Textures//Frieren_Plushie.tga");	
-
-	meshList_hub[GEO_5090] = MeshBuilder::GenerateOBJ("5090", "Models//RTX5090_BOX.obj");
-	meshList_hub[GEO_5090]->textureID = LoadTGA("Textures//RTX5090_BOX.tga");
-
 
 	// setup initial item in hand
 	addPickables("Baseball", glm::vec3(0, 0, 0));
@@ -263,14 +247,20 @@ void SceneHub::Init()
 
 	wall.InitPhysicsObject(glm::vec3(0, 0, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(1, 1, 1), 45, glm::vec3(1, 0, 0), miscSettings);
 
+	Stall[0].InitPhysicsObject(glm::vec3(-30, 0, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(6.5f, 5.3f, 8.5f), 0, glm::vec3(0, 1, 0), miscSettings);
+	Stall[1].InitPhysicsObject(glm::vec3(30, 0, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(6.5f, 5.3f, 8.5f), 180, glm::vec3(0, 1, 0), miscSettings);
+	Stall[2].InitPhysicsObject(glm::vec3(0, 0, -30), 0.f, BoundingBox::Type::OBB, glm::vec3(6.5f, 5.3f, 8.5f), -90, glm::vec3(0, 1, 0), miscSettings);
+	Stall[3].InitPhysicsObject(glm::vec3(0, 0, 30), 0.f, BoundingBox::Type::OBB, glm::vec3(6.5f, 5.3f, 8.5f), 90, glm::vec3(0, 1, 0), miscSettings);
+
+	Table[0].InitPhysicsObject(glm::vec3(-15, 0, 18), 0.f, BoundingBox::Type::OBB, glm::vec3(5.f, 2.5f, 5.f), 50, glm::vec3(0, 1, 0), miscSettings);
+	Table[1].InitPhysicsObject(glm::vec3(15, 0, 18), 0.f, BoundingBox::Type::OBB, glm::vec3(5.f, 2.5f, 5.f), -50, glm::vec3(0, 1, 0), miscSettings);
+
+	Ferriswheel.InitPhysicsObject(glm::vec3(-40, 0, -35), 0.f, BoundingBox::Type::OBB, glm::vec3(10.f, 10.f, 5.f), 45, glm::vec3(0, 1, 0), miscSettings);
+
+
 	worldObjects[0] = wall;
 
 	addPickables("Pepsi", glm::vec3(3, 1, 2));
-
-	meshList_hub[GEO_FOUNTAIN]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
-	meshList_hub[GEO_FOUNTAIN]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
-	meshList_hub[GEO_FOUNTAIN]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
-	meshList_hub[GEO_FOUNTAIN]->material.kShininess = 1.0f;
 
 	meshList_hub[GEO_TABLE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
 	meshList_hub[GEO_TABLE]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
@@ -292,35 +282,6 @@ void SceneHub::Init()
 	meshList_hub[GEO_STALL]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
 	meshList_hub[GEO_STALL]->material.kShininess = 1.0f;
 
-	/*meshList_hub[GEO_MONKEY]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
-	meshList_hub[GEO_MONKEY]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
-	meshList_hub[GEO_MONKEY]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
-	meshList_hub[GEO_MONKEY]->material.kShininess = 1.0f;*/
-
-	meshList_hub[GEO_FIGURINE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
-	meshList_hub[GEO_FIGURINE]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
-	meshList_hub[GEO_FIGURINE]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
-	meshList_hub[GEO_FIGURINE]->material.kShininess = 1.0f;
-
-	meshList_hub[GEO_PIG]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
-	meshList_hub[GEO_PIG]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
-	meshList_hub[GEO_PIG]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
-	meshList_hub[GEO_PIG]->material.kShininess = 1.0f;
-
-	meshList_hub[GEO_FERRISWHEEL]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
-	meshList_hub[GEO_FERRISWHEEL]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
-	meshList_hub[GEO_FERRISWHEEL]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
-	meshList_hub[GEO_FERRISWHEEL]->material.kShininess = 1.0f;
-
-	meshList_hub[GEO_PLUSHIE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
-	meshList_hub[GEO_PLUSHIE]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
-	meshList_hub[GEO_PLUSHIE]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
-	meshList_hub[GEO_PLUSHIE]->material.kShininess = 1.0f;
-
-	meshList_hub[GEO_5090]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
-	meshList_hub[GEO_5090]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
-	meshList_hub[GEO_5090]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
-	meshList_hub[GEO_5090]->material.kShininess = 1.0f;
 }
 
 void SceneHub::Update(double dt)
@@ -368,6 +329,26 @@ void SceneHub::Update(double dt)
 		}
 	}
 
+	//collisions
+	CollisionData cd;	
+	for (int i = 0; i < NUM_STALLS; ++i) {
+		if (CheckCollision(cameraBody, Stall[i], cd)) {
+			ResolveCollision(cd);
+		}
+	}
+
+	for (int i = 0; i < NUM_TABLES; ++i) {
+		if (CheckCollision(cameraBody, Table[i], cd)) {
+			ResolveCollision(cd);
+		}
+	}
+
+	if (CheckCollision(cameraBody, Ferriswheel, cd)) {
+		ResolveCollision(cd);
+	}
+	
+
+	//debug
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_I)) {
 		debugPos.x += 5.f * dt;
 	}
@@ -380,7 +361,23 @@ void SceneHub::Update(double dt)
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_L)) {
 		debugPos.z -= 5.f * dt;
 	}
+	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_O)) {
+		debugPos.y += 5.f * dt;
+	}
+	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_U)) {
+		debugPos.y -= 5.f * dt;
+	}
 	std::cout << "Debug Pos: " << debugPos.x << ", " << debugPos.y << ", " << debugPos.z << std::endl;
+
+	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_M)) {
+		debugScale += 15.0f * dt;
+	}
+	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_N)) {
+		debugScale -= 15.0f * dt;
+	}
+	std::cout << "Debug Scale: " << debugScale << std::endl;	
+
+	Table[1].position = debugPos;
 }
 
 void SceneHub::Render()
@@ -583,8 +580,12 @@ void SceneHub::Render()
 			RenderMesh(meshList[GEO_FENCE], true);
 		}
 
+		for (int i = 0; i < NUM_TABLES; i++)
 		{
 			PushPop table(modelStack);
+			modelStack.Translate(Table[0].position.x, Table[i].position.y, Table[i].position.z);
+			glm::mat4 rotation = glm::mat4_cast(Table[i].orientation);
+			modelStack.MultMatrix(rotation);
 			RenderMesh(meshList_hub[GEO_TABLE], true);
 		}
 
@@ -595,66 +596,33 @@ void SceneHub::Render()
 
 		{
 			PushPop ferriswheel(modelStack);
-			modelStack.Translate(debugPos.x, debugPos.y, debugPos.z);
+			modelStack.Translate(Ferriswheel.position.x, Ferriswheel.position.y, Ferriswheel.position.z);
+			glm::mat4 rotation = glm::mat4_cast(Ferriswheel.orientation);
+			modelStack.MultMatrix(rotation);
 			RenderMesh(meshList_hub[GEO_FERRISWHEEL], true);
 		}
 
+		for (int i = 0; i < NUM_STALLS; i++) 
 		{
 			PushPop stall(modelStack);
-			modelStack.Translate(-30.f, 0.f, 0.f);
-			RenderMesh(meshList_hub[GEO_STALL], true);
-		}
-		{
-			PushPop stall(modelStack);
-			modelStack.Translate(30.f, 0.f, 0.f);
-			modelStack.Rotate(90, 0.f, 1.f, 0.f);
-			RenderMesh(meshList_hub[GEO_STALL], true);
-		}
-		{
-			PushPop stall(modelStack);
-			modelStack.Translate(0.f, 0.f, -30.f);
-			RenderMesh(meshList_hub[GEO_STALL], true);
-		}
-		{
-			PushPop stall(modelStack);
-			modelStack.Translate(0.f, 0.f, 30.f);
+			modelStack.Translate(Stall[i].position.x, Stall[i].position.y, Stall[i].position.z);
+			glm::mat4 rotation = glm::mat4_cast(Stall[i].orientation);
+			modelStack.MultMatrix(rotation);
 			RenderMesh(meshList_hub[GEO_STALL], true);
 		}
 
 		{
 			PushPop monkey(modelStack);
-			RenderMesh(meshList_hub[GEO_MONKEY], true);
-		}
-
-		{
-			PushPop shift(modelStack);
-			modelStack.Translate(5.f, 3.f, 0.f);
-			{
-				PushPop figurine(modelStack);
-				RenderMesh(meshList_hub[GEO_FIGURINE], true);
-			}
-
-			{
-				PushPop pig(modelStack);
-				//RenderMesh(meshList_hub[GEO_PIG], true);
-			}
-
-			{
-				PushPop plushie(modelStack);
-				//RenderMesh(meshList_hub[GEO_PLUSHIE], true);
-			}
-
-			{
-				PushPop rtx(modelStack);
-				//RenderMesh(meshList_hub[GEO_5090], true);
-			}
+			modelStack.Translate(-7.f, 1.5f, -0.9f);
+			modelStack.Rotate(-90, 0.f, 1.f, 0.f);
+			RenderMesh(meshList[GEO_MONKEY], true);
 		}
 	}
 
-
 	{
 		PushPop fountain(modelStack);
-		//RenderMesh(meshList_hub[GEO_FOUNTAIN], true);
+		modelStack.Translate(Fountain.position.x, Fountain.position.y, Fountain.position.z);
+		RenderMesh(meshList[GEO_FOUNTAIN], true);
 	}
 
 	{
@@ -670,7 +638,7 @@ void SceneHub::Render()
 		meshList_hub[GEO_WALL]->material.kSpecular = glm::vec3(0.0f, 0.0f, 0.0f);
 		meshList_hub[GEO_WALL]->material.kShininess = 1.0f;
 
-		//RenderMesh(meshList_hub[GEO_WALL], true);
+		RenderMesh(meshList_hub[GEO_WALL], true);
 	}
 
 	{

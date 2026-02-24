@@ -222,6 +222,24 @@ void BaseScene::Init()
 
 	meshList[GEO_FENCE] = MeshBuilder::GenerateOBJ("Fence", "Models//Fence.obj");
 
+	meshList[GEO_FOUNTAIN] = MeshBuilder::GenerateOBJ("fountain", "Models//Fountain.obj");
+	meshList[GEO_FOUNTAIN]->textureID = LoadTGA("Textures//Fountain.tga");
+
+	meshList[GEO_MONKEY] = MeshBuilder::GenerateOBJ("monkey", "Models//Monkey.obj");
+
+	//pickables
+	meshList[GEO_FIGURINE] = MeshBuilder::GenerateOBJ("figurine", "Models//Figurine.obj");
+	meshList[GEO_FIGURINE]->textureID = LoadTGA("Textures//Figurine.tga");
+
+	meshList[GEO_PIG] = MeshBuilder::GenerateOBJ("pig", "Models//Pig.obj");
+	meshList[GEO_PIG]->textureID = LoadTGA("Textures//Pig.tga");
+
+	meshList[GEO_PLUSHIE] = MeshBuilder::GenerateOBJ("plushie", "Models//Plushie.obj");
+	meshList[GEO_PLUSHIE]->textureID = LoadTGA("Textures//Frieren_Plushie.tga");
+
+	meshList[GEO_5090] = MeshBuilder::GenerateOBJ("5090", "Models//RTX5090_BOX.obj");
+	meshList[GEO_5090]->textureID = LoadTGA("Textures//RTX5090_BOX.tga");
+
 	// SKYBOX
 	meshList[GEO_FRONT] = MeshBuilder::GenerateQuad("Front", glm::vec3(1.f, 1.f, 1.f), 100.f);
 	meshList[GEO_FRONT]->textureID = LoadTGA("Textures//Skybox//front.tga");
@@ -342,6 +360,10 @@ void BaseScene::Init()
 			phaseDurations[k][i] = 0.f;
 		}
 	}
+	// world objects
+	bool miscSettings[2] = { false, false }; // for gravity and drag. override in case of specific objects
+
+	Fountain.InitPhysicsObject(glm::vec3(0, 0, 0), 0.f, BoundingBox::Type::SPHERE, glm::vec3(10.f, 0.f, 0.f), miscSettings);
 
 	// MESH MATERIAL INITIALIZATION
 	meshList[GEO_BASEBALL]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
@@ -388,6 +410,31 @@ void BaseScene::Init()
 	meshList[GEO_FENCE]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
 	meshList[GEO_FENCE]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
 	meshList[GEO_FENCE]->material.kShininess = 1.0f;
+
+	meshList[GEO_FOUNTAIN]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	meshList[GEO_FOUNTAIN]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
+	meshList[GEO_FOUNTAIN]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+	meshList[GEO_FOUNTAIN]->material.kShininess = 1.0f;
+
+	meshList[GEO_FIGURINE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	meshList[GEO_FIGURINE]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
+	meshList[GEO_FIGURINE]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+	meshList[GEO_FIGURINE]->material.kShininess = 1.0f;
+
+	meshList[GEO_PIG]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	meshList[GEO_PIG]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
+	meshList[GEO_PIG]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+	meshList[GEO_PIG]->material.kShininess = 1.0f;
+
+	meshList[GEO_PLUSHIE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	meshList[GEO_PLUSHIE]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
+	meshList[GEO_PLUSHIE]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+	meshList[GEO_PLUSHIE]->material.kShininess = 1.0f;
+
+	meshList[GEO_5090]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	meshList[GEO_5090]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
+	meshList[GEO_5090]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+	meshList[GEO_5090]->material.kShininess = 1.0f;
 }
 
 void BaseScene::Update(double dt)

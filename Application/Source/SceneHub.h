@@ -6,23 +6,20 @@
 class SceneHub : public BaseScene
 {
 public:
+	static const int NUM_TABLES = 2;
+	static const int NUM_STALLS = 4;
+
     enum GEOMETRY_TYPE_HUB
     {
+        //debug
         GEO_WALL,
+        GEO_SPHERE,
 
         //scene models
-        GEO_FOUNTAIN,
         GEO_STALL,
         GEO_TABLE,
         GEO_FOODSTAND,
         GEO_FERRISWHEEL,
-        GEO_MONKEY,
-
-		//scene collectibles
-		GEO_FIGURINE,
-        GEO_PIG,
-		GEO_PLUSHIE,
-        GEO_5090,
 
         NUM_GEOMETRY,
     };
@@ -37,7 +34,15 @@ public:
 
     Mesh* meshList_hub[NUM_GEOMETRY];
 
+    //physics objects
+    PhysicsObject Stall[NUM_STALLS];
+    PhysicsObject Table[NUM_TABLES];
+	PhysicsObject Foodstand;
+	PhysicsObject Ferriswheel;
+
+    //debug
     glm::vec3 debugPos;
+    float debugScale;
 
 };
 #endif

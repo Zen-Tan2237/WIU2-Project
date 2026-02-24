@@ -39,6 +39,14 @@ public:
 		GEO_BACKGROUND_BUILDINGS2,
 		GEO_FLOOR,
 		GEO_FENCE,
+		GEO_FOUNTAIN,
+		GEO_MONKEY,
+
+		//pickables
+		GEO_FIGURINE,
+		GEO_PIG,
+		GEO_PLUSHIE,
+		GEO_5090,
 
 		// SKYBOX
 		GEO_FRONT,
@@ -298,6 +306,9 @@ public:
 	// OTHERS
 	PhysicsObject worldObjects[TOTAL_PHYSICSOBJECT];
 	Pickable* pickables[TOTAL_PICKABLES];
+
+	//common scene models
+	PhysicsObject Fountain;
 
 	int projType = 1; // fix to 0 for orthographic, 1 for projection
 	MatrixStack modelStack, viewStack, projectionStack;
