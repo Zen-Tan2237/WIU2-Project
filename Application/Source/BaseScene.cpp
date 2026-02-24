@@ -208,6 +208,13 @@ void BaseScene::Init()
 	meshList[GEO_CANSPEPSI] = MeshBuilder::GenerateOBJ("Pepsi Can", "Models//Cans_Pepsi.obj");
 	meshList[GEO_CANSPEPSI]->textureID = LoadTGA("Textures//Cans_Pepsi.tga");
 
+	meshList[GEO_FLOOR] = MeshBuilder::GenerateOBJ("floor", "Models//Grass_base.obj");
+	meshList[GEO_FLOOR]->textureID = LoadTGA("Textures//Ground_texture.tga");
+
+	meshList[GEO_BACKGROUND_BUILDINGS] = MeshBuilder::GenerateOBJ("Background Buildings", "Models//Buildings_Background.obj");
+
+	meshList[GEO_FENCE] = MeshBuilder::GenerateOBJ("Fence", "Models//Fence.obj");
+
 	// GUI
 	meshList[GEO_MENU_GUI] = MeshBuilder::GenerateQuad("Menu GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
 	meshList[GEO_MENU_GUI]->textureID = LoadTGA("Image//Menu_GUI.tga");
@@ -355,6 +362,21 @@ void BaseScene::Init()
 	meshList[GEO_CANSMTNDEW]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
 	meshList[GEO_CANSMTNDEW]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
 	meshList[GEO_CANSMTNDEW]->material.kShininess = 1.0f;
+
+	meshList[GEO_FLOOR]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	meshList[GEO_FLOOR]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
+	meshList[GEO_FLOOR]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+	meshList[GEO_FLOOR]->material.kShininess = 1.0f;
+
+	meshList[GEO_BACKGROUND_BUILDINGS]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	meshList[GEO_BACKGROUND_BUILDINGS]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
+	meshList[GEO_BACKGROUND_BUILDINGS]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+	meshList[GEO_BACKGROUND_BUILDINGS]->material.kShininess = 1.0f;
+
+	meshList[GEO_FENCE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	meshList[GEO_FENCE]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
+	meshList[GEO_FENCE]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+	meshList[GEO_FENCE]->material.kShininess = 1.0f;
 }
 
 void BaseScene::Update(double dt)
@@ -693,12 +715,37 @@ void BaseScene::Render()
 		RenderMesh(meshList[GEO_AXES], false);
 	}
 
-
 	{
-		PushPop skybox(modelStack);
-		modelStack.Translate(0, 0, 0); //later change to follow player class
-		modelStack.Scale(20.f, 20.f, 20.f);
-		//RenderSkybox();
+		PushPop multi(modelStack);
+		modelStack.Scale(0.3f, 0.3f, 0.3f);
+
+		{
+			PushPop skybox(modelStack);
+			modelStack.Translate(0, 0, 0); //later change to follow player class
+			modelStack.Scale(20.f, 20.f, 20.f);
+			//RenderSkybox();
+		}
+
+		{
+			PushPop backgroundBuildings(modelStack);
+			modelStack.Translate(0.f, -15.f, 0.f);
+			modelStack.Scale(1.f, 2.f, 1.f);
+			RenderMesh(meshList[GEO_BACKGROUND_BUILDINGS], true);
+		}
+
+		{
+			PushPop floor(modelStack);
+			//modelStack.Translate(helloworld.position.x, helloworld.position.y, helloworld.position.z);
+			//glm::mat4 rotationMat = glm::mat4_cast(helloworld.orientation);
+			//modelStack.MultMatrix(rotationMat);
+			modelStack.Scale(1, 1, 1);
+			RenderMesh(meshList[GEO_FLOOR], true);
+		}
+
+		{
+			PushPop fence(modelStack);
+			RenderMesh(meshList[GEO_FENCE], true);
+		}
 	}
 }
 
