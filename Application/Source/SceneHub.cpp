@@ -612,18 +612,19 @@ void SceneHub::Render()
 		}
 
 		{
+			PushPop fountain(modelStack);
+			modelStack.Translate(Fountain.position.x, Fountain.position.y, Fountain.position.z);
+			RenderMesh(meshList[GEO_FOUNTAIN], true);
+		}
+
+		{
 			PushPop monkey(modelStack);
-			modelStack.Translate(-7.f, 1.5f, -0.9f);
+			modelStack.Translate(-6.f, 1.2f, 0.f);
 			modelStack.Rotate(-90, 0.f, 1.f, 0.f);
 			RenderMesh(meshList[GEO_MONKEY], true);
 		}
 	}
 
-	{
-		PushPop fountain(modelStack);
-		modelStack.Translate(Fountain.position.x, Fountain.position.y, Fountain.position.z);
-		RenderMesh(meshList[GEO_FOUNTAIN], true);
-	}
 
 	{
 		PushPop wallGuard(modelStack);
