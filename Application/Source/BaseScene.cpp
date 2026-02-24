@@ -212,8 +212,23 @@ void BaseScene::Init()
 	meshList[GEO_FLOOR]->textureID = LoadTGA("Textures//Ground_texture.tga");
 
 	meshList[GEO_BACKGROUND_BUILDINGS] = MeshBuilder::GenerateOBJ("Background Buildings", "Models//Buildings_Background.obj");
+	meshList[GEO_BACKGROUND_BUILDINGS]->textureID = LoadTGA("Textures//skyscrapers.tga");
 
 	meshList[GEO_FENCE] = MeshBuilder::GenerateOBJ("Fence", "Models//Fence.obj");
+
+	// skybox
+	meshList[GEO_FRONT] = MeshBuilder::GenerateQuad("Front", glm::vec3(1.f, 1.f, 1.f), 100.f);
+	meshList[GEO_FRONT]->textureID = LoadTGA("Textures//Skybox//front.tga");
+	meshList[GEO_BACK] = MeshBuilder::GenerateQuad("Back", glm::vec3(1.f, 1.f, 1.f), 100.f);
+	meshList[GEO_BACK]->textureID = LoadTGA("Textures//Skybox//back.tga");
+	meshList[GEO_LEFT] = MeshBuilder::GenerateQuad("Left", glm::vec3(1.f, 1.f, 1.f), 100.f);
+	meshList[GEO_LEFT]->textureID = LoadTGA("Textures//Skybox//left.tga");
+	meshList[GEO_RIGHT] = MeshBuilder::GenerateQuad("Right", glm::vec3(1.f, 1.f, 1.f), 100.f);
+	meshList[GEO_RIGHT]->textureID = LoadTGA("Textures//Skybox//right.tga");
+	meshList[GEO_TOP] = MeshBuilder::GenerateQuad("top", glm::vec3(1.f, 1.f, 1.f), 100.f);
+	meshList[GEO_TOP]->textureID = LoadTGA("Textures//Skybox//top.tga");
+	meshList[GEO_BOTTOM] = MeshBuilder::GenerateQuad("bottom", glm::vec3(1.f, 1.f, 1.f), 100.f);
+	meshList[GEO_BOTTOM]->textureID = LoadTGA("Textures//Skybox//bottom.tga");
 
 	// GUI
 	meshList[GEO_MENU_GUI] = MeshBuilder::GenerateQuad("Menu GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
@@ -238,7 +253,6 @@ void BaseScene::Init()
 
 	meshList[GEO_ITEMINHANDFADEBACKGROUND_GUI] = MeshBuilder::GenerateQuad("ItemInHand FadeBackground GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
 	meshList[GEO_ITEMINHANDFADEBACKGROUND_GUI]->textureID = LoadTGA("Image//ItemInHandFadeBackground_GUI.tga");
-
 
 	// EUI
 	meshList[GEO_INTERACT_EUI] = MeshBuilder::GenerateQuad("Interact EUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
@@ -719,6 +733,12 @@ void BaseScene::Render()
 		PushPop axesGuard(modelStack);
 		// Render objects
 		RenderMesh(meshList[GEO_AXES], false);
+	}
+
+	{
+		PushPop skybox(modelStack);
+		modelStack.Scale(2.f, 2.f, 2.f);
+		RenderSkybox();
 	}
 
 	{
