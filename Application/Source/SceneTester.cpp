@@ -167,8 +167,9 @@ void SceneTester::Init()
 	player.InitPhysicsObject(camera.position, 0.f, BoundingBox::Type::OBB, glm::vec3(0.5f, 5.f, 0.5f), miscSettings);
 
 	// init sound pop
-	// Unimplemented
-	//ma_engine_listener_set_cone(Audio_GetEngine(), 0, 0.5f, 1.f, 50.f);
+	AudioManager::Instance().LoadSound("pop", "SFX/244657__dsg__pop-5.flac");
+
+
 }
 
 void SceneTester::Update(double dt)
@@ -541,10 +542,10 @@ void SceneTester::HandleKeyPress()
 	}
 
 
-	//if (KeyboardController::GetInstance()->IsKeyPressed('Y')) { // test key to play pop sound
-	//	ma_sound_seek_to_pcm_frame(&pop, 0);
-	//	ma_sound_start(&pop);
-	//}
+	if (KeyboardController::GetInstance()->IsKeyPressed('Y')) { // test key to play pop sound
+		AudioManager::Instance().SoundPlay("pop");
+
+	}
 
 }
 
