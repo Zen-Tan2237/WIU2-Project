@@ -30,17 +30,39 @@ void AudioManager::Shutdown()
 
 bool AudioManager::LoadSound(const std::string& name, const std::string& path)
 {
-    if (sounds.find(name) != sounds.end())
-        return true; // already loaded
+    //if (sounds.find(name) != sounds.end())
+    //    return true; // already loaded
 
-    ma_sound sound;
-    if (ma_sound_init_from_file(&engine, path.c_str(), 0, NULL, NULL, &sound) != MA_SUCCESS)
+    //ma_sound sound;
+    //if (ma_sound_init_from_file(&engine, path.c_str(), 0, NULL, NULL, &sound) != MA_SUCCESS)
+    //{
+    //    std::cerr << "Failed to load sound: " << path << std::endl;
+    //    return false;
+    //}
+
+    //sounds[name] = sound;
+    //return true;
+
+    if (sounds.find(name) != sounds.end())
+        return true;
+
+    // Create entry in map first
+    auto result = sounds.emplace(name, ma_sound{});
+    auto it = result.first;
+    bool inserted = result.second;
+
+    if (!inserted)
+        return false;
+
+    ma_result resultSound = ma_sound_init_from_file(&engine, path.c_str(), 0, NULL, NULL, &it->second); // initialize directly in map
+        
+
+    if (resultSound != MA_SUCCESS)
     {
-        std::cerr << "Failed to load sound: " << path << std::endl;
+        sounds.erase(it);
         return false;
     }
 
-    sounds[name] = sound;
     return true;
 }
 

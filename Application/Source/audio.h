@@ -10,7 +10,7 @@
 
 
 --- GUIDE ON ADDING SFX ---
-1) Add the sound file to SFX (make sure it's on GitHub and everything)
+1) Add the sound file to SFX/... (make sure it's on GitHub and everything)
 
 2) Initialize the sounds in the scene's Init().
    Example initialization of soundName with a file name of "sound.wav":
@@ -19,9 +19,10 @@
 
 
 --- GUIDE ON PLAYING SFX ---
-1) Sounds do not automatically start from the beginning of the file. Use ma_sound_seek_to_pcm_frame(&sound, 0) on sound to return to start
-2) Use ma_sound_start to start playing a sound
-3) Use ma_sound_stop to stop playing
+1) Sounds do not automatically start from the beginning of the file. 
+   Use SoundSeek on sound to return to start, or specify a value in seconds
+2) Use SoundPlay to start playing a sound
+3) Use SoundStop to stop playing
 
 
 
@@ -38,6 +39,7 @@ In-between, the volume is attenuated gradually.
 class AudioManager {
 public:
     // Access the singleton instance
+    //  AudioManager::Instance()
     static AudioManager& Instance();
 
     // Initialize/shutdown engine
