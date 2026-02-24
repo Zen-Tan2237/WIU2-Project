@@ -258,9 +258,28 @@ void PhysicsObject::RotateOrientation(float angleDegrees, glm::vec3 rotationAxis
 	orientation = glm::normalize(orientation);
 }
 
+void PhysicsObject::RotateOrientation(float xDegrees, float yDegrees, float zDegrees) {
+	glm::quat rotX = glm::angleAxis(glm::radians(xDegrees), glm::vec3(1.f, 0.f, 0.f));
+	glm::quat rotY = glm::angleAxis(glm::radians(yDegrees), glm::vec3(0.f, 1.f, 0.f));
+	glm::quat rotZ = glm::angleAxis(glm::radians(zDegrees), glm::vec3(0.f, 0.f, 1.f));
+	glm::quat rotationQuat = rotZ * rotY * rotX; // Note: order of multiplication matters
+	orientation = rotationQuat * orientation;
+	// Warp orientation to prevent implicit scaling from numerical errors
+	orientation = glm::normalize(orientation);
+}
+
 // Set orientation to a specific angle (in degrees) around a specified axis, replacing the current orientation
 void PhysicsObject::SetOrientation(float angleDegrees, glm::vec3 rotationAxis) {
 	orientation = glm::angleAxis(glm::radians(angleDegrees), glm::normalize(rotationAxis));
+	// Warp orientation to prevent implicit scaling from numerical errors
+	orientation = glm::normalize(orientation);
+}
+
+void PhysicsObject::SetOrientation(float xDegrees, float yDegrees, float zDegrees) {
+	glm::quat rotX = glm::angleAxis(glm::radians(xDegrees), glm::vec3(1.f, 0.f, 0.f));
+	glm::quat rotY = glm::angleAxis(glm::radians(yDegrees), glm::vec3(0.f, 1.f, 0.f));
+	glm::quat rotZ = glm::angleAxis(glm::radians(zDegrees), glm::vec3(0.f, 0.f, 1.f));
+	orientation = rotZ * rotY * rotX; // Note: order of multiplication matters
 	// Warp orientation to prevent implicit scaling from numerical errors
 	orientation = glm::normalize(orientation);
 }
