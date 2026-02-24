@@ -142,7 +142,10 @@ void Application::Init()
 		//return -1;
 	}
 
-
+	// init AudioManager from audio
+	if (!AudioManager::Instance().Init()) {
+		fprintf(stderr, "Failed to initialize AudioManager.\n");
+	}
 
 	srand(time(0));
 }
@@ -221,6 +224,8 @@ void Application::Run()
 void Application::Exit()
 {
 	KeyboardController::DestroyInstance();
+
+	AudioManager::Instance().Shutdown();
 
 	//Close OpenGL window and terminate GLFW
 	glfwDestroyWindow(m_window);
