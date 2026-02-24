@@ -258,10 +258,11 @@ void SceneHub::Update(double dt)
 	if (interactedIndex != -1 && KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_F)) { // means got prompt, is close to and facing smth
 		if (interactivesType[interactedIndex] == 'I') { // its an interactive
 			// do it in actual scene instead
-			if (interactives[interactedIndex] == "Enter Scene 2 (SceneHub)") {
+			if (interactives[interactedIndex] == "Enter Scene 2 (SceneHub)" && nextScene == 0) {
 				nextScene = 2;
 				nextSceneDelay = 1.f;
-				sceneSwitchUI_targetScalePercentage = 1.f;
+				sceneSwitchHUD.resetScale(glm::vec2(.25f));
+				sceneSwitchHUD.setTargetScale(glm::vec2(1.f));
 			}
 			else if (interactives[interactedIndex] == "1") {
 				if (part == 0)

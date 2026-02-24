@@ -13,6 +13,7 @@ public:
 	virtual void Exit() = 0;
 
 	int nextScene = 0;
+	int accumulatedCash = 0;
 	double nextSceneDelay = 0.f;
 };
 
