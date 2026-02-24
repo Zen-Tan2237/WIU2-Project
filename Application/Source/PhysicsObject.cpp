@@ -257,3 +257,10 @@ void PhysicsObject::RotateOrientation(float angleDegrees, glm::vec3 rotationAxis
 	// Warp orientation to prevent implicit scaling from numerical errors
 	orientation = glm::normalize(orientation);
 }
+
+// Set orientation to a specific angle (in degrees) around a specified axis, replacing the current orientation
+void PhysicsObject::SetOrientation(float angleDegrees, glm::vec3 rotationAxis) {
+	orientation = glm::angleAxis(glm::radians(angleDegrees), glm::normalize(rotationAxis));
+	// Warp orientation to prevent implicit scaling from numerical errors
+	orientation = glm::normalize(orientation);
+}

@@ -59,6 +59,7 @@ public:
 	void UpdateInertiaTensors();
 	void ResetPhysicsProperties();
 	void RotateOrientation(float angleDegrees, glm::vec3 rotationAxis);
+	void SetOrientation(float angleDegrees, glm::vec3 rotationAxis);
 
 	bool isOBBanAABB() const;
 
