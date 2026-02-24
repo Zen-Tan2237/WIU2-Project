@@ -206,7 +206,7 @@ void SceneHub::Init()
 		glUniform1f(m_parameters[U_LIGHT7_COSCUTOFF], cosf(glm::radians<float>(light[7].cosCutoff)));
 		glUniform1f(m_parameters[U_LIGHT7_COSINNER], cosf(glm::radians<float>(light[7].cosInner)));
 		glUniform1f(m_parameters[U_LIGHT7_EXPONENT], light[7].exponent);
-	} 
+	}
 
 	//models
 	//meshList[GEO_STALL] = MeshBuilder::GenerateOBJMTL("Stall", "OBJ//stall.obj", "OBJ//stall.mtl");
@@ -223,7 +223,7 @@ void SceneHub::Init()
 	meshList_hub[GEO_TABLE]->textureID = LoadTGA("Textures//table.tga");
 
 	meshList_hub[GEO_FOODSTAND] = MeshBuilder::GenerateOBJ("foodstand", "Models//Hot_Dog_Stand.obj");
-	//meshList_hub[GEO_FOODSTAND]->textureID = LoadTGA("Textures//foodstand.tga");
+	meshList_hub[GEO_FOODSTAND]->textureID = LoadTGA("Textures//Hotdog.tga");
 
 	meshList_hub[GEO_FERRISWHEEL] = MeshBuilder::GenerateOBJ("ferriswheel", "Models//FerrisWheel.obj");
 	meshList_hub[GEO_FERRISWHEEL]->textureID = LoadTGA("Textures//FerrisWheel.tga");
@@ -256,6 +256,43 @@ void SceneHub::Init()
 	meshList_hub[GEO_FOUNTAIN]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
 	meshList_hub[GEO_FOUNTAIN]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
 	meshList_hub[GEO_FOUNTAIN]->material.kShininess = 1.0f;
+
+	meshList_hub[GEO_TABLE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	meshList_hub[GEO_TABLE]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
+	meshList_hub[GEO_TABLE]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+	meshList_hub[GEO_TABLE]->material.kShininess = 1.0f;
+
+	meshList_hub[GEO_FOODSTAND]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	meshList_hub[GEO_FOODSTAND]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
+	meshList_hub[GEO_FOODSTAND]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+	meshList_hub[GEO_FOODSTAND]->material.kShininess = 1.0f;
+
+	meshList_hub[GEO_FERRISWHEEL]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	meshList_hub[GEO_FERRISWHEEL]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
+	meshList_hub[GEO_FERRISWHEEL]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+	meshList_hub[GEO_FERRISWHEEL]->material.kShininess = 1.0f;
+
+	meshList_hub[GEO_STALL]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	meshList_hub[GEO_STALL]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
+	meshList_hub[GEO_STALL]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+	meshList_hub[GEO_STALL]->material.kShininess = 1.0f;
+
+	meshList_hub[GEO_TABLE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	meshList_hub[GEO_TABLE]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
+	meshList_hub[GEO_TABLE]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+	meshList_hub[GEO_TABLE]->material.kShininess = 1.0f;
+
+	meshList_hub[GEO_TABLE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	meshList_hub[GEO_TABLE]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
+	meshList_hub[GEO_TABLE]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+	meshList_hub[GEO_TABLE]->material.kShininess = 1.0f;
+
+	meshList_hub[GEO_TABLE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	meshList_hub[GEO_TABLE]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
+	meshList_hub[GEO_TABLE]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+	meshList_hub[GEO_TABLE]->material.kShininess = 1.0f;
+
+
 }
 
 void SceneHub::Update(double dt)
@@ -482,13 +519,14 @@ void SceneHub::Render()
 
 	{
 		PushPop multi(modelStack);
-		modelStack.Scale(0.3f, 0.3f, 0.3f);
+		modelStack.Scale(0.2f, 0.2f, 0.2f);
 
 		{
 			PushPop backgroundBuildings(modelStack);
 			modelStack.Translate(0.f, -15.f, 0.f);
 			modelStack.Scale(1.f, 2.f, 1.f);
-			RenderMesh(meshList[GEO_BACKGROUND_BUILDINGS], true);
+			RenderMesh(meshList[GEO_BACKGROUND_BUILDINGS1], true);
+			RenderMesh(meshList[GEO_BACKGROUND_BUILDINGS2], true);
 		}
 
 		{
@@ -502,6 +540,25 @@ void SceneHub::Render()
 			RenderMesh(meshList[GEO_FENCE], true);
 		}
 
+		{
+			PushPop table(modelStack);
+			RenderMesh(meshList_hub[GEO_TABLE], true);
+		}
+
+		{
+			PushPop foodstand(modelStack);
+			RenderMesh(meshList_hub[GEO_FOODSTAND], true);
+		}
+
+		{
+			PushPop ferriswheel(modelStack);
+			RenderMesh(meshList_hub[GEO_FERRISWHEEL], true);
+		}
+
+		{
+			PushPop stall(modelStack);
+			RenderMesh(meshList_hub[GEO_STALL], true);
+		}
 	}
 
 

@@ -1,3 +1,4 @@
+
 #ifndef SCENE_HUB_H
 #define SCENE_HUB_H
 
@@ -12,9 +13,9 @@ public:
         GEO_STALL,
         GEO_TABLE,
         GEO_FOODSTAND,
-		GEO_FERRISWHEEL,
+        GEO_FERRISWHEEL,
         NUM_GEOMETRY,
-	};
+    };
 
     SceneHub();
     ~SceneHub();
@@ -24,7 +25,7 @@ public:
     void RenderUI();
     void Exit() override;
 
-	Mesh* meshList_hub[NUM_GEOMETRY];
+    Mesh* meshList_hub[NUM_GEOMETRY];
 
 };
 #endif

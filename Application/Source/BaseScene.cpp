@@ -214,8 +214,11 @@ void BaseScene::Init()
 	meshList[GEO_FLOOR] = MeshBuilder::GenerateOBJ("floor", "Models//Grass_base.obj");
 	meshList[GEO_FLOOR]->textureID = LoadTGA("Textures//Ground_texture.tga");
 
-	meshList[GEO_BACKGROUND_BUILDINGS] = MeshBuilder::GenerateOBJ("Background Buildings", "Models//Buildings_Background.obj");
-	meshList[GEO_BACKGROUND_BUILDINGS]->textureID = LoadTGA("Textures//skyscrapers.tga");
+	meshList[GEO_BACKGROUND_BUILDINGS1] = MeshBuilder::GenerateOBJ("Background Buildings", "Models//Buildings_Background_1.obj");
+	meshList[GEO_BACKGROUND_BUILDINGS1]->textureID = LoadTGA("Textures//skyscrapers.tga");
+
+	meshList[GEO_BACKGROUND_BUILDINGS2] = MeshBuilder::GenerateOBJ("Background Buildings", "Models//Buildings_Background_2.obj");
+	meshList[GEO_BACKGROUND_BUILDINGS2]->textureID = LoadTGA("Textures//skyscrapers.tga");
 
 	meshList[GEO_FENCE] = MeshBuilder::GenerateOBJ("Fence", "Models//Fence.obj");
 
@@ -371,10 +374,15 @@ void BaseScene::Init()
 	meshList[GEO_FLOOR]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
 	meshList[GEO_FLOOR]->material.kShininess = 1.0f;
 
-	meshList[GEO_BACKGROUND_BUILDINGS]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
-	meshList[GEO_BACKGROUND_BUILDINGS]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
-	meshList[GEO_BACKGROUND_BUILDINGS]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
-	meshList[GEO_BACKGROUND_BUILDINGS]->material.kShininess = 1.0f;
+	meshList[GEO_BACKGROUND_BUILDINGS1]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	meshList[GEO_BACKGROUND_BUILDINGS1]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
+	meshList[GEO_BACKGROUND_BUILDINGS1]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+	meshList[GEO_BACKGROUND_BUILDINGS1]->material.kShininess = 1.0f;
+
+	meshList[GEO_BACKGROUND_BUILDINGS2]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	meshList[GEO_BACKGROUND_BUILDINGS2]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
+	meshList[GEO_BACKGROUND_BUILDINGS2]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+	meshList[GEO_BACKGROUND_BUILDINGS2]->material.kShininess = 1.0f;
 
 	meshList[GEO_FENCE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
 	meshList[GEO_FENCE]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
