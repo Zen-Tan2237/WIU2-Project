@@ -148,12 +148,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Source\AltAzCamera.cpp" />
+    <ClCompile Include="Source\AnimatedUIElement.cpp" />
     <ClCompile Include="Source\Application.cpp" />
     <ClCompile Include="Source\audio.cpp" />
     <ClCompile Include="Source\BaseScene.cpp" />
     <ClCompile Include="Source\BoundingBox.cpp" />
     <ClCompile Include="Source\CollisionDetection.cpp" />
     <ClCompile Include="Source\FPCamera.cpp" />
+    <ClCompile Include="Source\InteractPromptUI.cpp" />
     <ClCompile Include="Source\Light.cpp" />
     <ClCompile Include="Source\LoadOBJ.cpp" />
     <ClCompile Include="Source\LoadTGA.cpp" />
@@ -169,16 +171,19 @@
     <ClCompile Include="Source\SceneTexture.cpp" />
     <ClCompile Include="Source\SceneTiltingTable.cpp" />
     <ClCompile Include="Source\shader.cpp" />
+    <ClCompile Include="Source\UIElement.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\miniaudio.h" />
     <ClInclude Include="Source\AltAzCamera.h" />
+    <ClInclude Include="Source\AnimatedUIElement.h" />
     <ClInclude Include="Source\Application.h" />
     <ClInclude Include="Source\audio.h" />
     <ClInclude Include="Source\BaseScene.h" />
     <ClInclude Include="Source\BoundingBox.h" />
     <ClInclude Include="Source\CollisionDetection.h" />
     <ClInclude Include="Source\FPCamera.h" />
+    <ClInclude Include="Source\InteractPromptUI.h" />
     <ClInclude Include="Source\Light.h" />
     <ClInclude Include="Source\LoadOBJ.h" />
     <ClInclude Include="Source\LoadTGA.h" />
@@ -195,6 +200,7 @@
     <ClInclude Include="Source\SceneTexture.h" />
     <ClInclude Include="Source\SceneTiltingTable.h" />
     <ClInclude Include="Source\shader.hpp" />
+    <ClInclude Include="Source\UIElement.h" />
     <ClInclude Include="Source\Vertex.h" />
   </ItemGroup>
   <ItemGroup>
