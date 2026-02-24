@@ -12,12 +12,9 @@
 --- GUIDE ON ADDING SFX ---
 1) Add the sound file to SFX (make sure it's on GitHub and everything)
 
-2) Declare a ma_sound for that SFX (e.g. ma_sound pop) at the top of the scene.cpp
-
-3a) Call ma_sound_init_from_file to load the sound (see pop in SceneTester for reference); use the same ma_sound when calling
-    3b) Optionally use a ma_result (like in SceneTester) to confirm the sound loads properly 
-
-4) Call ma_sound_uninit on the ma_sound in the scene exit
+2) Initialize the sounds in the scene's Init().
+   Example initialization of soundName with a file name of "sound.wav":
+        AudioManager::Instance().LoadSound("soundName", "SFX/sound.wav");
 
 
 
@@ -28,32 +25,13 @@
 
 
 
---- SPATIAL AUDIO IMPLEMENTATION GUIDE ---
-1) Set the position of &sound with:
-	ma_sound_set_position(&sound, x, y, z);
-
-2) Set the player's (listener's) position with:
-	ma_engine_listener_set_position(Audio_GetEngine(), 0, x, y, z);
-
-3) Set the listener's direction with:
-	ma_engine_listener_set_direction(Audio_GetEngine(), 0, x, y, z);
-
-
-
 --- SPATIAL AUDIO INIT GUIDE ---
 1) Directional attenuation is supported. Adjust the cone of attenuation with:
-	ma_engine_listener_set_cone(Audio_GetEngine(), 0, innerRadius, outerRadius, attenuation);
+	SetListenerCone(innerRadius, outerRadius, attenuation);
 Within the inner radius, sound plays at normal volume.
 Outside the outer radius, sound is attenuated (softened) by the specified value.
 In-between, the volume is attenuated gradually.
 */
-
-//// initialize and shutdown
-//bool Audio_Init();
-//void Audio_Shutdown();
-// 
-//// access the engine
-//ma_engine* Audio_GetEngine();
 
 
 
@@ -62,18 +40,37 @@ public:
     // Access the singleton instance
     static AudioManager& Instance();
 
-    // Initialise/shutdown engine
+    // Initialize/shutdown engine
     bool Init();
     void Shutdown();
 
-    // Load a sound file by name
-    bool LoadSound(const std::string& name, const std::string& path);
 
-    // Play a loaded sound
-    void Play(const std::string& name);
 
-    // set 3D position for spatial audio
+    bool LoadSound(const std::string& name, const std::string& path); // Load a sound file by name
+    
+    // Play a loaded sound (does NOT rewind automatically)
+    //  Overload to seek+play in one function call
+    void SoundPlay(const std::string& name); 
+    void SoundPlay(const std::string& name, float startSecond);
+    void SoundPlay(const std::string& name, unsigned frameStart);
+
+    // SoundSeek will rewind to 0 by default
+    void SoundSeek(const std::string& name, float startSecond = 0.f);
+    void SoundSeek(const std::string& name, unsigned frameStart = 0);
+
+    void SoundStop(const std::string& name); // Stop sound
+
+
+
+    // Spatial audio functions
     void SetSoundPosition(const std::string& name, float x, float y, float z);
+
+    void SetListenerPosition(float x, float y, float z);
+    void SetListenerDirection(float x, float y, float z);
+
+    void SetListenerCone(float innerRadiusRadians, float outerRadiusRadians, float attenuation);
+
+
 
 private:
     AudioManager() = default;
@@ -81,6 +78,6 @@ private:
     AudioManager(const AudioManager&) = delete;
     AudioManager& operator=(const AudioManager&) = delete;
 
-    ma_engine engine;
+    ma_engine engine{};
     std::map<std::string, ma_sound> sounds;
 };
