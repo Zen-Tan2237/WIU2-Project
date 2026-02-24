@@ -1235,8 +1235,29 @@ void BaseScene::addPickables(std::string name, glm::vec3 position)
 		if (pickables[i].name == "") {
 			pickables[i].body.ResetPhysicsProperties();
 			pickables[i].name = name;
-			pickables[i].body.position = position;
 			pickables[i].isHeld = false;
+
+			bool settings[2] = { true, false };
+
+			if (name == "Baseball") {
+				pickables[i].body.InitPhysicsObject(
+					position,
+					1.0f, // mass = 0 (treated as static in impulses)
+					BoundingBox::Type::SPHERE,
+					glm::vec3(.07f, .07f, .07f),
+					settings
+				);
+			}
+			else if (name == "Coke" || name == "Mountain Dew" || name == "Sprite" || name == "Pepsi") {
+				pickables[i].body.InitPhysicsObject(
+					position,
+					1.0f, // mass = 0 (treated as static in impulses)
+					BoundingBox::Type::OBB,
+					glm::vec3(.05f, .1f, .05f),
+					settings
+				);
+			}
+			
 
 			temp = i;
 			noOfPickables++;
@@ -1325,38 +1346,33 @@ void BaseScene::dropItemInHand(int amountToRemove)
 {
 	std::string itemToDropName = itemInHand->name;
 
-	if (amountOfItem >= amountToRemove) {
-		for (int i = 0; i < amountToRemove; i++) {
-			amountOfItem--;
-			glm::vec3 placementPos = camera.target;
-			if (amountOfItem != 0) {
-				placementPos += glm::vec3(((rand() % 5) - 2) / 100.f, 0, ((rand() % 5) - 2) / 100.f);
-				addPickables(itemToDropName, placementPos);
-			}
-			else {
-				itemInHand->body.position = placementPos;
-			}
-		}
+	int removeCount;
+
+	if (amountToRemove > amountOfItem) {
+		removeCount = amountOfItem;
 	}
 	else {
-		for (int i = 0; i < amountOfItem; i++) {
-			amountOfItem--;
-			glm::vec3 placementPos = camera.target;
-			if (amountOfItem != 0) {
-				placementPos += glm::vec3(((rand() % 5) - 2) / 100.f, 0, ((rand() % 5) - 2) / 100.f);
-				addPickables(itemToDropName, placementPos);
-			}
-			else {
-				itemInHand->body.position = placementPos;
-			}
-			
+		removeCount = amountToRemove;
+	}
+
+	for (int i = 0; i < removeCount; i++) {
+		amountOfItem--;
+
+		glm::vec3 placementPos = camera.target;
+
+		if (amountOfItem > 0) {
+			placementPos += glm::vec3(((rand() % 5) - 2) / 100.f, 0,
+				((rand() % 5) - 2) / 100.f);
+			addPickables(itemToDropName, placementPos);
+		}
+		else {
+			itemInHand->body.position = placementPos;
 		}
 	}
 
 	if (amountOfItem == 0) {
 		itemInHand->isHeld = false;
 		itemInHand = nullptr;
-		amountOfItem = 0;
 		itemInUse = false;
 	}
 	//std::string itemToDrop = itemInHand;
