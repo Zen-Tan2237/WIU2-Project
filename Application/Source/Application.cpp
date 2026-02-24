@@ -142,7 +142,7 @@ void Application::Init()
 		//return -1;
 	}
 
-	Audio_Init();
+
 
 	srand(time(0));
 }
@@ -221,8 +221,6 @@ void Application::Run()
 void Application::Exit()
 {
 	KeyboardController::DestroyInstance();
-
-	Audio_Shutdown();
 
 	//Close OpenGL window and terminate GLFW
 	glfwDestroyWindow(m_window);

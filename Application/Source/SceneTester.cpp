@@ -20,7 +20,7 @@
 #include "LoadTGA.h"
 #include "CollisionDetection.h"
 
-ma_sound pop;
+
 
 SceneTester::SceneTester()
 {
@@ -167,17 +167,8 @@ void SceneTester::Init()
 	player.InitPhysicsObject(camera.position, 0.f, BoundingBox::Type::OBB, glm::vec3(0.5f, 5.f, 0.5f), miscSettings);
 
 	// init sound pop
-	ma_result result;
-	result = ma_sound_init_from_file(Audio_GetEngine(),
-		"SFX/244657__dsg__pop-5.flac",
-		0, NULL, NULL, &pop);
-	if (result != MA_SUCCESS) {
-		std::cout << "Error loading sound" << std::endl; // error cout
-	}
-	ma_sound_set_position(&pop, 0.f, 5.f, 5.f);
-
-	//ma_sound_set_pinned_listener_index(&pop, 0);
-	ma_engine_listener_set_cone(Audio_GetEngine(), 0, 0.5f, 1.f, 50.f);
+	// Unimplemented
+	//ma_engine_listener_set_cone(Audio_GetEngine(), 0, 0.5f, 1.f, 50.f);
 }
 
 void SceneTester::Update(double dt)
@@ -199,8 +190,8 @@ void SceneTester::Update(double dt)
 		light[0].position.y += static_cast<float>(dt) * 5.f;
 
 	// Update spatial audio data
-	ma_engine_listener_set_position(Audio_GetEngine(), 0, camera.position.x, camera.position.y, camera.position.z);
-	ma_engine_listener_set_direction(Audio_GetEngine(), 0, camera.target.x, camera.target.y, camera.target.z);
+	//ma_engine_listener_set_position(Audio_GetEngine(), 0, camera.position.x, camera.position.y, camera.position.z);
+	//ma_engine_listener_set_direction(Audio_GetEngine(), 0, camera.target.x, camera.target.y, camera.target.z);
 
 	// CAMERA BOBBING
 	camera.position -= previousBobOffset;
@@ -484,7 +475,6 @@ void SceneTester::Exit()
 	glDeleteVertexArrays(1, &m_vertexArrayID);
 	glDeleteProgram(m_programID);
 
-	ma_sound_uninit(&pop);
 }
 
 void SceneTester::HandleKeyPress()
@@ -551,10 +541,10 @@ void SceneTester::HandleKeyPress()
 	}
 
 
-	if (KeyboardController::GetInstance()->IsKeyPressed('Y')) { // test key to play pop sound
-		ma_sound_seek_to_pcm_frame(&pop, 0);
-		ma_sound_start(&pop);
-	}
+	//if (KeyboardController::GetInstance()->IsKeyPressed('Y')) { // test key to play pop sound
+	//	ma_sound_seek_to_pcm_frame(&pop, 0);
+	//	ma_sound_start(&pop);
+	//}
 
 }
 

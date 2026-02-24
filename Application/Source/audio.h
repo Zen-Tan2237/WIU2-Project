@@ -1,5 +1,7 @@
 #pragma once
 #include "..\include\miniaudio.h"
+#include <string>
+#include <map>
 
 /*
 --- GUIDE ON ADDING TO SCENE ---
@@ -46,9 +48,39 @@ Outside the outer radius, sound is attenuated (softened) by the specified value.
 In-between, the volume is attenuated gradually.
 */
 
-// initialize and shutdown
-bool Audio_Init();
-void Audio_Shutdown();
+//// initialize and shutdown
+//bool Audio_Init();
+//void Audio_Shutdown();
+// 
+//// access the engine
+//ma_engine* Audio_GetEngine();
 
-// access the engine
-ma_engine* Audio_GetEngine();
+
+
+class AudioManager {
+public:
+    // Access the singleton instance
+    static AudioManager& Instance();
+
+    // Initialize/shutdown engine
+    bool Init();
+    void Shutdown();
+
+    // Load a sound file by name (stores internally)
+    bool LoadSound(const std::string& name, const std::string& path);
+
+    // Play a loaded sound
+    void Play(const std::string& name);
+
+    // Optional: set 3D position for spatial audio
+    void SetSoundPosition(const std::string& name, float x, float y, float z);
+
+private:
+    AudioManager() = default;
+    ~AudioManager() = default;
+    AudioManager(const AudioManager&) = delete;
+    AudioManager& operator=(const AudioManager&) = delete;
+
+    ma_engine engine;
+    std::map<std::string, ma_sound> sounds;
+};
