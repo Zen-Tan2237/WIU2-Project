@@ -307,12 +307,6 @@ void BaseScene::Init()
 	noOfInteractives = 0;
 	noOfPickables = 0;
 
-	interactedEUI_scale = 0.05f;
-	interactedEUI_targetScale = 0.1f;
-
-	interactGUI_positionOffset = glm::vec2(-25.f, 0);
-	interactGUI_targetPositionOffset = glm::vec2(0, 0);
-
 	itemInHand = nullptr;
 	amountOfItem = 0;
 	previousItemInHandName = "";
@@ -320,14 +314,13 @@ void BaseScene::Init()
 
 	itemInHandElapsed = 0.f;
 
-	itemInHandGUI_scaleOffset = glm::vec3(0, 0, 0);
-	itemInHandGUI_targetScaleOffset = glm::vec3(0, 0, 0);
-
 	dropKeybindHeldElapsed = 0.f;
 	droppedFirst = false;
 
-	sceneSwitchUI_scalePercentage = 0.35f;
-	sceneSwitchUI_targetScalePercentage = 0.35f;
+
+	// UI
+	interactPrompt.setTargetPosition(glm::vec2(0, 0));
+	interactEUI.setTargetScale(glm::vec2(0.05f));
 
 	// DIALGOUE
 
@@ -520,21 +513,23 @@ void BaseScene::Update(double dt)
 
 		itemInHandElapsed += dt;
 	}
+	else {
+		previousItemInHandName = "";
+		itemInHandElapsed = 0.f;
+	}
 
 	if (itemInHand != nullptr && itemInHandElapsed < 2.f) {
-		itemInHandGUI_targetScaleOffset = glm::vec3(20.f, 200.f, 0);
+		itemInHandHUD.setTargetScale(glm::vec2(20.f, 200.f));
 	}
 	else {
-		itemInHandGUI_targetScaleOffset = glm::vec3(0, 0.f, 0);
+		itemInHandHUD.setTargetScale(glm::vec2(0, 0));
 	}
 
 	//
-	float t1 = 1.f - std::exp(-5 * dt);
-	float t2 = 1.f - std::exp(-10 * dt);
-	interactedEUI_scale += (interactedEUI_targetScale - interactedEUI_scale) * t1;
-	interactGUI_positionOffset += (interactGUI_targetPositionOffset - interactGUI_positionOffset) * t2;
-	itemInHandGUI_scaleOffset += (itemInHandGUI_targetScaleOffset - itemInHandGUI_scaleOffset) * t2;
-	sceneSwitchUI_scalePercentage += (sceneSwitchUI_targetScalePercentage - sceneSwitchUI_scalePercentage) * t2;
+	interactEUI.Update(dt);
+	interactPrompt.Update(dt);
+	itemInHandHUD.Update(dt);
+	sceneSwitchHUD.Update(dt);
 
 	resetInteractives();
 
@@ -1138,22 +1133,22 @@ void BaseScene::RenderUI()
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		if (interactedIndex != -1) {
-			RenderMeshOnScreen(meshList[GEO_CROSSHAIROPAQUE_GUI], 0, 0, 1600, 900);
+			RenderMeshOnScreen(meshList[GEO_CROSSHAIROPAQUE_GUI], crosshair.getPosition().x, crosshair.getPosition().y, 1600, 900);
 
-			RenderMeshOnScreen(meshList[GEO_INTERACTFADE_GUI], interactGUI_positionOffset.x, interactGUI_positionOffset.y, 1600, 900);
-			RenderTextOnScreen(meshList[GEO_VCROSDMONO_FONT], interactives[interactedIndex], glm::vec3(1, 1, 1), 20, 410 + interactGUI_positionOffset.x * 1.5f, -10 + interactGUI_positionOffset.y, 'R', .6f);
+			RenderMeshOnScreen(meshList[GEO_INTERACTFADE_GUI], interactPrompt.getPosition().x, interactPrompt.getPosition().y, 1600, 900);
+			RenderTextOnScreen(meshList[GEO_VCROSDMONO_FONT], interactives[interactedIndex], glm::vec3(1, 1, 1), 20, 410 + interactPrompt.getPosition().x * 1.5f, -10 + interactPrompt.getPosition().y, 'R', .6f);
 
 			//meshlist[font type], text, color, size, x, y, alignment, spacing percentage
 			if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_F))
 			{
-				RenderTextOnScreen(meshList[GEO_HOMEVIDEOBOLD_FONT], "[F]", glm::vec3(109 / 255.f, 41 / 255.f, 34 / 255.f), 26, 440 + interactGUI_positionOffset.x, -13 + interactGUI_positionOffset.y, 'L', .6f);
+				RenderTextOnScreen(meshList[GEO_HOMEVIDEOBOLD_FONT], "[F]", glm::vec3(109 / 255.f, 41 / 255.f, 34 / 255.f), 26, 440 + interactPrompt.getPosition().x, -13 + interactPrompt.getPosition().y, 'L', .6f);
 			}
 			else {
-				RenderTextOnScreen(meshList[GEO_HOMEVIDEO_FONT], "[F]", glm::vec3(109 / 255.f, 41 / 255.f, 34 / 255.f), 26, 440 + interactGUI_positionOffset.x, -13 + interactGUI_positionOffset.y, 'L', .6f);
+				RenderTextOnScreen(meshList[GEO_HOMEVIDEO_FONT], "[F]", glm::vec3(109 / 255.f, 41 / 255.f, 34 / 255.f), 26, 440 + interactPrompt.getPosition().x, -13 + interactPrompt.getPosition().y, 'L', .6f);
 			}
 		}
 		else {
-			RenderMeshOnScreen(meshList[GEO_CROSSHAIRTRANSLUCENT_GUI], 0, 0, 1600, 900);
+			RenderMeshOnScreen(meshList[GEO_CROSSHAIRTRANSLUCENT_GUI], crosshair.getPosition().x, crosshair.getPosition().y, 1600, 900);
 		}
 
 		RenderTextOnScreen(meshList[GEO_CARNIVALEEFREAKSHOW_FONT], "SCORE", glm::vec3(0, 1, 0), 45, -795, 400, 'L', .6f);
@@ -1163,23 +1158,22 @@ void BaseScene::RenderUI()
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-			RenderMeshOnScreen(meshList[GEO_ITEMINHANDBORDER_GUI], 603 - (itemInHandGUI_scaleOffset.x * .5f), -343.2f + (itemInHandGUI_scaleOffset.y * .5f), 214 + itemInHandGUI_scaleOffset.x, 33.7f + itemInHandGUI_scaleOffset.y);
-			RenderMeshOnScreen(meshList[GEO_ITEMINHANDFADEBACKGROUND_GUI], 603 - (itemInHandGUI_scaleOffset.x * .5f), -343.2f + (itemInHandGUI_scaleOffset.y * .5f), 214 + itemInHandGUI_scaleOffset.x, 33.7f + itemInHandGUI_scaleOffset.y);
-			RenderMeshOnScreen(meshList[GEO_ITEMINHANDFADE_GUI], 0, 0 + itemInHandGUI_scaleOffset.y, 1600, 900);
-
-			RenderTextOnScreen(meshList[GEO_VCROSDMONO_FONT], "(" + std::to_string(amountOfItem) + "x) " + itemInHand->name, glm::vec3(1, 1, 1), 20, 690, -355 + itemInHandGUI_scaleOffset.y, 'R', .6f);
+			RenderMeshOnScreen(meshList[GEO_ITEMINHANDBORDER_GUI], 603 - (itemInHandHUD.getScale().x * .5f), -343.2f + (itemInHandHUD.getScale().y * .5f), 214 + itemInHandHUD.getScale().x, 33.7f + itemInHandHUD.getScale().y);
+			RenderMeshOnScreen(meshList[GEO_ITEMINHANDFADEBACKGROUND_GUI], 603 - (itemInHandHUD.getScale().x * .5f), -343.2f + (itemInHandHUD.getScale().y * .5f), 214 + itemInHandHUD.getScale().x, 33.7f + itemInHandHUD.getScale().y);
+			RenderMeshOnScreen(meshList[GEO_ITEMINHANDFADE_GUI], 0, 0 + itemInHandHUD.getScale().y, 1600, 900);
+			
+			RenderTextOnScreen(meshList[GEO_VCROSDMONO_FONT], "(" + std::to_string(amountOfItem) + "x) " + itemInHand->name, glm::vec3(1, 1, 1), 20, 690, -355 + itemInHandHUD.getScale().y, 'R', .6f);
 
 			if (itemInUse) {
-				RenderTextOnScreen(meshList[GEO_HOMEVIDEOBOLD_FONT], "[E]", glm::vec3(1, 1, 1), 15, 700, -300 + itemInHandGUI_scaleOffset.y, 'R', .6f);
+				RenderTextOnScreen(meshList[GEO_HOMEVIDEOBOLD_FONT], "[E]", glm::vec3(1, 1, 1), 15, 700, -300 + itemInHandHUD.getScale().y, 'R', .6f);
 			}
 			else {
-				RenderTextOnScreen(meshList[GEO_HOMEVIDEO_FONT], "[E]", glm::vec3(1, 1, 1), 15, 700, -300 + itemInHandGUI_scaleOffset.y, 'R', .6f);
+				RenderTextOnScreen(meshList[GEO_HOMEVIDEO_FONT], "[E]", glm::vec3(1, 1, 1), 15, 700, -300 + itemInHandHUD.getScale().y, 'R', .6f);
 			}
-			
-			RenderTextOnScreen(meshList[GEO_VCROSDMONO_FONT], "Use", glm::vec3(1, 1, 1), 15, 660, -300 + itemInHandGUI_scaleOffset.y, 'R', .6f);
+			RenderTextOnScreen(meshList[GEO_VCROSDMONO_FONT], "Use", glm::vec3(1, 1, 1), 15, 660, -300 + itemInHandHUD.getScale().y, 'R', .6f);
 
-			RenderTextOnScreen(meshList[GEO_HOMEVIDEO_FONT], "[X]", glm::vec3(1, 1, 1), 15, 700, -320 + itemInHandGUI_scaleOffset.y, 'R', .6f);
-			RenderTextOnScreen(meshList[GEO_VCROSDMONO_FONT], "Drop", glm::vec3(1, 1, 1), 15, 660, -320 + itemInHandGUI_scaleOffset.y, 'R', .6f);
+			RenderTextOnScreen(meshList[GEO_HOMEVIDEO_FONT], "[X]", glm::vec3(1, 1, 1), 15, 700, -320 + itemInHandHUD.getScale().y, 'R', .6f);
+			RenderTextOnScreen(meshList[GEO_VCROSDMONO_FONT], "Drop", glm::vec3(1, 1, 1), 15, 660, -320 + itemInHandHUD.getScale().y, 'R', .6f);
 		}
 
 		// Debug
@@ -1213,7 +1207,7 @@ void BaseScene::RenderUI()
 				modelStack.Translate(euiPos.x, euiPos.y, euiPos.z);
 				modelStack.Rotate(yaw, 0.f, 1.f, 0.f);
 				modelStack.Rotate(-pitch, 1.f, 0.f, 0.f);
-				modelStack.Scale(interactedEUI_scale, interactedEUI_scale, interactedEUI_scale);
+				modelStack.Scale(interactEUI.getScale().x, interactEUI.getScale().x, interactEUI.getScale().x);
 
 				meshList[GEO_INTERACTED_EUI]->material.kAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
 				meshList[GEO_INTERACTED_EUI]->material.kDiffuse = glm::vec3(1.f, 1.f, 1.f);
@@ -1229,7 +1223,7 @@ void BaseScene::RenderUI()
 			modelStack.Translate(euiPos.x, euiPos.y, euiPos.z);
 			modelStack.Rotate(yaw, 0.f, 1.f, 0.f);
 			modelStack.Rotate(-pitch, 1.f, 0.f, 0.f);
-			modelStack.Scale(.05f, .05f, .05f);
+			modelStack.Scale(.02f, .02f, .02f);
 
 			meshList[GEO_INTERACT_EUI]->material.kAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
 			meshList[GEO_INTERACT_EUI]->material.kDiffuse = glm::vec3(1.f, 1.f, 1.f);
@@ -1249,7 +1243,7 @@ void BaseScene::RenderUI()
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-			RenderMeshOnScreen(meshList[GEO_SWITCHSCENE_GUI], 0.f, 0.f, 1200 * sceneSwitchUI_scalePercentage, 675 * sceneSwitchUI_scalePercentage);
+			RenderMeshOnScreen(meshList[GEO_SWITCHSCENE_GUI], 0.f, 0.f, 1200 * sceneSwitchHUD.getScale().x, 675 * sceneSwitchHUD.getScale().x);
 		}
 	}
 }
@@ -1415,8 +1409,8 @@ void BaseScene::getClosestInteractive()
 
 	if (interactedIndex != previousInteractedIndex) {
 		previousInteractedIndex = interactedIndex;
-		interactedEUI_scale = 0.05f;
-		interactGUI_positionOffset = glm::vec2(-25.f, 0);
+		interactEUI.resetScale(glm::vec2(0.02f));
+		interactPrompt.resetPosition(glm::vec2(-25.f, 0));
 	}
 }
 

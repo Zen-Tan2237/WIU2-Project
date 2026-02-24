@@ -121,6 +121,9 @@ void PhysicsObject::InitPhysicsObject(glm::vec3 pos, float mass, BoundingBox::Ty
 	miscSettings[0] ? GravityEnabled = true : GravityEnabled = false;
 	miscSettings[1] ? DragEnabled = true : DragEnabled = false;
 
+	// set orientation to identity by default, can be overridden by other overloads of InitPhysicsObject
+	orientation = glm::quat(1.f, 0.f, 0.f, 0.f);
+
 	if (bbType == BoundingBox::Type::OBB) {
 		boundingBox.setType(bbType);
 		boundingBox.setWidth(bbDimensions.x);

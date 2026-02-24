@@ -32,7 +32,7 @@ void SceneHub::Init()
 	{
 		light[0].position = glm::vec3(0, 5, 0);
 		light[0].color = glm::vec3(1, 1, 1);
-		light[0].type = Light::POINT;
+		light[0].type = Light::DIRECTIONAL;
 		light[0].power = 1;
 		light[0].kC = 1.f;
 		light[0].kL = 0.01f;
@@ -45,7 +45,7 @@ void SceneHub::Init()
 		light[1].position = glm::vec3(0, 5, 0);
 		light[1].color = glm::vec3(1, 1, 1);
 		light[1].type = Light::POINT;
-		light[1].power = 1;
+		light[1].power = 0;
 		light[1].kC = 1.f;
 		light[1].kL = 0.01f;
 		light[1].kQ = 0.001f;
@@ -105,7 +105,7 @@ void SceneHub::Init()
 		light[6].position = glm::vec3(0, 5, 0);
 		light[6].color = glm::vec3(1, 1, 1);
 		light[6].type = Light::POINT;
-		light[6].power = 1;
+		light[6].power = 0;
 		light[6].kC = 1.f;
 		light[6].kL = 0.01f;
 		light[6].kQ = 0.001f;
@@ -117,7 +117,7 @@ void SceneHub::Init()
 		light[7].position = glm::vec3(0, 5, 0);
 		light[7].color = glm::vec3(1, 1, 1);
 		light[7].type = Light::POINT;
-		light[7].power = 1;
+		light[7].power = 0;
 		light[7].kC = 1.f;
 		light[7].kL = 0.01f;
 		light[7].kQ = 0.001f;
@@ -213,6 +213,22 @@ void SceneHub::Init()
 
 	meshList_hub[GEO_WALL] = MeshBuilder::GenerateCube("wall", glm::vec3(1.f, 0.f, 0.f), 1.f);
 
+	meshList_hub[GEO_FOUNTAIN] = MeshBuilder::GenerateOBJ("fountain", "Models//Fountain.obj");
+	meshList_hub[GEO_FOUNTAIN]->textureID = LoadTGA("Textures//Fountain.tga");
+
+	meshList_hub[GEO_STALL] = MeshBuilder::GenerateOBJ("stall", "Models//minigame_Stall.obj");
+	meshList_hub[GEO_STALL]->textureID = LoadTGA("Textures//minigameStall.tga");
+
+	meshList_hub[GEO_TABLE] = MeshBuilder::GenerateOBJ("table", "Models//table.obj");
+	meshList_hub[GEO_TABLE]->textureID = LoadTGA("Textures//table.tga");
+
+	meshList_hub[GEO_FOODSTAND] = MeshBuilder::GenerateOBJ("foodstand", "Models//Hot_Dog_Stand.obj");
+	//meshList_hub[GEO_FOODSTAND]->textureID = LoadTGA("Textures//foodstand.tga");
+
+	meshList_hub[GEO_FERRISWHEEL] = MeshBuilder::GenerateOBJ("ferriswheel", "Models//FerrisWheel.obj");
+	meshList_hub[GEO_FERRISWHEEL]->textureID = LoadTGA("Textures//FerrisWheel.tga");
+
+
 	// setup initial item in hand
 	addPickables("Baseball", glm::vec3(0, 0, 0));
 	itemInHand = pickables[0];
@@ -235,6 +251,11 @@ void SceneHub::Init()
 	worldObjects[0] = wall;
 
 	addPickables("Pepsi", glm::vec3(3, 1, 2));
+
+	meshList_hub[GEO_FOUNTAIN]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	meshList_hub[GEO_FOUNTAIN]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
+	meshList_hub[GEO_FOUNTAIN]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+	meshList_hub[GEO_FOUNTAIN]->material.kShininess = 1.0f;
 }
 
 void SceneHub::Update(double dt)
@@ -258,10 +279,11 @@ void SceneHub::Update(double dt)
 	if (interactedIndex != -1 && KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_F)) { // means got prompt, is close to and facing smth
 		if (interactivesType[interactedIndex] == 'I') { // its an interactive
 			// do it in actual scene instead
-			if (interactives[interactedIndex] == "Enter Scene 2 (SceneHub)") {
+			if (interactives[interactedIndex] == "Enter Scene 2 (SceneHub)" && nextScene == 0) {
 				nextScene = 2;
 				nextSceneDelay = 1.f;
-				sceneSwitchUI_targetScalePercentage = 1.f;
+				sceneSwitchHUD.resetScale(glm::vec2(.25f));
+				sceneSwitchHUD.setTargetScale(glm::vec2(1.f));
 			}
 			else if (interactives[interactedIndex] == "1") {
 				if (part == 0)
@@ -284,7 +306,209 @@ void SceneHub::Update(double dt)
 
 void SceneHub::Render()
 {
-	BaseScene::Render();
+	// Clear color buffer every frame
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glEnable(GL_DEPTH_TEST);
+
+	// Load view matrix stack and set it with camera position, target position and up direction
+	viewStack.LoadIdentity();
+	viewStack.LookAt(
+		camera.position.x, camera.position.y, camera.position.z,
+		camera.target.x, camera.target.y, camera.target.z,
+		camera.up.x, camera.up.y, camera.up.z
+	);
+
+	// Load identity matrix into the model stack
+	modelStack.LoadIdentity();
+
+	{
+		if (light[0].type == Light::DIRECTIONAL)
+		{
+			glm::vec3 lightDir(light[0].position.x, light[0].position.y, light[0].position.z);
+			glm::vec3 lightDirection_cameraspace = viewStack.Top() * glm::vec4(lightDir, 0);
+			glUniform3fv(m_parameters[U_LIGHT0_POSITION], 1, glm::value_ptr(lightDirection_cameraspace));
+		}
+		else if (light[0].type == Light::SPOT)
+		{
+			glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[0].position, 1);
+			glUniform3fv(m_parameters[U_LIGHT0_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
+			glm::vec3 spotDirection_cameraspace = viewStack.Top() * glm::vec4(light[0].spotDirection, 0);
+			glUniform3fv(m_parameters[U_LIGHT0_SPOTDIRECTION], 1, glm::value_ptr(spotDirection_cameraspace));
+		}
+		else {
+			// Calculate the light position in camera space
+			glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[0].position, 1);
+			glUniform3fv(m_parameters[U_LIGHT0_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
+		}
+		if (light[1].type == Light::DIRECTIONAL)
+		{
+			glm::vec3 lightDir(light[1].position.x, light[1].position.y, light[1].position.z);
+			glm::vec3 lightDirection_cameraspace = viewStack.Top() * glm::vec4(lightDir, 0);
+			glUniform3fv(m_parameters[U_LIGHT1_POSITION], 1, glm::value_ptr(lightDirection_cameraspace));
+		}
+		else if (light[1].type == Light::SPOT)
+		{
+			glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[1].position, 1);
+			glUniform3fv(m_parameters[U_LIGHT1_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
+			glm::vec3 spotDirection_cameraspace = viewStack.Top() * glm::vec4(light[1].spotDirection, 0);
+			glUniform3fv(m_parameters[U_LIGHT1_SPOTDIRECTION], 1, glm::value_ptr(spotDirection_cameraspace));
+		}
+		else {
+			// Calculate the light position in camera space
+			glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[1].position, 1);
+			glUniform3fv(m_parameters[U_LIGHT1_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
+		}
+		if (light[2].type == Light::DIRECTIONAL)
+		{
+			glm::vec3 lightDir(light[2].position.x, light[2].position.y, light[2].position.z);
+			glm::vec3 lightDirection_cameraspace = viewStack.Top() * glm::vec4(lightDir, 0);
+			glUniform3fv(m_parameters[U_LIGHT2_POSITION], 1, glm::value_ptr(lightDirection_cameraspace));
+		}
+		else if (light[2].type == Light::SPOT)
+		{
+			glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[2].position, 1);
+			glUniform3fv(m_parameters[U_LIGHT2_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
+			glm::vec3 spotDirection_cameraspace = viewStack.Top() * glm::vec4(light[2].spotDirection, 0);
+			glUniform3fv(m_parameters[U_LIGHT2_SPOTDIRECTION], 1, glm::value_ptr(spotDirection_cameraspace));
+		}
+		else {
+			// Calculate the light position in camera space
+			glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[2].position, 1);
+			glUniform3fv(m_parameters[U_LIGHT2_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
+		}
+		if (light[3].type == Light::DIRECTIONAL)
+		{
+			glm::vec3 lightDir(light[3].position.x, light[3].position.y, light[3].position.z);
+			glm::vec3 lightDirection_cameraspace = viewStack.Top() * glm::vec4(lightDir, 0);
+			glUniform3fv(m_parameters[U_LIGHT3_POSITION], 1, glm::value_ptr(lightDirection_cameraspace));
+		}
+		else if (light[3].type == Light::SPOT)
+		{
+			glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[3].position, 1);
+			glUniform3fv(m_parameters[U_LIGHT3_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
+			glm::vec3 spotDirection_cameraspace = viewStack.Top() * glm::vec4(light[3].spotDirection, 0);
+			glUniform3fv(m_parameters[U_LIGHT3_SPOTDIRECTION], 1, glm::value_ptr(spotDirection_cameraspace));
+		}
+		else {
+			// Calculate the light position in camera space
+			glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[3].position, 1);
+			glUniform3fv(m_parameters[U_LIGHT3_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
+		}
+		if (light[4].type == Light::DIRECTIONAL)
+		{
+			glm::vec3 lightDir(light[4].position.x, light[4].position.y, light[4].position.z);
+			glm::vec3 lightDirection_cameraspace = viewStack.Top() * glm::vec4(lightDir, 0);
+			glUniform3fv(m_parameters[U_LIGHT4_POSITION], 1, glm::value_ptr(lightDirection_cameraspace));
+		}
+		else if (light[4].type == Light::SPOT)
+		{
+			glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[4].position, 1);
+			glUniform3fv(m_parameters[U_LIGHT4_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
+			glm::vec3 spotDirection_cameraspace = viewStack.Top() * glm::vec4(light[4].spotDirection, 0);
+			glUniform3fv(m_parameters[U_LIGHT4_SPOTDIRECTION], 1, glm::value_ptr(spotDirection_cameraspace));
+		}
+		else {
+			// Calculate the light position in camera space
+			glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[4].position, 1);
+			glUniform3fv(m_parameters[U_LIGHT4_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
+		}
+		if (light[5].type == Light::DIRECTIONAL)
+		{
+			glm::vec3 lightDir(light[5].position.x, light[5].position.y, light[5].position.z);
+			glm::vec3 lightDirection_cameraspace = viewStack.Top() * glm::vec4(lightDir, 0);
+			glUniform3fv(m_parameters[U_LIGHT5_POSITION], 1, glm::value_ptr(lightDirection_cameraspace));
+		}
+		else if (light[5].type == Light::SPOT)
+		{
+			glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[5].position, 1);
+			glUniform3fv(m_parameters[U_LIGHT5_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
+			glm::vec3 spotDirection_cameraspace = viewStack.Top() * glm::vec4(light[5].spotDirection, 0);
+			glUniform3fv(m_parameters[U_LIGHT5_SPOTDIRECTION], 1, glm::value_ptr(spotDirection_cameraspace));
+		}
+		else {
+			// Calculate the light position in camera space
+			glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[5].position, 1);
+			glUniform3fv(m_parameters[U_LIGHT5_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
+		}
+		if (light[6].type == Light::DIRECTIONAL)
+		{
+			glm::vec3 lightDir(light[6].position.x, light[6].position.y, light[6].position.z);
+			glm::vec3 lightDirection_cameraspace = viewStack.Top() * glm::vec4(lightDir, 0);
+			glUniform3fv(m_parameters[U_LIGHT6_POSITION], 1, glm::value_ptr(lightDirection_cameraspace));
+		}
+		else if (light[6].type == Light::SPOT)
+		{
+			glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[6].position, 1);
+			glUniform3fv(m_parameters[U_LIGHT6_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
+			glm::vec3 spotDirection_cameraspace = viewStack.Top() * glm::vec4(light[6].spotDirection, 0);
+			glUniform3fv(m_parameters[U_LIGHT6_SPOTDIRECTION], 1, glm::value_ptr(spotDirection_cameraspace));
+		}
+		else {
+			// Calculate the light position in camera space
+			glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[6].position, 1);
+			glUniform3fv(m_parameters[U_LIGHT6_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
+		}
+		if (light[7].type == Light::DIRECTIONAL)
+		{
+			glm::vec3 lightDir(light[7].position.x, light[7].position.y, light[7].position.z);
+			glm::vec3 lightDirection_cameraspace = viewStack.Top() * glm::vec4(lightDir, 0);
+			glUniform3fv(m_parameters[U_LIGHT7_POSITION], 1, glm::value_ptr(lightDirection_cameraspace));
+		}
+		else if (light[7].type == Light::SPOT)
+		{
+			glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[7].position, 1);
+			glUniform3fv(m_parameters[U_LIGHT7_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
+			glm::vec3 spotDirection_cameraspace = viewStack.Top() * glm::vec4(light[7].spotDirection, 0);
+			glUniform3fv(m_parameters[U_LIGHT7_SPOTDIRECTION], 1, glm::value_ptr(spotDirection_cameraspace));
+		}
+		else {
+			// Calculate the light position in camera space
+			glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[7].position, 1);
+			glUniform3fv(m_parameters[U_LIGHT7_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
+		}
+	}
+
+	{
+		PushPop axesGuard(modelStack);
+		// Render objects
+		RenderMesh(meshList[GEO_AXES], false);
+	}
+
+	{
+		PushPop skybox(modelStack);
+		modelStack.Scale(2.f, 2.f, 2.f);
+		RenderSkybox();
+	}
+
+	{
+		PushPop multi(modelStack);
+		modelStack.Scale(0.3f, 0.3f, 0.3f);
+
+		{
+			PushPop backgroundBuildings(modelStack);
+			modelStack.Translate(0.f, -15.f, 0.f);
+			modelStack.Scale(1.f, 2.f, 1.f);
+			RenderMesh(meshList[GEO_BACKGROUND_BUILDINGS], true);
+		}
+
+		{
+			PushPop floor(modelStack);
+			modelStack.Scale(1, 1, 1);
+			RenderMesh(meshList[GEO_FLOOR], true);
+		}
+
+		{
+			PushPop fence(modelStack);
+			RenderMesh(meshList[GEO_FENCE], true);
+		}
+
+	}
+
+
+	{
+		PushPop fountain(modelStack);
+		RenderMesh(meshList_hub[GEO_FOUNTAIN], true);
+	}
 
 	{
 		PushPop wallGuard(modelStack);
@@ -387,7 +611,134 @@ void SceneHub::Render()
 		}
 	}
 
-	BaseScene::RenderUI();
+	RenderUI();
+}
+
+void SceneHub::RenderUI()
+{
+	{
+		// Render GUI
+		//RenderMeshOnScreen(meshList[GEO_MENU_GUI], 0, 0, 1600, 900);
+		//RenderMeshOnScreen(meshList[GEO_SWITCHSCENE_GUI], 0, 0, 1600, 900);
+
+		glDisable(GL_DEPTH_TEST);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		if (interactedIndex != -1) {
+			RenderMeshOnScreen(meshList[GEO_CROSSHAIROPAQUE_GUI], crosshair.getPosition().x, crosshair.getPosition().y, 1600, 900);
+
+			RenderMeshOnScreen(meshList[GEO_INTERACTFADE_GUI], interactPrompt.getPosition().x, interactPrompt.getPosition().y, 1600, 900);
+			RenderTextOnScreen(meshList[GEO_VCROSDMONO_FONT], interactives[interactedIndex], glm::vec3(1, 1, 1), 20, 410 + interactPrompt.getPosition().x * 1.5f, -10 + interactPrompt.getPosition().y, 'R', .6f);
+
+			//meshlist[font type], text, color, size, x, y, alignment, spacing percentage
+			if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_F))
+			{
+				RenderTextOnScreen(meshList[GEO_HOMEVIDEOBOLD_FONT], "[F]", glm::vec3(109 / 255.f, 41 / 255.f, 34 / 255.f), 26, 440 + interactPrompt.getPosition().x, -13 + interactPrompt.getPosition().y, 'L', .6f);
+			}
+			else {
+				RenderTextOnScreen(meshList[GEO_HOMEVIDEO_FONT], "[F]", glm::vec3(109 / 255.f, 41 / 255.f, 34 / 255.f), 26, 440 + interactPrompt.getPosition().x, -13 + interactPrompt.getPosition().y, 'L', .6f);
+			}
+		}
+		else {
+			RenderMeshOnScreen(meshList[GEO_CROSSHAIRTRANSLUCENT_GUI], crosshair.getPosition().x, crosshair.getPosition().y, 1600, 900);
+		}
+
+		RenderTextOnScreen(meshList[GEO_CARNIVALEEFREAKSHOW_FONT], "SCORE", glm::vec3(0, 1, 0), 45, -795, 400, 'L', .6f);
+
+		if (itemInHand != nullptr) {
+			glDisable(GL_DEPTH_TEST);
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+			RenderMeshOnScreen(meshList[GEO_ITEMINHANDBORDER_GUI], 603 - (itemInHandHUD.getScale().x * .5f), -343.2f + (itemInHandHUD.getScale().y * .5f), 214 + itemInHandHUD.getScale().x, 33.7f + itemInHandHUD.getScale().y);
+			RenderMeshOnScreen(meshList[GEO_ITEMINHANDFADEBACKGROUND_GUI], 603 - (itemInHandHUD.getScale().x * .5f), -343.2f + (itemInHandHUD.getScale().y * .5f), 214 + itemInHandHUD.getScale().x, 33.7f + itemInHandHUD.getScale().y);
+			RenderMeshOnScreen(meshList[GEO_ITEMINHANDFADE_GUI], 0, 0 + itemInHandHUD.getScale().y, 1600, 900);
+
+			RenderTextOnScreen(meshList[GEO_VCROSDMONO_FONT], "(" + std::to_string(amountOfItem) + "x) " + itemInHand->name, glm::vec3(1, 1, 1), 20, 690, -355 + itemInHandHUD.getScale().y, 'R', .6f);
+
+			if (itemInUse) {
+				RenderTextOnScreen(meshList[GEO_HOMEVIDEOBOLD_FONT], "[E]", glm::vec3(1, 1, 1), 15, 700, -300 + itemInHandHUD.getScale().y, 'R', .6f);
+			}
+			else {
+				RenderTextOnScreen(meshList[GEO_HOMEVIDEO_FONT], "[E]", glm::vec3(1, 1, 1), 15, 700, -300 + itemInHandHUD.getScale().y, 'R', .6f);
+			}
+			RenderTextOnScreen(meshList[GEO_VCROSDMONO_FONT], "Use", glm::vec3(1, 1, 1), 15, 660, -300 + itemInHandHUD.getScale().y, 'R', .6f);
+
+			RenderTextOnScreen(meshList[GEO_HOMEVIDEO_FONT], "[X]", glm::vec3(1, 1, 1), 15, 700, -320 + itemInHandHUD.getScale().y, 'R', .6f);
+			RenderTextOnScreen(meshList[GEO_VCROSDMONO_FONT], "Drop", glm::vec3(1, 1, 1), 15, 660, -320 + itemInHandHUD.getScale().y, 'R', .6f);
+		}
+
+		// Debug
+		RenderTextOnScreen(meshList[GEO_HOMEVIDEOBOLD_FONT], "PART: " + std::to_string(part) + " PHASE: " + std::to_string(phase), glm::vec3(1, 1, 1), 15, 0, 435, 'C', .6f);
+	}
+
+	// Render EUI
+	glDisable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	glm::vec3 euiPos(0, 1000, 0);
+
+	for (int i = 0; i < noOfInteractives; i++) {
+		bool temp = interactivesType[i] == 'I';
+		if (!temp && pickables[interactivePickablesIndex[i]] != nullptr) {
+			temp = !pickables[interactivePickablesIndex[i]]->isHeld;
+		}
+
+		if (temp) {
+			euiPos = interactivesPos[i] + glm::vec3(0, 0.25f, 0);
+
+			glm::vec3 dir = camera.position - euiPos;
+			dir = glm::normalize(dir);
+
+			float yaw = glm::degrees(atan2(dir.x, dir.z));
+			float pitch = glm::degrees(asin(dir.y));
+
+			if (interactedIndex == i) {
+				modelStack.PushMatrix();
+				modelStack.Translate(euiPos.x, euiPos.y, euiPos.z);
+				modelStack.Rotate(yaw, 0.f, 1.f, 0.f);
+				modelStack.Rotate(-pitch, 1.f, 0.f, 0.f);
+				modelStack.Scale(interactEUI.getScale().x, interactEUI.getScale().x, interactEUI.getScale().x);
+
+				meshList[GEO_INTERACTED_EUI]->material.kAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
+				meshList[GEO_INTERACTED_EUI]->material.kDiffuse = glm::vec3(1.f, 1.f, 1.f);
+				meshList[GEO_INTERACTED_EUI]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+				meshList[GEO_INTERACTED_EUI]->material.kShininess = 1.0f;
+
+				RenderMesh(meshList[GEO_INTERACTED_EUI], false);
+
+				modelStack.PopMatrix();
+			}
+
+			modelStack.PushMatrix();
+			modelStack.Translate(euiPos.x, euiPos.y, euiPos.z);
+			modelStack.Rotate(yaw, 0.f, 1.f, 0.f);
+			modelStack.Rotate(-pitch, 1.f, 0.f, 0.f);
+			modelStack.Scale(.02f, .02f, .02f);
+
+			meshList[GEO_INTERACT_EUI]->material.kAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
+			meshList[GEO_INTERACT_EUI]->material.kDiffuse = glm::vec3(1.f, 1.f, 1.f);
+			meshList[GEO_INTERACT_EUI]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+			meshList[GEO_INTERACT_EUI]->material.kShininess = 1.0f;
+
+			RenderMesh(meshList[GEO_INTERACT_EUI], false);
+
+			modelStack.PopMatrix();
+		}
+	}
+
+	{
+		// Render Switch Scene UI
+		if (nextScene != 0) {
+			glDisable(GL_DEPTH_TEST);
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+			RenderMeshOnScreen(meshList[GEO_SWITCHSCENE_GUI], 0.f, 0.f, 1200 * sceneSwitchHUD.getScale().x, 675 * sceneSwitchHUD.getScale().x);
+		}
+	}
 }
 
 void SceneHub::Exit()

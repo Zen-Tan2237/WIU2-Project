@@ -8,6 +8,9 @@
 #include "Light.h"
 #include "FPCamera.h"
 #include "PhysicsObject.h"
+#include "UIElement.h"
+#include "AnimatedUIElement.h"
+#include "InteractPromptUI.h"
 #include <vector> // added
 
 static const int TOTAL_INTERACTIVES = 100;
@@ -267,11 +270,11 @@ public:
 	int noOfPickables;
 	Pickable* pickables[TOTAL_PICKABLES];
 
-	float interactedEUI_scale;
-	float interactedEUI_targetScale;
+	//float interactedEUI_scale;
+	//float interactedEUI_targetScale;
 
-	glm::vec2 interactGUI_positionOffset;
-	glm::vec2 interactGUI_targetPositionOffset;
+	//glm::vec2 interactGUI_positionOffset;
+	//glm::vec2 interactGUI_targetPositionOffset;
 
 	// ITEM IN HAND
 	Pickable* itemInHand;
@@ -281,15 +284,22 @@ public:
 
 	bool itemInUse;
 
-	glm::vec3 itemInHandGUI_scaleOffset;
-	glm::vec3 itemInHandGUI_targetScaleOffset;
+	//glm::vec3 itemInHandGUI_scaleOffset;
+	//glm::vec3 itemInHandGUI_targetScaleOffset;
 
 	double dropKeybindHeldElapsed;
 	bool droppedFirst;
 
 	// SCENE SWITCH UI
-	float sceneSwitchUI_scalePercentage;
-	float sceneSwitchUI_targetScalePercentage;
+	//float sceneSwitchUI_scalePercentage;
+	//float sceneSwitchUI_targetScalePercentage;
+
+	// UI
+	InteractPromptUI interactPrompt;
+	AnimatedUIElement itemInHandHUD;
+	AnimatedUIElement sceneSwitchHUD;
+	AnimatedUIElement interactEUI;
+	UIElement crosshair;
 
 	// DIALOGUE HANDLING
 	int oldPart;
