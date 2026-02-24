@@ -248,3 +248,12 @@ void PhysicsObject::ResetPhysicsProperties() {
 	angularVelocity = glm::vec3(0.f);
 	ForcesSetZero();
 }
+
+// Rotate the orientation of the object by a given angle (in degrees) around a specified axis
+// rotationAxis should be a non-zero vector representing the axis of rotation (e.g., glm::vec3(0, 1, 0) for rotation around the y-axis)
+void PhysicsObject::RotateOrientation(float angleDegrees, glm::vec3 rotationAxis) {
+	glm::quat rotationQuat = glm::angleAxis(glm::radians(angleDegrees), glm::normalize(rotationAxis));
+	orientation = rotationQuat * orientation;
+	// Warp orientation to prevent implicit scaling from numerical errors
+	orientation = glm::normalize(orientation);
+}
