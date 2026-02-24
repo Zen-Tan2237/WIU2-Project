@@ -102,6 +102,8 @@ void PhysicsObject::UpdatePhysics(double dt) {
 		velocity = glm::vec3(0.f);
 	}
 
+	// Warp orientation again to prevent implicit scaling from numerical errors
+	orientation = glm::normalize(orientation);
 
 	// Reset forces and torque for the next frame
 	ForcesSetZero();    
