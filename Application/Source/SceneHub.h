@@ -9,12 +9,21 @@ public:
     enum GEOMETRY_TYPE_HUB
     {
         GEO_WALL,
+
+        //scene models
         GEO_FOUNTAIN,
         GEO_STALL,
         GEO_TABLE,
         GEO_FOODSTAND,
         GEO_FERRISWHEEL,
         GEO_MONKEY,
+
+		//scene collectibles
+		GEO_FIGURINE,
+        GEO_PIG,
+		GEO_PLUSHIE,
+        GEO_5090,
+
         NUM_GEOMETRY,
     };
 

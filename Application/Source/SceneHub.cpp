@@ -230,6 +230,18 @@ void SceneHub::Init()
 
 	meshList_hub[GEO_MONKEY] = MeshBuilder::GenerateOBJ("monkey", "Models//Monkey.obj");
 
+	//collectibles
+	meshList_hub[GEO_FIGURINE] = MeshBuilder::GenerateOBJ("figurine", "Models//Figurine.obj");
+	meshList_hub[GEO_FIGURINE]->textureID = LoadTGA("Textures//Figurine.tga");
+
+	meshList_hub[GEO_PIG] = MeshBuilder::GenerateOBJ("pig", "Models//Pig.obj");
+	meshList_hub[GEO_PIG]->textureID = LoadTGA("Textures//Pig.tga");
+
+	meshList_hub[GEO_PLUSHIE] = MeshBuilder::GenerateOBJ("plushie", "Models//Plushie.obj");
+	meshList_hub[GEO_PLUSHIE]->textureID = LoadTGA("Textures//Frieren_Plushie.tga");	
+
+	meshList_hub[GEO_5090] = MeshBuilder::GenerateOBJ("5090", "Models//RTX5090_BOX.obj");
+	meshList_hub[GEO_5090]->textureID = LoadTGA("Textures//RTX5090_BOX.tga");
 
 
 	// setup initial item in hand
@@ -285,17 +297,30 @@ void SceneHub::Init()
 	meshList_hub[GEO_MONKEY]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
 	meshList_hub[GEO_MONKEY]->material.kShininess = 1.0f;*/
 
-	meshList_hub[GEO_TABLE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
-	meshList_hub[GEO_TABLE]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
-	meshList_hub[GEO_TABLE]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
-	meshList_hub[GEO_TABLE]->material.kShininess = 1.0f;
+	meshList_hub[GEO_FIGURINE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	meshList_hub[GEO_FIGURINE]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
+	meshList_hub[GEO_FIGURINE]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+	meshList_hub[GEO_FIGURINE]->material.kShininess = 1.0f;
 
-	meshList_hub[GEO_TABLE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
-	meshList_hub[GEO_TABLE]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
-	meshList_hub[GEO_TABLE]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
-	meshList_hub[GEO_TABLE]->material.kShininess = 1.0f;
+	meshList_hub[GEO_PIG]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	meshList_hub[GEO_PIG]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
+	meshList_hub[GEO_PIG]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+	meshList_hub[GEO_PIG]->material.kShininess = 1.0f;
 
+	meshList_hub[GEO_FERRISWHEEL]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	meshList_hub[GEO_FERRISWHEEL]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
+	meshList_hub[GEO_FERRISWHEEL]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+	meshList_hub[GEO_FERRISWHEEL]->material.kShininess = 1.0f;
 
+	meshList_hub[GEO_PLUSHIE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	meshList_hub[GEO_PLUSHIE]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
+	meshList_hub[GEO_PLUSHIE]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+	meshList_hub[GEO_PLUSHIE]->material.kShininess = 1.0f;
+
+	meshList_hub[GEO_5090]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	meshList_hub[GEO_5090]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
+	meshList_hub[GEO_5090]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+	meshList_hub[GEO_5090]->material.kShininess = 1.0f;
 }
 
 void SceneHub::Update(double dt)
@@ -349,6 +374,7 @@ void SceneHub::Render()
 	// Clear color buffer every frame
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
+	glDisable(GL_CULL_FACE);
 
 	// Load view matrix stack and set it with camera position, target position and up direction
 	viewStack.LoadIdentity();
@@ -564,8 +590,32 @@ void SceneHub::Render()
 		}
 
 		{
-		PushPop monkey(modelStack);
-		RenderMesh(meshList_hub[GEO_MONKEY], true);
+			PushPop monkey(modelStack);
+			RenderMesh(meshList_hub[GEO_MONKEY], true);
+		}
+
+		{
+			PushPop shift(modelStack);
+			modelStack.Translate(5.f, 3.f, 0.f);
+			{
+				PushPop figurine(modelStack);
+				RenderMesh(meshList_hub[GEO_FIGURINE], true);
+			}
+
+			{
+				PushPop pig(modelStack);
+				//RenderMesh(meshList_hub[GEO_PIG], true);
+			}
+
+			{
+				PushPop plushie(modelStack);
+				//RenderMesh(meshList_hub[GEO_PLUSHIE], true);
+			}
+
+			{
+				PushPop rtx(modelStack);
+				//RenderMesh(meshList_hub[GEO_5090], true);
+			}
 		}
 	}
 
