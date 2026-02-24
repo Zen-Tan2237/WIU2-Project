@@ -367,6 +367,20 @@ void SceneHub::Update(double dt)
 			}
 		}
 	}
+
+	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_I)) {
+		debugPos.x += 5.f * dt;
+	}
+	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_J)) {
+		debugPos.z += 5.f * dt;
+	}
+	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_K)) {
+		debugPos.x -= 5.f * dt;
+	}
+	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_L)) {
+		debugPos.z -= 5.f * dt;
+	}
+	std::cout << "Debug Pos: " << debugPos.x << ", " << debugPos.y << ", " << debugPos.z << std::endl;
 }
 
 void SceneHub::Render()
@@ -581,11 +595,29 @@ void SceneHub::Render()
 
 		{
 			PushPop ferriswheel(modelStack);
+			modelStack.Translate(debugPos.x, debugPos.y, debugPos.z);
 			RenderMesh(meshList_hub[GEO_FERRISWHEEL], true);
 		}
 
 		{
 			PushPop stall(modelStack);
+			modelStack.Translate(-30.f, 0.f, 0.f);
+			RenderMesh(meshList_hub[GEO_STALL], true);
+		}
+		{
+			PushPop stall(modelStack);
+			modelStack.Translate(30.f, 0.f, 0.f);
+			modelStack.Rotate(90, 0.f, 1.f, 0.f);
+			RenderMesh(meshList_hub[GEO_STALL], true);
+		}
+		{
+			PushPop stall(modelStack);
+			modelStack.Translate(0.f, 0.f, -30.f);
+			RenderMesh(meshList_hub[GEO_STALL], true);
+		}
+		{
+			PushPop stall(modelStack);
+			modelStack.Translate(0.f, 0.f, 30.f);
 			RenderMesh(meshList_hub[GEO_STALL], true);
 		}
 

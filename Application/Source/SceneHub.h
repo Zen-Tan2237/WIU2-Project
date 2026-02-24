@@ -37,6 +37,8 @@ public:
 
     Mesh* meshList_hub[NUM_GEOMETRY];
 
+    glm::vec3 debugPos;
+
 };
 #endif
 
