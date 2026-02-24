@@ -166,18 +166,21 @@ void BaseScene::Init()
 		m_parameters[U_MATERIAL_SPECULAR],
 		m_parameters[U_MATERIAL_SHININESS]);
 
-	// Initialise camera properties
+	// CAMERA INITIALIZATION
 	setCameraOrigin(glm::vec3(0.f, 1.f, -1.f), glm::vec3(0.f, 1.f, 1.f), glm::vec3(0.f, 2.f, -1.f));
 
 	bool settings[2] = { false, false };
-
 	cameraBody.InitPhysicsObject(
 		camera.position,
-		67.0f, // mass = 0 (treated as static in impulses)
+		67.0f,
 		BoundingBox::Type::OBB,
 		glm::vec3(.5f, 5.f, .5f),
 		settings
 	);
+
+	bobAmplitudeVertical = 0.02f;
+	bobAmplitudeHorizontal = 0.015f;
+	bobFrequency = 12.0f;
 
 	// Init VBO here
 	for (int i = 0; i < NUM_GEOMETRY; ++i)
@@ -185,7 +188,7 @@ void BaseScene::Init()
 		meshList[i] = nullptr;
 	}
 
-	//demo for obj files
+	// DEMO FOR OBJ FILES
 	//meshList[GEO_LEFT] = meshBuilder.LoadOBJMTL("Left", "OBJ//left.obj", "OBJ//left.mtl");
 	//meshList[GEO_LEFT] = MeshBuilder::LoadOBJ("Left", "OBJ//left.obj");
 	//meshList[GEO_LEFT]->textureID = LoadTGA("Image//left.tga");
@@ -216,7 +219,7 @@ void BaseScene::Init()
 
 	meshList[GEO_FENCE] = MeshBuilder::GenerateOBJ("Fence", "Models//Fence.obj");
 
-	// skybox
+	// SKYBOX
 	meshList[GEO_FRONT] = MeshBuilder::GenerateQuad("Front", glm::vec3(1.f, 1.f, 1.f), 100.f);
 	meshList[GEO_FRONT]->textureID = LoadTGA("Textures//Skybox//front.tga");
 	meshList[GEO_BACK] = MeshBuilder::GenerateQuad("Back", glm::vec3(1.f, 1.f, 1.f), 100.f);
@@ -280,22 +283,39 @@ void BaseScene::Init()
 	meshList[GEO_MINGLIUEXTB_FONT] = MeshBuilder::GenerateText("MingLiuExtB Font", 16, 16);
 	meshList[GEO_MINGLIUEXTB_FONT]->textureID = LoadTGA("Fonts//MingLiuExtB.tga");
 
-
+	//
 	glm::mat4 projection = glm::perspective(45.0f, 16.0f / 9.0f, 0.1f, 1000.0f);
 	projectionStack.LoadMatrix(projection);
 
-
 	glUniform1i(m_parameters[U_NUMLIGHTS], TOTAL_LIGHTS);
-
-
 	enableLight = true;
 
 	// INTERACTIVES
+	noOfInteractives = 0;
+
 	for (int i = 0; i < TOTAL_INTERACTIVES; i++) {
 		interactives[i] = "";
+		interactivesType[i] = '!';
 		interactivesPos[i] = glm::vec3(0, 0, 0);
 		interactivePickablesIndex[i] = 0;
+
+		interactedIndexes[i] = -1;
 	}
+
+	interactedIndex = -1;
+	previousInteractedIndex = -1;
+
+	noOfPickables = 0;
+
+	// ITEM IN HAND
+	itemInHand = nullptr;
+	amountOfItem = 0;
+	previousItemInHandName = "";
+	itemInHandElapsed = 0.f;
+	itemInUse = false;
+
+	dropKeybindHeldElapsed = 0.f;
+	droppedFirst = false;
 
 	settings[0] = true;
 	settings[1] = false;
@@ -304,26 +324,11 @@ void BaseScene::Init()
 		pickables[i] = nullptr;
 	}
 
-	noOfInteractives = 0;
-	noOfPickables = 0;
-
-	itemInHand = nullptr;
-	amountOfItem = 0;
-	previousItemInHandName = "";
-	itemInUse = false;
-
-	itemInHandElapsed = 0.f;
-
-	dropKeybindHeldElapsed = 0.f;
-	droppedFirst = false;
-
-
 	// UI
 	interactPrompt.setTargetPosition(glm::vec2(0, 0));
 	interactEUI.setTargetScale(glm::vec2(0.05f));
 
 	// DIALGOUE
-
 	oldPart = 0;
 	part = 0;
 	oldPhase = 0;
@@ -335,6 +340,7 @@ void BaseScene::Init()
 		}
 	}
 
+	// MESH MATERIAL INITIALIZATION
 	meshList[GEO_BASEBALL]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
 	meshList[GEO_BASEBALL]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
 	meshList[GEO_BASEBALL]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
@@ -380,18 +386,18 @@ void BaseScene::Update(double dt)
 {
 	HandleKeyPress(dt);
 
-	if (KeyboardController::GetInstance()->IsKeyDown('I'))
-		light[0].position.z -= static_cast<float>(dt) * 5.f;
-	if (KeyboardController::GetInstance()->IsKeyDown('K'))
-		light[0].position.z += static_cast<float>(dt) * 5.f;
-	if (KeyboardController::GetInstance()->IsKeyDown('J'))
-		light[0].position.x -= static_cast<float>(dt) * 5.f;
-	if (KeyboardController::GetInstance()->IsKeyDown('L'))
-		light[0].position.x += static_cast<float>(dt) * 5.f;
-	if (KeyboardController::GetInstance()->IsKeyDown('O'))
-		light[0].position.y -= static_cast<float>(dt) * 5.f;
-	if (KeyboardController::GetInstance()->IsKeyDown('P'))
-		light[0].position.y += static_cast<float>(dt) * 5.f;
+	//if (KeyboardController::GetInstance()->IsKeyDown('I'))
+	//	light[0].position.z -= static_cast<float>(dt) * 5.f;
+	//if (KeyboardController::GetInstance()->IsKeyDown('K'))
+	//	light[0].position.z += static_cast<float>(dt) * 5.f;
+	//if (KeyboardController::GetInstance()->IsKeyDown('J'))
+	//	light[0].position.x -= static_cast<float>(dt) * 5.f;
+	//if (KeyboardController::GetInstance()->IsKeyDown('L'))
+	//	light[0].position.x += static_cast<float>(dt) * 5.f;
+	//if (KeyboardController::GetInstance()->IsKeyDown('O'))
+	//	light[0].position.y -= static_cast<float>(dt) * 5.f;
+	//if (KeyboardController::GetInstance()->IsKeyDown('P'))
+	//	light[0].position.y += static_cast<float>(dt) * 5.f;
 
 	// CAMERA BOBBING
 	camera.position -= previousBobOffset;
@@ -422,9 +428,7 @@ void BaseScene::Update(double dt)
 	glm::vec3 forward = glm::normalize(camera.target - camera.position);
 	glm::vec3 right = glm::normalize(glm::cross(forward, camera.up));
 
-	glm::vec3 currentBobOffset =
-		camera.up * verticalOffset +
-		right * horizontalOffset;
+	glm::vec3 currentBobOffset = camera.up * verticalOffset + right * horizontalOffset;
 
 	camera.position += currentBobOffset;
 	camera.target += currentBobOffset;
@@ -435,7 +439,7 @@ void BaseScene::Update(double dt)
 		camera.Update(dt);
 	}
 
-	// set isHeld
+	// SET ISHELD WHEN PICKABLE IS ITEM IN HAND
 	for (int i = 0; i < TOTAL_PICKABLES; i++) {
 		if (pickables[i] != nullptr && itemInHand != nullptr) {
 			if (pickables[i] == itemInHand) {
@@ -451,17 +455,15 @@ void BaseScene::Update(double dt)
 	cameraBody.position = camera.position;
 	cameraBody.velocity = glm::vec3(0.f);
 
-	// Camera - World Objects
 	CollisionData cd;
-	for (auto& obj : worldObjects) {
+	for (auto& obj : worldObjects) {	// Camera - World Objects
 		if (CheckCollision(cameraBody, obj, cd))
 		{
 			ResolveCollision(cd);
 		}
 	}
 
-	// Pickables - World Objects
-	for (int i = 0; i < TOTAL_PICKABLES; ++i) {
+	for (int i = 0; i < TOTAL_PICKABLES; ++i) {	// Pickables - World Objects
 		for (auto& obj : worldObjects) {
 			if (pickables[i] != nullptr) {
 				if (!pickables[i]->isHeld) {
@@ -499,11 +501,7 @@ void BaseScene::Update(double dt)
 
 	camera.position = cameraBody.position;
 
-	// FPS
-	float temp = 1.f / dt;
-	fps = glm::round(temp * 100.f) / 100.f;
-
-	//
+	// OTHER HANDLING
 	if (itemInHand != nullptr)
 	{
 		if (itemInHand->name != previousItemInHandName) {
@@ -525,15 +523,16 @@ void BaseScene::Update(double dt)
 		itemInHandHUD.setTargetScale(glm::vec2(0, 0));
 	}
 
-	//
+	// UI UPDATING
 	interactEUI.Update(dt);
 	interactPrompt.Update(dt);
 	itemInHandHUD.Update(dt);
 	sceneSwitchHUD.Update(dt);
 
+	//
 	resetInteractives();
 
-	//
+	// NEXT SCENE HANDLING
 	if (nextSceneDelay > 0.f) {
 		nextSceneDelay -= dt;
 	}
@@ -541,7 +540,7 @@ void BaseScene::Update(double dt)
 		nextSceneDelay = 0.f;
 	}
 
-	//
+	// DIALOGUE HANDLING
 	if (oldPart != part) {
 		oldPart = part;
 	}
@@ -559,213 +558,137 @@ void BaseScene::Update(double dt)
 	else {
 		currPhaseElapsed += dt;
 	}
+
+	// FPS
+	float temp = 1.f / dt;
+	fps = glm::round(temp * 100.f) / 100.f;
 }
 
 void BaseScene::Render()
 {
-	// Clear color buffer every frame
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
 
-	// Load view matrix stack and set it with camera position, target position and up direction
-	viewStack.LoadIdentity();
-	viewStack.LookAt(
-		camera.position.x, camera.position.y, camera.position.z,
-		camera.target.x, camera.target.y, camera.target.z,
-		camera.up.x, camera.up.y, camera.up.z
-	);
-
-	// Load identity matrix into the model stack
-	modelStack.LoadIdentity();
-
+void BaseScene::Exit()
+{
+	// Cleanup VBO here
+	for (int i = 0; i < NUM_GEOMETRY; ++i)
 	{
-		if (light[0].type == Light::DIRECTIONAL)
+		if (meshList[i])
 		{
-			glm::vec3 lightDir(light[0].position.x, light[0].position.y, light[0].position.z);
-			glm::vec3 lightDirection_cameraspace = viewStack.Top() * glm::vec4(lightDir, 0);
-			glUniform3fv(m_parameters[U_LIGHT0_POSITION], 1, glm::value_ptr(lightDirection_cameraspace));
+			delete meshList[i];
 		}
-		else if (light[0].type == Light::SPOT)
+	}
+	glDeleteVertexArrays(1, &m_vertexArrayID);
+	glDeleteProgram(m_programID);
+}
+
+void BaseScene::HandleKeyPress(double dt)
+{
+	if (KeyboardController::GetInstance()->IsKeyPressed(0x31))
+	{
+		// Key press to enable culling
+		glEnable(GL_CULL_FACE);
+	}
+	if (KeyboardController::GetInstance()->IsKeyPressed(0x32))
+	{
+		// Key press to disable culling
+		glDisable(GL_CULL_FACE);
+	}
+	if (KeyboardController::GetInstance()->IsKeyPressed(0x33))
+	{
+		// Key press to enable fill mode for the polygon
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); //default fill mode
+	}
+	if (KeyboardController::GetInstance()->IsKeyPressed(0x34))
+	{
+		// Key press to enable wireframe mode for the polygon
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); //wireframe mode
+	}
+
+	//if (KeyboardController::GetInstance()->IsKeyPressed(VK_SPACE))
+	//{
+	//	// Change to black background
+	//	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	//}
+
+	//////////////////////////////////////////
+
+	// INTERACTIVES HANDLER
+	if (interactedIndex != -1 && KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_F)) { // means got prompt, is close to and facing smth
+		if (interactivesType[interactedIndex] == 'I') {
+
+		}
+		else if (interactivesType[interactedIndex] == 'P')
 		{
-			glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[0].position, 1);
-			glUniform3fv(m_parameters[U_LIGHT0_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
-			glm::vec3 spotDirection_cameraspace = viewStack.Top() * glm::vec4(light[0].spotDirection, 0);
-			glUniform3fv(m_parameters[U_LIGHT0_SPOTDIRECTION], 1, glm::value_ptr(spotDirection_cameraspace));
-		}
-		else {
-			// Calculate the light position in camera space
-			glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[0].position, 1);
-			glUniform3fv(m_parameters[U_LIGHT0_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
-		}
-		if (light[1].type == Light::DIRECTIONAL)
-		{
-			glm::vec3 lightDir(light[1].position.x, light[1].position.y, light[1].position.z);
-			glm::vec3 lightDirection_cameraspace = viewStack.Top() * glm::vec4(lightDir, 0);
-			glUniform3fv(m_parameters[U_LIGHT1_POSITION], 1, glm::value_ptr(lightDirection_cameraspace));
-		}
-		else if (light[1].type == Light::SPOT)
-		{
-			glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[1].position, 1);
-			glUniform3fv(m_parameters[U_LIGHT1_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
-			glm::vec3 spotDirection_cameraspace = viewStack.Top() * glm::vec4(light[1].spotDirection, 0);
-			glUniform3fv(m_parameters[U_LIGHT1_SPOTDIRECTION], 1, glm::value_ptr(spotDirection_cameraspace));
-		}
-		else {
-			// Calculate the light position in camera space
-			glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[1].position, 1);
-			glUniform3fv(m_parameters[U_LIGHT1_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
-		}
-		if (light[2].type == Light::DIRECTIONAL)
-		{
-			glm::vec3 lightDir(light[2].position.x, light[2].position.y, light[2].position.z);
-			glm::vec3 lightDirection_cameraspace = viewStack.Top() * glm::vec4(lightDir, 0);
-			glUniform3fv(m_parameters[U_LIGHT2_POSITION], 1, glm::value_ptr(lightDirection_cameraspace));
-		}
-		else if (light[2].type == Light::SPOT)
-		{
-			glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[2].position, 1);
-			glUniform3fv(m_parameters[U_LIGHT2_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
-			glm::vec3 spotDirection_cameraspace = viewStack.Top() * glm::vec4(light[2].spotDirection, 0);
-			glUniform3fv(m_parameters[U_LIGHT2_SPOTDIRECTION], 1, glm::value_ptr(spotDirection_cameraspace));
-		}
-		else {
-			// Calculate the light position in camera space
-			glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[2].position, 1);
-			glUniform3fv(m_parameters[U_LIGHT2_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
-		}
-		if (light[3].type == Light::DIRECTIONAL)
-		{
-			glm::vec3 lightDir(light[3].position.x, light[3].position.y, light[3].position.z);
-			glm::vec3 lightDirection_cameraspace = viewStack.Top() * glm::vec4(lightDir, 0);
-			glUniform3fv(m_parameters[U_LIGHT3_POSITION], 1, glm::value_ptr(lightDirection_cameraspace));
-		}
-		else if (light[3].type == Light::SPOT)
-		{
-			glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[3].position, 1);
-			glUniform3fv(m_parameters[U_LIGHT3_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
-			glm::vec3 spotDirection_cameraspace = viewStack.Top() * glm::vec4(light[3].spotDirection, 0);
-			glUniform3fv(m_parameters[U_LIGHT3_SPOTDIRECTION], 1, glm::value_ptr(spotDirection_cameraspace));
-		}
-		else {
-			// Calculate the light position in camera space
-			glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[3].position, 1);
-			glUniform3fv(m_parameters[U_LIGHT3_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
-		}
-		if (light[4].type == Light::DIRECTIONAL)
-		{
-			glm::vec3 lightDir(light[4].position.x, light[4].position.y, light[4].position.z);
-			glm::vec3 lightDirection_cameraspace = viewStack.Top() * glm::vec4(lightDir, 0);
-			glUniform3fv(m_parameters[U_LIGHT4_POSITION], 1, glm::value_ptr(lightDirection_cameraspace));
-		}
-		else if (light[4].type == Light::SPOT)
-		{
-			glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[4].position, 1);
-			glUniform3fv(m_parameters[U_LIGHT4_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
-			glm::vec3 spotDirection_cameraspace = viewStack.Top() * glm::vec4(light[4].spotDirection, 0);
-			glUniform3fv(m_parameters[U_LIGHT4_SPOTDIRECTION], 1, glm::value_ptr(spotDirection_cameraspace));
-		}
-		else {
-			// Calculate the light position in camera space
-			glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[4].position, 1);
-			glUniform3fv(m_parameters[U_LIGHT4_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
-		}
-		if (light[5].type == Light::DIRECTIONAL)
-		{
-			glm::vec3 lightDir(light[5].position.x, light[5].position.y, light[5].position.z);
-			glm::vec3 lightDirection_cameraspace = viewStack.Top() * glm::vec4(lightDir, 0);
-			glUniform3fv(m_parameters[U_LIGHT5_POSITION], 1, glm::value_ptr(lightDirection_cameraspace));
-		}
-		else if (light[5].type == Light::SPOT)
-		{
-			glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[5].position, 1);
-			glUniform3fv(m_parameters[U_LIGHT5_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
-			glm::vec3 spotDirection_cameraspace = viewStack.Top() * glm::vec4(light[5].spotDirection, 0);
-			glUniform3fv(m_parameters[U_LIGHT5_SPOTDIRECTION], 1, glm::value_ptr(spotDirection_cameraspace));
-		}
-		else {
-			// Calculate the light position in camera space
-			glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[5].position, 1);
-			glUniform3fv(m_parameters[U_LIGHT5_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
-		}
-		if (light[6].type == Light::DIRECTIONAL)
-		{
-			glm::vec3 lightDir(light[6].position.x, light[6].position.y, light[6].position.z);
-			glm::vec3 lightDirection_cameraspace = viewStack.Top() * glm::vec4(lightDir, 0);
-			glUniform3fv(m_parameters[U_LIGHT6_POSITION], 1, glm::value_ptr(lightDirection_cameraspace));
-		}
-		else if (light[6].type == Light::SPOT)
-		{
-			glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[6].position, 1);
-			glUniform3fv(m_parameters[U_LIGHT6_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
-			glm::vec3 spotDirection_cameraspace = viewStack.Top() * glm::vec4(light[6].spotDirection, 0);
-			glUniform3fv(m_parameters[U_LIGHT6_SPOTDIRECTION], 1, glm::value_ptr(spotDirection_cameraspace));
-		}
-		else {
-			// Calculate the light position in camera space
-			glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[6].position, 1);
-			glUniform3fv(m_parameters[U_LIGHT6_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
-		}
-		if (light[7].type == Light::DIRECTIONAL)
-		{
-			glm::vec3 lightDir(light[7].position.x, light[7].position.y, light[7].position.z);
-			glm::vec3 lightDirection_cameraspace = viewStack.Top() * glm::vec4(lightDir, 0);
-			glUniform3fv(m_parameters[U_LIGHT7_POSITION], 1, glm::value_ptr(lightDirection_cameraspace));
-		}
-		else if (light[7].type == Light::SPOT)
-		{
-			glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[7].position, 1);
-			glUniform3fv(m_parameters[U_LIGHT7_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
-			glm::vec3 spotDirection_cameraspace = viewStack.Top() * glm::vec4(light[7].spotDirection, 0);
-			glUniform3fv(m_parameters[U_LIGHT7_SPOTDIRECTION], 1, glm::value_ptr(spotDirection_cameraspace));
-		}
-		else {
-			// Calculate the light position in camera space
-			glm::vec3 lightPosition_cameraspace = viewStack.Top() * glm::vec4(light[7].position, 1);
-			glUniform3fv(m_parameters[U_LIGHT7_POSITION], 1, glm::value_ptr(lightPosition_cameraspace));
+			int pickIndex = interactivePickablesIndex[interactedIndex];
+
+			addItemInHand(pickIndex);
+			//removePickables(pickIndex);
 		}
 	}
 
-	{
-		PushPop axesGuard(modelStack);
-		// Render objects
-		RenderMesh(meshList[GEO_AXES], false);
+	// HOLD ITEM HANDLER
+	if (itemInHand != nullptr) {
+		if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_E))
+		{
+			if (itemInUse) {
+				itemInUse = false;
+			}
+			else {
+				itemInUse = true;
+			}
+		}
+
+		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_X))
+		{
+			dropKeybindHeldElapsed += dt;
+			
+			if (dropKeybindHeldElapsed < .5f) {
+				if (droppedFirst == false) {
+					dropItemInHand(1);
+					droppedFirst = true;
+				}
+			}
+			else {
+				dropItemInHand(1);
+			}
+			
+		}
+		else {
+			dropKeybindHeldElapsed = 0.f;
+			droppedFirst = false;
+		}
 	}
+}
 
+void BaseScene::HandleMouseInput() {
+	static bool isLeftUp = false;
+	static bool isRightUp = false;
+	// Process Left button
+	if (!isLeftUp && MouseController::GetInstance()->IsButtonDown(GLFW_MOUSE_BUTTON_LEFT))
 	{
-		PushPop skybox(modelStack);
-		modelStack.Scale(2.f, 2.f, 2.f);
-		RenderSkybox();
+		isLeftUp = true;
+		std::cout << "LBUTTON DOWN" << std::endl;
 	}
-
+	else if (isLeftUp && MouseController::GetInstance()->IsButtonUp(GLFW_MOUSE_BUTTON_LEFT))
 	{
-		PushPop multi(modelStack);
-		modelStack.Scale(0.3f, 0.3f, 0.3f);
+		isLeftUp = false;
+		std::cout << "LBUTTON UP" << std::endl;
+	}
+	// Continue to do for right button
 
-		{
-			PushPop skybox(modelStack);
-			modelStack.Translate(0, 0, 0); //later change to follow player class
-			modelStack.Scale(20.f, 20.f, 20.f);
-			//RenderSkybox();
-		}
-
-		{
-			PushPop backgroundBuildings(modelStack);
-			modelStack.Translate(0.f, -15.f, 0.f);
-			modelStack.Scale(1.f, 2.f, 1.f);
-			RenderMesh(meshList[GEO_BACKGROUND_BUILDINGS], true);
-		}
-
-		{
-			PushPop floor(modelStack);
-			//modelStack.Translate(helloworld.position.x, helloworld.position.y, helloworld.position.z);
-			//glm::mat4 rotationMat = glm::mat4_cast(helloworld.orientation);
-			//modelStack.MultMatrix(rotationMat);
-			modelStack.Scale(1, 1, 1);
-			RenderMesh(meshList[GEO_FLOOR], true);
-		}
-
-		{
-			PushPop fence(modelStack);
-			RenderMesh(meshList[GEO_FENCE], true);
+	if (!isLeftUp && MouseController::GetInstance()->IsButtonDown(GLFW_MOUSE_BUTTON_LEFT))
+	{
+		isLeftUp = true;
+		std::cout << "LBUTTON DOWN" << std::endl;
+		// Step 3
+		// transform into UI space
+		double x = MouseController::GetInstance()->GetMousePositionX();
+		double y = 600 - MouseController::GetInstance()->GetMousePositionY();
+		// Check if mouse click position is within the GUI box
+		// Change the boundaries as necessary
+		if (x > 0 && x < 100 && y > 0 && y < 100) {
+			std::cout << "GUI IS CLICKED" << std::endl;
 		}
 	}
 }
@@ -814,109 +737,6 @@ void BaseScene::RenderMesh(Mesh* mesh, bool enableLight)
 	}
 }
 
-void BaseScene::Exit()
-{
-	// Cleanup VBO here
-	for (int i = 0; i < NUM_GEOMETRY; ++i)
-	{
-		if (meshList[i])
-		{
-			delete meshList[i];
-		}
-	}
-	glDeleteVertexArrays(1, &m_vertexArrayID);
-	glDeleteProgram(m_programID);
-}
-
-void BaseScene::HandleKeyPress(double dt)
-{
-	if (KeyboardController::GetInstance()->IsKeyPressed(0x31))
-	{
-		// Key press to enable culling
-		glEnable(GL_CULL_FACE);
-	}
-	if (KeyboardController::GetInstance()->IsKeyPressed(0x32))
-	{
-		// Key press to disable culling
-		glDisable(GL_CULL_FACE);
-	}
-	if (KeyboardController::GetInstance()->IsKeyPressed(0x33))
-	{
-		// Key press to enable fill mode for the polygon
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); //default fill mode
-	}
-	if (KeyboardController::GetInstance()->IsKeyPressed(0x34))
-	{
-		// Key press to enable wireframe mode for the polygon
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); //wireframe mode
-	}
-
-	//if (KeyboardController::GetInstance()->IsKeyPressed(VK_SPACE))
-	//{
-	//	// Change to black background
-	//	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-	//}
-
-	if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_0))
-	{
-		// Toggle light on or off
-	/*	enableLight = !enableLight;*/
-
-		if (light[0].power <= 0.1f)
-			light[0].power = 1.f;
-		else
-			light[0].power = 0.1f;
-		glUniform1f(m_parameters[U_LIGHT0_POWER], light[0].power);
-	}
-
-	//////////////////////////////////////////
-	// INTERACTIVES HANDLER
-	if (interactedIndex != -1 && KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_F)) { // means got prompt, is close to and facing smth
-		if (interactivesType[interactedIndex] == 'I') { // its an interactive
-			// do it in actual scene instead
-		}
-		else if (interactivesType[interactedIndex] == 'P')
-		{
-			int pickIndex = interactivePickablesIndex[interactedIndex];
-
-			addItemInHand(pickIndex);
-			//removePickables(pickIndex);
-		}
-	}
-
-	// HOLD ITEM HANDLER
-	if (itemInHand != nullptr) { // hand has stuff
-		if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_E))
-		{
-			if (itemInUse) {
-				itemInUse = false;
-			}
-			else {
-				itemInUse = true;
-			}
-		}
-
-		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_X))
-		{
-			dropKeybindHeldElapsed += dt;
-			
-			if (dropKeybindHeldElapsed < .5f) {
-				if (droppedFirst == false) {
-					dropItemInHand(1);
-					droppedFirst = true;
-				}
-			}
-			else {
-				dropItemInHand(1);
-			}
-			
-		}
-		else {
-			dropKeybindHeldElapsed = 0.f;
-			droppedFirst = false;
-		}
-	}
-}
 
 void BaseScene::RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizeX, float sizeY)
 {
@@ -945,38 +765,6 @@ void BaseScene::RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizeX, fl
 	}
 	glEnable(GL_DEPTH_TEST);
 
-}
-
-void BaseScene::HandleMouseInput() {
-	static bool isLeftUp = false;
-	static bool isRightUp = false;
-	// Process Left button
-	if (!isLeftUp && MouseController::GetInstance()->IsButtonDown(GLFW_MOUSE_BUTTON_LEFT))
-	{
-		isLeftUp = true;
-		std::cout << "LBUTTON DOWN" << std::endl;
-	}
-	else if (isLeftUp && MouseController::GetInstance()->IsButtonUp(GLFW_MOUSE_BUTTON_LEFT))
-	{
-		isLeftUp = false;
-		std::cout << "LBUTTON UP" << std::endl;
-	}
-	// Continue to do for right button
-
-	if (!isLeftUp && MouseController::GetInstance()->IsButtonDown(GLFW_MOUSE_BUTTON_LEFT))
-	{
-		isLeftUp = true;
-		std::cout << "LBUTTON DOWN" << std::endl;
-		// Step 3
-		// transform into UI space
-		double x = MouseController::GetInstance()->GetMousePositionX();
-		double y = 600 - MouseController::GetInstance()->GetMousePositionY();
-		// Check if mouse click position is within the GUI box
-		// Change the boundaries as necessary
-		if (x > 0 && x < 100 && y > 0 && y < 100) {
-			std::cout << "GUI IS CLICKED" << std::endl;
-		}
-	}
 }
 
 void BaseScene::RenderText(Mesh* mesh, std::string text, glm::vec3
@@ -1124,128 +912,128 @@ void BaseScene::RenderSkybox()
 void BaseScene::RenderUI()
 {
 	{
-		// Render GUI
-		//RenderMeshOnScreen(meshList[GEO_MENU_GUI], 0, 0, 1600, 900);
-		//RenderMeshOnScreen(meshList[GEO_SWITCHSCENE_GUI], 0, 0, 1600, 900);
+		//// Render GUI
+		////RenderMeshOnScreen(meshList[GEO_MENU_GUI], 0, 0, 1600, 900);
+		////RenderMeshOnScreen(meshList[GEO_SWITCHSCENE_GUI], 0, 0, 1600, 900);
 
-		glDisable(GL_DEPTH_TEST);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		//glDisable(GL_DEPTH_TEST);
+		//glEnable(GL_BLEND);
+		//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		if (interactedIndex != -1) {
-			RenderMeshOnScreen(meshList[GEO_CROSSHAIROPAQUE_GUI], crosshair.getPosition().x, crosshair.getPosition().y, 1600, 900);
+		//if (interactedIndex != -1) {
+		//	RenderMeshOnScreen(meshList[GEO_CROSSHAIROPAQUE_GUI], crosshair.getPosition().x, crosshair.getPosition().y, 1600, 900);
 
-			RenderMeshOnScreen(meshList[GEO_INTERACTFADE_GUI], interactPrompt.getPosition().x, interactPrompt.getPosition().y, 1600, 900);
-			RenderTextOnScreen(meshList[GEO_VCROSDMONO_FONT], interactives[interactedIndex], glm::vec3(1, 1, 1), 20, 410 + interactPrompt.getPosition().x * 1.5f, -10 + interactPrompt.getPosition().y, 'R', .6f);
+		//	RenderMeshOnScreen(meshList[GEO_INTERACTFADE_GUI], interactPrompt.getPosition().x, interactPrompt.getPosition().y, 1600, 900);
+		//	RenderTextOnScreen(meshList[GEO_VCROSDMONO_FONT], interactives[interactedIndex], glm::vec3(1, 1, 1), 20, 410 + interactPrompt.getPosition().x * 1.5f, -10 + interactPrompt.getPosition().y, 'R', .6f);
 
-			//meshlist[font type], text, color, size, x, y, alignment, spacing percentage
-			if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_F))
-			{
-				RenderTextOnScreen(meshList[GEO_HOMEVIDEOBOLD_FONT], "[F]", glm::vec3(109 / 255.f, 41 / 255.f, 34 / 255.f), 26, 440 + interactPrompt.getPosition().x, -13 + interactPrompt.getPosition().y, 'L', .6f);
-			}
-			else {
-				RenderTextOnScreen(meshList[GEO_HOMEVIDEO_FONT], "[F]", glm::vec3(109 / 255.f, 41 / 255.f, 34 / 255.f), 26, 440 + interactPrompt.getPosition().x, -13 + interactPrompt.getPosition().y, 'L', .6f);
-			}
-		}
-		else {
-			RenderMeshOnScreen(meshList[GEO_CROSSHAIRTRANSLUCENT_GUI], crosshair.getPosition().x, crosshair.getPosition().y, 1600, 900);
-		}
+		//	//meshlist[font type], text, color, size, x, y, alignment, spacing percentage
+		//	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_F))
+		//	{
+		//		RenderTextOnScreen(meshList[GEO_HOMEVIDEOBOLD_FONT], "[F]", glm::vec3(109 / 255.f, 41 / 255.f, 34 / 255.f), 26, 440 + interactPrompt.getPosition().x, -13 + interactPrompt.getPosition().y, 'L', .6f);
+		//	}
+		//	else {
+		//		RenderTextOnScreen(meshList[GEO_HOMEVIDEO_FONT], "[F]", glm::vec3(109 / 255.f, 41 / 255.f, 34 / 255.f), 26, 440 + interactPrompt.getPosition().x, -13 + interactPrompt.getPosition().y, 'L', .6f);
+		//	}
+		//}
+		//else {
+		//	RenderMeshOnScreen(meshList[GEO_CROSSHAIRTRANSLUCENT_GUI], crosshair.getPosition().x, crosshair.getPosition().y, 1600, 900);
+		//}
 
-		RenderTextOnScreen(meshList[GEO_CARNIVALEEFREAKSHOW_FONT], "SCORE", glm::vec3(0, 1, 0), 45, -795, 400, 'L', .6f);
+		//RenderTextOnScreen(meshList[GEO_CARNIVALEEFREAKSHOW_FONT], "SCORE", glm::vec3(0, 1, 0), 45, -795, 400, 'L', .6f);
 
-		if (itemInHand != nullptr) {
-			glDisable(GL_DEPTH_TEST);
-			glEnable(GL_BLEND);
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		//if (itemInHand != nullptr) {
+		//	glDisable(GL_DEPTH_TEST);
+		//	glEnable(GL_BLEND);
+		//	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-			RenderMeshOnScreen(meshList[GEO_ITEMINHANDBORDER_GUI], 603 - (itemInHandHUD.getScale().x * .5f), -343.2f + (itemInHandHUD.getScale().y * .5f), 214 + itemInHandHUD.getScale().x, 33.7f + itemInHandHUD.getScale().y);
-			RenderMeshOnScreen(meshList[GEO_ITEMINHANDFADEBACKGROUND_GUI], 603 - (itemInHandHUD.getScale().x * .5f), -343.2f + (itemInHandHUD.getScale().y * .5f), 214 + itemInHandHUD.getScale().x, 33.7f + itemInHandHUD.getScale().y);
-			RenderMeshOnScreen(meshList[GEO_ITEMINHANDFADE_GUI], 0, 0 + itemInHandHUD.getScale().y, 1600, 900);
-			
-			RenderTextOnScreen(meshList[GEO_VCROSDMONO_FONT], "(" + std::to_string(amountOfItem) + "x) " + itemInHand->name, glm::vec3(1, 1, 1), 20, 690, -355 + itemInHandHUD.getScale().y, 'R', .6f);
+		//	RenderMeshOnScreen(meshList[GEO_ITEMINHANDBORDER_GUI], 603 - (itemInHandHUD.getScale().x * .5f), -343.2f + (itemInHandHUD.getScale().y * .5f), 214 + itemInHandHUD.getScale().x, 33.7f + itemInHandHUD.getScale().y);
+		//	RenderMeshOnScreen(meshList[GEO_ITEMINHANDFADEBACKGROUND_GUI], 603 - (itemInHandHUD.getScale().x * .5f), -343.2f + (itemInHandHUD.getScale().y * .5f), 214 + itemInHandHUD.getScale().x, 33.7f + itemInHandHUD.getScale().y);
+		//	RenderMeshOnScreen(meshList[GEO_ITEMINHANDFADE_GUI], 0, 0 + itemInHandHUD.getScale().y, 1600, 900);
+		//	
+		//	RenderTextOnScreen(meshList[GEO_VCROSDMONO_FONT], "(" + std::to_string(amountOfItem) + "x) " + itemInHand->name, glm::vec3(1, 1, 1), 20, 690, -355 + itemInHandHUD.getScale().y, 'R', .6f);
 
-			if (itemInUse) {
-				RenderTextOnScreen(meshList[GEO_HOMEVIDEOBOLD_FONT], "[E]", glm::vec3(1, 1, 1), 15, 700, -300 + itemInHandHUD.getScale().y, 'R', .6f);
-			}
-			else {
-				RenderTextOnScreen(meshList[GEO_HOMEVIDEO_FONT], "[E]", glm::vec3(1, 1, 1), 15, 700, -300 + itemInHandHUD.getScale().y, 'R', .6f);
-			}
-			RenderTextOnScreen(meshList[GEO_VCROSDMONO_FONT], "Use", glm::vec3(1, 1, 1), 15, 660, -300 + itemInHandHUD.getScale().y, 'R', .6f);
+		//	if (itemInUse) {
+		//		RenderTextOnScreen(meshList[GEO_HOMEVIDEOBOLD_FONT], "[E]", glm::vec3(1, 1, 1), 15, 700, -300 + itemInHandHUD.getScale().y, 'R', .6f);
+		//	}
+		//	else {
+		//		RenderTextOnScreen(meshList[GEO_HOMEVIDEO_FONT], "[E]", glm::vec3(1, 1, 1), 15, 700, -300 + itemInHandHUD.getScale().y, 'R', .6f);
+		//	}
+		//	RenderTextOnScreen(meshList[GEO_VCROSDMONO_FONT], "Use", glm::vec3(1, 1, 1), 15, 660, -300 + itemInHandHUD.getScale().y, 'R', .6f);
 
-			RenderTextOnScreen(meshList[GEO_HOMEVIDEO_FONT], "[X]", glm::vec3(1, 1, 1), 15, 700, -320 + itemInHandHUD.getScale().y, 'R', .6f);
-			RenderTextOnScreen(meshList[GEO_VCROSDMONO_FONT], "Drop", glm::vec3(1, 1, 1), 15, 660, -320 + itemInHandHUD.getScale().y, 'R', .6f);
-		}
+		//	RenderTextOnScreen(meshList[GEO_HOMEVIDEO_FONT], "[X]", glm::vec3(1, 1, 1), 15, 700, -320 + itemInHandHUD.getScale().y, 'R', .6f);
+		//	RenderTextOnScreen(meshList[GEO_VCROSDMONO_FONT], "Drop", glm::vec3(1, 1, 1), 15, 660, -320 + itemInHandHUD.getScale().y, 'R', .6f);
+		//}
 
-		// Debug
-		RenderTextOnScreen(meshList[GEO_HOMEVIDEOBOLD_FONT], "PART: " + std::to_string(part) + " PHASE: " + std::to_string(phase), glm::vec3(1, 1, 1), 15, 0, 435, 'C', .6f);
+		//// Debug
+		//RenderTextOnScreen(meshList[GEO_HOMEVIDEOBOLD_FONT], "PART: " + std::to_string(part) + " PHASE: " + std::to_string(phase), glm::vec3(1, 1, 1), 15, 0, 435, 'C', .6f);
 	}
 
-	// Render EUI
-	glDisable(GL_DEPTH_TEST);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//// Render EUI
+	//glDisable(GL_DEPTH_TEST);
+	//glEnable(GL_BLEND);
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	glm::vec3 euiPos(0, 1000, 0);
+	//glm::vec3 euiPos(0, 1000, 0);
 
-	for (int i = 0; i < noOfInteractives; i++) {
-		bool temp = interactivesType[i] == 'I';
-		if (!temp && pickables[interactivePickablesIndex[i]] != nullptr) {
-			temp = !pickables[interactivePickablesIndex[i]]->isHeld;
-		}
+	//for (int i = 0; i < noOfInteractives; i++) {
+	//	bool temp = interactivesType[i] == 'I';
+	//	if (!temp && pickables[interactivePickablesIndex[i]] != nullptr) {
+	//		temp = !pickables[interactivePickablesIndex[i]]->isHeld;
+	//	}
 
-		if (temp) {
-			euiPos = interactivesPos[i] + glm::vec3(0, 0.25f, 0);
+	//	if (temp) {
+	//		euiPos = interactivesPos[i] + glm::vec3(0, 0.25f, 0);
 
-			glm::vec3 dir = camera.position - euiPos;
-			dir = glm::normalize(dir);
+	//		glm::vec3 dir = camera.position - euiPos;
+	//		dir = glm::normalize(dir);
 
-			float yaw = glm::degrees(atan2(dir.x, dir.z));
-			float pitch = glm::degrees(asin(dir.y));
+	//		float yaw = glm::degrees(atan2(dir.x, dir.z));
+	//		float pitch = glm::degrees(asin(dir.y));
 
-			if (interactedIndex == i) {
-				modelStack.PushMatrix();
-				modelStack.Translate(euiPos.x, euiPos.y, euiPos.z);
-				modelStack.Rotate(yaw, 0.f, 1.f, 0.f);
-				modelStack.Rotate(-pitch, 1.f, 0.f, 0.f);
-				modelStack.Scale(interactEUI.getScale().x, interactEUI.getScale().x, interactEUI.getScale().x);
+	//		if (interactedIndex == i) {
+	//			modelStack.PushMatrix();
+	//			modelStack.Translate(euiPos.x, euiPos.y, euiPos.z);
+	//			modelStack.Rotate(yaw, 0.f, 1.f, 0.f);
+	//			modelStack.Rotate(-pitch, 1.f, 0.f, 0.f);
+	//			modelStack.Scale(interactEUI.getScale().x, interactEUI.getScale().x, interactEUI.getScale().x);
 
-				meshList[GEO_INTERACTED_EUI]->material.kAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
-				meshList[GEO_INTERACTED_EUI]->material.kDiffuse = glm::vec3(1.f, 1.f, 1.f);
-				meshList[GEO_INTERACTED_EUI]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
-				meshList[GEO_INTERACTED_EUI]->material.kShininess = 1.0f;
+	//			meshList[GEO_INTERACTED_EUI]->material.kAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
+	//			meshList[GEO_INTERACTED_EUI]->material.kDiffuse = glm::vec3(1.f, 1.f, 1.f);
+	//			meshList[GEO_INTERACTED_EUI]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+	//			meshList[GEO_INTERACTED_EUI]->material.kShininess = 1.0f;
 
-				RenderMesh(meshList[GEO_INTERACTED_EUI], false);
+	//			RenderMesh(meshList[GEO_INTERACTED_EUI], false);
 
-				modelStack.PopMatrix();
-			}
+	//			modelStack.PopMatrix();
+	//		}
 
-			modelStack.PushMatrix();
-			modelStack.Translate(euiPos.x, euiPos.y, euiPos.z);
-			modelStack.Rotate(yaw, 0.f, 1.f, 0.f);
-			modelStack.Rotate(-pitch, 1.f, 0.f, 0.f);
-			modelStack.Scale(.02f, .02f, .02f);
+	//		modelStack.PushMatrix();
+	//		modelStack.Translate(euiPos.x, euiPos.y, euiPos.z);
+	//		modelStack.Rotate(yaw, 0.f, 1.f, 0.f);
+	//		modelStack.Rotate(-pitch, 1.f, 0.f, 0.f);
+	//		modelStack.Scale(.02f, .02f, .02f);
 
-			meshList[GEO_INTERACT_EUI]->material.kAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
-			meshList[GEO_INTERACT_EUI]->material.kDiffuse = glm::vec3(1.f, 1.f, 1.f);
-			meshList[GEO_INTERACT_EUI]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
-			meshList[GEO_INTERACT_EUI]->material.kShininess = 1.0f;
+	//		meshList[GEO_INTERACT_EUI]->material.kAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
+	//		meshList[GEO_INTERACT_EUI]->material.kDiffuse = glm::vec3(1.f, 1.f, 1.f);
+	//		meshList[GEO_INTERACT_EUI]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+	//		meshList[GEO_INTERACT_EUI]->material.kShininess = 1.0f;
 
-			RenderMesh(meshList[GEO_INTERACT_EUI], false);
+	//		RenderMesh(meshList[GEO_INTERACT_EUI], false);
 
-			modelStack.PopMatrix();
-		}
-	}
+	//		modelStack.PopMatrix();
+	//	}
+	//}
 
-	{
-		// Render Switch Scene UI
-		if (nextScene != 0) {
-			glDisable(GL_DEPTH_TEST);
-			glEnable(GL_BLEND);
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//{
+	//	// Render Switch Scene UI
+	//	if (nextScene != 0) {
+	//		glDisable(GL_DEPTH_TEST);
+	//		glEnable(GL_BLEND);
+	//		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-			RenderMeshOnScreen(meshList[GEO_SWITCHSCENE_GUI], 0.f, 0.f, 1200 * sceneSwitchHUD.getScale().x, 675 * sceneSwitchHUD.getScale().x);
-		}
-	}
+	//		RenderMeshOnScreen(meshList[GEO_SWITCHSCENE_GUI], 0.f, 0.f, 1200 * sceneSwitchHUD.getScale().x, 675 * sceneSwitchHUD.getScale().x);
+	//	}
+	//}
 }
 
 void BaseScene::setCameraOrigin(glm::vec3 position, glm::vec3 target, glm::vec3 up)
@@ -1290,13 +1078,6 @@ void BaseScene::addInteractives(std::string name, char type, glm::vec3 position,
 			break;
 		}
 	}
-
-	//if (temp != -1) {
-	//	//std::cout << "[INTERACTIVES] Successfully added " << interactivesType[temp] << " " << interactives[temp] << " (" << interactivesPos[temp].x << ", " << interactivesPos[temp].y << ", " << interactivesPos[temp].z << ") to index " << temp << std::endl;
-	//}
-	//else {
-	//	//std::cout << "[INTERACTIVES] Insufficient space. Operation failed" << std::endl;
-	//}
 }
 
 void BaseScene::addPickables(std::string name, glm::vec3 position)
@@ -1315,7 +1096,7 @@ void BaseScene::addPickables(std::string name, glm::vec3 position)
 			if (name == "Baseball") {
 				pickables[i]->body.InitPhysicsObject(
 					position,
-					1.0f, // mass = 0 (treated as static in impulses)
+					1.0f,
 					BoundingBox::Type::SPHERE,
 					glm::vec3(.07f, .07f, .07f),
 					settings
@@ -1324,7 +1105,7 @@ void BaseScene::addPickables(std::string name, glm::vec3 position)
 			else if (name == "Coke" || name == "Mountain Dew" || name == "Sprite" || name == "Pepsi") {
 				pickables[i]->body.InitPhysicsObject(
 					position,
-					1.0f, // mass = 0 (treated as static in impulses)
+					1.0f,
 					BoundingBox::Type::OBB,
 					glm::vec3(.05f, .1f, .05f),
 					settings
@@ -1337,13 +1118,6 @@ void BaseScene::addPickables(std::string name, glm::vec3 position)
 			break;
 		}
 	}
-
-	//if (temp != -1) {
-	//	//std::cout << "[PICKABLES] Successfully added " << pickables[temp] << " (" << pickablesPos[temp].x << ", " << pickablesPos[temp].y << ", " << pickablesPos[temp].z << ") to index " << temp << std::endl;
-	//}
-	//else {
-	//	//std::cout << "[PICKABLES] Insufficient space. Operation failed" << std::endl;
-	//}
 }
 
 void BaseScene::removePickables(int index)
@@ -1448,29 +1222,6 @@ void BaseScene::dropItemInHand(int amountToRemove)
 		itemInHand = nullptr;
 		itemInUse = false;
 	}
-	//std::string itemToDrop = itemInHand;
-
-	//if (amountOfItem > amountToRemove) {
-	//	for (int i = 0; i < amountToRemove; i++) {
-	//		amountOfItem--;
-	//		glm::vec3 placementPos = camera.target;
-	//		placementPos += glm::vec3(((rand() % 5) - 2) / 100.f, 0, ((rand() % 5) - 2) / 100.f);
-
-	//		addPickables(itemToDrop, placementPos);
-	//	}
-	//}
-	//else {
-	//	for (int i = 0; i < amountOfItem; i++) {
-	//		glm::vec3 placementPos = camera.target;
-	//		placementPos += glm::vec3(((rand() % 5) - 2) / 100.f, 0, ((rand() % 5) - 2) / 100.f);
-
-	//		addPickables(itemToDrop, placementPos);
-	//	}
-
-	//	itemInHand = "";
-	//	amountOfItem = 0;
-	//	itemInUse = false;
-	//}
 }
 
 void BaseScene::addItemInHand(int index)
@@ -1486,11 +1237,9 @@ void BaseScene::addItemInHand(int index)
         amountOfItem++;
     }
 	else {
-		Pickable* newItem = pickables[index]; // save it first
-		dropItemInHand(amountOfItem);         // now safe to drop
-		itemInHand = newItem;                 // use saved pointer
+		Pickable* newItem = pickables[index];
+		dropItemInHand(amountOfItem);
+		itemInHand = newItem;
 		amountOfItem = 1;
-		// DON'T removePickables here - newItem is now itemInHand,
-		// isHeld will be set to true in Update, no need to remove it
 	}
 }

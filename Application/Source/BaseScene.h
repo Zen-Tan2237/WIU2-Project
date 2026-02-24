@@ -226,7 +226,6 @@ public:
 	void removePickables(int index);
 	void initializePickablesInteractives();
 	void getClosestInteractive();
-
 	void dropItemInHand(int amountToRemove);
 	void addItemInHand(int index);
 
@@ -245,9 +244,9 @@ public:
 	glm::vec3 cameraOriginPosition;
 	glm::vec3 cameraOriginTarget;
 	glm::vec3 cameraOriginUp;
-	float bobAmplitudeVertical = 0.02f;
-	float bobAmplitudeHorizontal = 0.015f;
-	float bobFrequency = 12.0f;
+	float bobAmplitudeVertical;
+	float bobAmplitudeHorizontal;
+	float bobFrequency;
 
 	float bobDistanceAccumulated = 0.0f;
 	float currentBobWeight = 0.0f;
@@ -268,31 +267,16 @@ public:
 	int previousInteractedIndex;
 
 	int noOfPickables;
-	Pickable* pickables[TOTAL_PICKABLES];
-
-	//float interactedEUI_scale;
-	//float interactedEUI_targetScale;
-
-	//glm::vec2 interactGUI_positionOffset;
-	//glm::vec2 interactGUI_targetPositionOffset;
 
 	// ITEM IN HAND
 	Pickable* itemInHand;
 	int amountOfItem;
 	std::string previousItemInHandName;
 	double itemInHandElapsed;
-
 	bool itemInUse;
-
-	//glm::vec3 itemInHandGUI_scaleOffset;
-	//glm::vec3 itemInHandGUI_targetScaleOffset;
 
 	double dropKeybindHeldElapsed;
 	bool droppedFirst;
-
-	// SCENE SWITCH UI
-	//float sceneSwitchUI_scalePercentage;
-	//float sceneSwitchUI_targetScalePercentage;
 
 	// UI
 	InteractPromptUI interactPrompt;
@@ -312,16 +296,13 @@ public:
 
 	// OTHERS
 	PhysicsObject worldObjects[TOTAL_PHYSICSOBJECT];
+	Pickable* pickables[TOTAL_PICKABLES];
 
 	int projType = 1; // fix to 0 for orthographic, 1 for projection
-
 	MatrixStack modelStack, viewStack, projectionStack;
-
 
 	Light light[TOTAL_LIGHTS];
 	bool enableLight;
-
-	//next scene (will immediately switch when its not 0
 };
 
 #endif
