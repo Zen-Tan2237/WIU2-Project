@@ -172,7 +172,7 @@ void BaseScene::Init()
 	bool settings[2] = { false, false };
 	cameraBody.InitPhysicsObject(
 		camera.position,
-		67.0f,
+		1.0f,
 		BoundingBox::Type::OBB,
 		glm::vec3(.5f, 5.f, .5f),
 		settings
@@ -194,6 +194,10 @@ void BaseScene::Init()
 	//meshList[GEO_LEFT]->textureID = LoadTGA("Image//left.tga");
 
 	meshList[GEO_AXES] = MeshBuilder::GenerateAxes("Axes", 10000.f, 10000.f, 10000.f);
+
+	// OTHERS
+	meshList[GEO_GRASS] = MeshBuilder::GenerateQuad("Grass", glm::vec3(1.f, 1.f, 1.f), 1.f);
+	meshList[GEO_GRASS]->textureID = LoadTGA("Textures//Grass.tga");
 
 	// MODELS
 	meshList[GEO_BASEBALL] = MeshBuilder::GenerateOBJ("Baseball", "Models//baseball.obj");
@@ -268,6 +272,9 @@ void BaseScene::Init()
 	meshList[GEO_CROSSHAIRTRANSLUCENT_GUI]->textureID = LoadTGA("Image//CrosshairTranslucent_GUI.tga");
 	meshList[GEO_CROSSHAIROPAQUE_GUI] = MeshBuilder::GenerateQuad("Crosshair Opaque GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
 	meshList[GEO_CROSSHAIROPAQUE_GUI]->textureID = LoadTGA("Image//CrosshairOpaque_GUI.tga");
+
+	meshList[GEO_DIALOGUEFADE_GUI] = MeshBuilder::GenerateQuad("Dialogue Fade GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
+	meshList[GEO_DIALOGUEFADE_GUI]->textureID = LoadTGA("Image//DialogueFade_GUI.tga");
 
 	meshList[GEO_ITEMINHANDFADE_GUI] = MeshBuilder::GenerateQuad("ItemInHand Fade GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
 	meshList[GEO_ITEMINHANDFADE_GUI]->textureID = LoadTGA("Image//ItemInHandFade_GUI.tga");
@@ -348,6 +355,8 @@ void BaseScene::Init()
 	// UI
 	interactPrompt.setTargetPosition(glm::vec2(0, 0));
 	interactEUI.setTargetScale(glm::vec2(0.05f));
+	dialogueFadeHUD.resetPosition(glm::vec2(0, -414));
+	dialogueFadeHUD.setTargetPosition(glm::vec2(0, -414));
 
 	// DIALGOUE
 	oldPart = 0;
@@ -360,12 +369,21 @@ void BaseScene::Init()
 			phaseDurations[k][i] = 0.f;
 		}
 	}
-	// world objects
+
+	// DEBUG
+	dtMultiplier = 1.f;
+
+	// world objects --- remove this bad stuff
 	bool miscSettings[2] = { false, false }; // for gravity and drag. override in case of specific objects
 
 	Fountain.InitPhysicsObject(glm::vec3(0, 0, 0), 0.f, BoundingBox::Type::SPHERE, glm::vec3(10.f, 0.f, 0.f), miscSettings);
 
 	// MESH MATERIAL INITIALIZATION
+	meshList[GEO_GRASS]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	meshList[GEO_GRASS]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
+	meshList[GEO_GRASS]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+	meshList[GEO_GRASS]->material.kShininess = 1.f;
+
 	meshList[GEO_BASEBALL]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
 	meshList[GEO_BASEBALL]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
 	meshList[GEO_BASEBALL]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
@@ -391,8 +409,8 @@ void BaseScene::Init()
 	meshList[GEO_CANSMTNDEW]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
 	meshList[GEO_CANSMTNDEW]->material.kShininess = 1.0f;
 
-	meshList[GEO_FLOOR]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
-	meshList[GEO_FLOOR]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
+	meshList[GEO_FLOOR]->material.kAmbient = glm::vec3(0.01f, 0.01f, 0.01f);
+	meshList[GEO_FLOOR]->material.kDiffuse = glm::vec3(.35f, .35f, .35f);
 	meshList[GEO_FLOOR]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
 	meshList[GEO_FLOOR]->material.kShininess = 1.0f;
 
@@ -439,7 +457,24 @@ void BaseScene::Init()
 
 void BaseScene::Update(double dt)
 {
+	// DEBUG
+	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_Q)) {
+		dtMultiplier -= 0.005f;
+	}
+	else if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_E)) {
+		dtMultiplier += 0.005f;
+	}
+
+	std::cout << dtMultiplier << std::endl;
+
+	dt *= dtMultiplier;
+	//
+
 	HandleKeyPress(dt);
+
+	if (nextScene == 0) {
+		camera.Update(dt);
+	}
 
 	//if (KeyboardController::GetInstance()->IsKeyDown('I'))
 	//	light[0].position.z -= static_cast<float>(dt) * 5.f;
@@ -490,10 +525,6 @@ void BaseScene::Update(double dt)
 
 	previousBobOffset = currentBobOffset;
 
-	if (nextScene == 0) {
-		camera.Update(dt);
-	}
-
 	// SET ISHELD WHEN PICKABLE IS ITEM IN HAND
 	for (int i = 0; i < TOTAL_PICKABLES; i++) {
 		if (pickables[i] != nullptr && itemInHand != nullptr) {
@@ -508,7 +539,7 @@ void BaseScene::Update(double dt)
 
 	// COLLISIONS
 	cameraBody.position = camera.position;
-	cameraBody.velocity = glm::vec3(0.f);
+	cameraBody.velocity = glm::vec3(0);
 
 	CollisionData cd;
 	for (auto& obj : worldObjects) {	// Camera - World Objects
@@ -583,6 +614,7 @@ void BaseScene::Update(double dt)
 	interactPrompt.Update(dt);
 	itemInHandHUD.Update(dt);
 	sceneSwitchHUD.Update(dt);
+	dialogueFadeHUD.Update(dt);
 
 	//
 	resetInteractives();
@@ -612,6 +644,13 @@ void BaseScene::Update(double dt)
 	}
 	else {
 		currPhaseElapsed += dt;
+	}
+
+	if (phaseDurations[part][phase] > 0.f) {
+		dialogueFadeHUD.setTargetPosition(glm::vec2(0, 0));
+	}
+	else {
+		dialogueFadeHUD.setTargetPosition(glm::vec2(0, -414));
 	}
 
 	// FPS
@@ -1151,7 +1190,7 @@ void BaseScene::addPickables(std::string name, glm::vec3 position)
 			if (name == "Baseball") {
 				pickables[i]->body.InitPhysicsObject(
 					position,
-					1.0f,
+					25.0f,
 					BoundingBox::Type::SPHERE,
 					glm::vec3(.07f, .07f, .07f),
 					settings
@@ -1160,9 +1199,9 @@ void BaseScene::addPickables(std::string name, glm::vec3 position)
 			else if (name == "Coke" || name == "Mountain Dew" || name == "Sprite" || name == "Pepsi") {
 				pickables[i]->body.InitPhysicsObject(
 					position,
-					1.0f,
+					25.0f,
 					BoundingBox::Type::OBB,
-					glm::vec3(.05f, .1f, .05f),
+					glm::vec3(.09f, .18f, .09f),
 					settings
 				);
 			}

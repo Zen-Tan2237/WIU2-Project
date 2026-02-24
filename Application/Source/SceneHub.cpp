@@ -34,7 +34,7 @@ void SceneHub::Init()
 		light[0].position = glm::vec3(0, 5, 0);
 		light[0].color = glm::vec3(1, 1, 1);
 		light[0].type = Light::DIRECTIONAL;
-		light[0].power = 0.3f;
+		light[0].power = 0.f;
 		light[0].kC = 1.f;
 		light[0].kL = 0.01f;
 		light[0].kQ = 0.001f;
@@ -46,7 +46,7 @@ void SceneHub::Init()
 		light[1].position = glm::vec3(0, 5, 0);
 		light[1].color = glm::vec3(1, 1, 1);
 		light[1].type = Light::POINT;
-		light[1].power = 0;
+		light[1].power = 2;
 		light[1].kC = 1.f;
 		light[1].kL = 0.01f;
 		light[1].kQ = 0.001f;
@@ -58,7 +58,7 @@ void SceneHub::Init()
 		light[2].position = glm::vec3(0, 5, 0);
 		light[2].color = glm::vec3(1, 1, 1);
 		light[2].type = Light::POINT;
-		light[2].power = 1;
+		light[2].power = 0;
 		light[2].kC = 1.f;
 		light[2].kL = 0.01f;
 		light[2].kQ = 0.001f;
@@ -70,7 +70,7 @@ void SceneHub::Init()
 		light[3].position = glm::vec3(0, 5, 0);
 		light[3].color = glm::vec3(1, 1, 1);
 		light[3].type = Light::POINT;
-		light[3].power = 1;
+		light[3].power = 0;
 		light[3].kC = 1.f;
 		light[3].kL = 0.01f;
 		light[3].kQ = 0.001f;
@@ -82,7 +82,7 @@ void SceneHub::Init()
 		light[4].position = glm::vec3(0, 5, 0);
 		light[4].color = glm::vec3(1, 1, 1);
 		light[4].type = Light::POINT;
-		light[4].power = 1;
+		light[4].power = 0;
 		light[4].kC = 1.f;
 		light[4].kL = 0.01f;
 		light[4].kQ = 0.001f;
@@ -94,7 +94,7 @@ void SceneHub::Init()
 		light[5].position = glm::vec3(0, 5, 0);
 		light[5].color = glm::vec3(1, 1, 1);
 		light[5].type = Light::POINT;
-		light[5].power = 1;
+		light[5].power = 0;
 		light[5].kC = 1.f;
 		light[5].kL = 0.01f;
 		light[5].kQ = 0.001f;
@@ -259,9 +259,29 @@ void SceneHub::Init()
 
 
 	worldObjects[0] = wall;
-
 	addPickables("Pepsi", glm::vec3(3, 1, 2));
 
+
+	int index = 0;
+
+	for (int x = -1; x < 2; x++) {
+		for (int z = -1; z < 2; z++) {
+			for (int i = 0; i < NUM_GRASSCLUMPS / 9; i++) {
+
+				glm::vec3 pos(
+					((rand() % 40000) - 20000) / 500.f,
+					0.f,
+					((rand() % 40000) - 20000) / 500.f
+				);
+
+				pos += glm::vec3(x * 40.f, 0.f, z * 40.f);
+
+				grassClumps[index++] = pos;
+			}
+		}
+	}
+
+	//
 	meshList_hub[GEO_TABLE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
 	meshList_hub[GEO_TABLE]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
 	meshList_hub[GEO_TABLE]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
@@ -287,6 +307,15 @@ void SceneHub::Init()
 void SceneHub::Update(double dt)
 {
 	BaseScene::Update(dt);
+
+	if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_M)) {
+		if (temp) {
+			temp = false;
+		}
+		else {
+			temp = true;
+		}
+	}
 
 	// name of interactive, I = interactive, coords
 	addInteractives("Enter Scene 2 (SceneHub)", 'I', glm::vec3(1, 0, 0));
@@ -314,7 +343,7 @@ void SceneHub::Update(double dt)
 			else if (interactives[interactedIndex] == "1") {
 				if (part == 0)
 				{
-					addPickables("Pepsi", glm::vec3(.5, 5, 0));
+					addPickables("Pepsi", glm::vec3(0, 5, 0));
 				}
 			}
 			else if (interactives[interactedIndex] == "2") {
@@ -580,12 +609,41 @@ void SceneHub::Render()
 			RenderMesh(meshList[GEO_FENCE], true);
 		}
 
+		glm::vec3 localCamPos = camera.position / 0.2f; // camera in local space
+
+		glm::vec3 forward = glm::normalize(camera.target - camera.position);
+		// forward direction is the same in both spaces since it's a uniform scale
+
+		glDepthMask(GL_FALSE);
+		for (auto& pos : grassClumps) {
+			glm::vec3 toGrass = pos - localCamPos;
+			float dist = glm::length(toGrass);
+			if (dist > 40.f) continue; // now in local space units, 20 = good draw distance
+
+			if (dist > 0.001f) {
+				float dot = glm::dot(forward, toGrass / dist);
+				if (dot < 0.25f) continue;
+			}
+
+			glm::vec3 dir = localCamPos - pos;
+			dir.y = 0.f;
+			float yaw = glm::degrees(atan2(dir.x, dir.z));
+
+			PushPop grass(modelStack);
+			modelStack.Translate(pos.x, pos.y, pos.z);
+			modelStack.Rotate(yaw, 0, 1, 0);
+			modelStack.Scale(3.f, 2.f, 3.f);
+			RenderMesh(meshList[GEO_GRASS], false);
+		}
+		glDepthMask(GL_TRUE);
+
 		for (int i = 0; i < NUM_TABLES; i++)
 		{
 			PushPop table(modelStack);
 			modelStack.Translate(Table[0].position.x, Table[i].position.y, Table[i].position.z);
 			glm::mat4 rotation = glm::mat4_cast(Table[i].orientation);
 			modelStack.MultMatrix(rotation);
+			modelStack.Scale(.67f, .67f, .67f);
 			RenderMesh(meshList_hub[GEO_TABLE], true);
 		}
 
@@ -611,11 +669,12 @@ void SceneHub::Render()
 			RenderMesh(meshList_hub[GEO_STALL], true);
 		}
 
-		{
-			PushPop fountain(modelStack);
-			modelStack.Translate(Fountain.position.x, Fountain.position.y, Fountain.position.z);
-			RenderMesh(meshList[GEO_FOUNTAIN], true);
-		}
+		//{
+		//	PushPop fountain(modelStack);
+		//	modelStack.Translate(Fountain.position.x, Fountain.position.y, Fountain.position.z);
+		//	modelStack.Scale(1.5f, 1.5f, 1.5f);
+		//	RenderMesh(meshList[GEO_FOUNTAIN], true);
+		//}
 
 		{
 			PushPop monkey(modelStack);
@@ -640,6 +699,28 @@ void SceneHub::Render()
 		meshList_hub[GEO_WALL]->material.kShininess = 1.0f;
 
 		RenderMesh(meshList_hub[GEO_WALL], true);
+	}
+
+	{
+		if (temp) {
+			for (int i = 0; i < TOTAL_PICKABLES; i++) {
+				if (pickables[i] != nullptr) {
+					PushPop yes(modelStack);
+					modelStack.Translate(pickables[i]->body.position.x, pickables[i]->body.position.y, pickables[i]->body.position.z);
+					glm::mat4 rotation = glm::mat4_cast(pickables[i]->body.orientation);
+					modelStack.MultMatrix(rotation);
+					modelStack.Scale(pickables[i]->body.boundingBox.getWidth(), pickables[i]->body.boundingBox.getHeight(), pickables[i]->body.boundingBox.getDepth());
+					//modelStack.Scale(5.f, 0.1f, 5.f);
+
+					meshList_hub[GEO_WALL]->material.kAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
+					meshList_hub[GEO_WALL]->material.kDiffuse = glm::vec3(1.0f, 1.0f, 1.0f);
+					meshList_hub[GEO_WALL]->material.kSpecular = glm::vec3(0.0f, 0.0f, 0.0f);
+					meshList_hub[GEO_WALL]->material.kShininess = 1.0f;
+
+					RenderMesh(meshList_hub[GEO_WALL], true);
+				}
+			}
+		}
 	}
 
 	{
@@ -706,6 +787,9 @@ void SceneHub::Render()
 
 	{
 		// Render Dialogue
+		std::cout << std::to_string(dialogueFadeHUD.getPosition().y) << std::endl;
+		RenderMeshOnScreen(meshList[GEO_DIALOGUEFADE_GUI], dialogueFadeHUD.getPosition().x, dialogueFadeHUD.getPosition().y, 1600, 900);
+
 		switch (part) {
 		case 0: // part 1
 			switch (phase) {
@@ -785,8 +869,9 @@ void SceneHub::RenderUI()
 			RenderTextOnScreen(meshList[GEO_VCROSDMONO_FONT], "Drop", glm::vec3(1, 1, 1), 15, 660, -320 + itemInHandHUD.getScale().y, 'R', .6f);
 		}
 
-		// Debug
-		RenderTextOnScreen(meshList[GEO_HOMEVIDEOBOLD_FONT], "PART: " + std::to_string(part) + " PHASE: " + std::to_string(phase), glm::vec3(1, 1, 1), 15, 0, 435, 'C', .6f);
+		// DEBUG
+		RenderTextOnScreen(meshList[GEO_HOMEVIDEOBOLD_FONT], "PART: " + std::to_string(part) + " PHASE: " + std::to_string(phase), glm::vec3(1, 1, 1), 15, 785, 435, 'R', .6f);
+		RenderTextOnScreen(meshList[GEO_HOMEVIDEOBOLD_FONT], "DT MULTIPLIER: " + std::to_string(dtMultiplier), glm::vec3(1, 1, 1), 15, 595, 435, 'R', .6f);
 	}
 
 	// Render EUI

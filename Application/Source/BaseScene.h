@@ -29,6 +29,9 @@ public:
 	{
 		GEO_AXES,
 
+		// OTHERS
+		GEO_GRASS,
+
 		// MODELS
 		GEO_BASEBALL,
 		GEO_CANSCOKE,
@@ -62,6 +65,7 @@ public:
 		GEO_INTERACTFADE_GUI,
 		GEO_CROSSHAIRTRANSLUCENT_GUI,
 		GEO_CROSSHAIROPAQUE_GUI,
+		GEO_DIALOGUEFADE_GUI,
 
 		GEO_ITEMINHANDFADE_GUI,
 		GEO_ITEMINHANDBORDER_GUI,
@@ -292,6 +296,7 @@ public:
 	AnimatedUIElement itemInHandHUD;
 	AnimatedUIElement sceneSwitchHUD;
 	AnimatedUIElement interactEUI;
+	AnimatedUIElement dialogueFadeHUD;
 	UIElement crosshair;
 
 	// DIALOGUE HANDLING
@@ -307,7 +312,7 @@ public:
 	PhysicsObject worldObjects[TOTAL_PHYSICSOBJECT];
 	Pickable* pickables[TOTAL_PICKABLES];
 
-	//common scene models
+	//common scene models -- REMOVE THIS BAD
 	PhysicsObject Fountain;
 
 	int projType = 1; // fix to 0 for orthographic, 1 for projection
@@ -315,6 +320,9 @@ public:
 
 	Light light[TOTAL_LIGHTS];
 	bool enableLight;
+
+	// DEBUG
+	float dtMultiplier;
 };
 
 #endif

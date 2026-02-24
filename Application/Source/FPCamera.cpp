@@ -12,6 +12,7 @@ FPCamera::FPCamera() : isDirty(false)
 	this->position = glm::vec3(0, 0, 0);
 	this->target = glm::vec3(0, 0, 0);
 	this->up = glm::vec3(0, 1, 0);
+	this->movementVector = glm::vec3(0);
 
 	glm::vec3 forward = glm::normalize(target - position);
 
@@ -33,6 +34,7 @@ void FPCamera::Init(glm::vec3 position, glm::vec3 target, glm::vec3 up)
 	this->position = position;
 	this->target = target;
 	this->up = up;
+	this->movementVector = glm::vec3(0);
 	this->isDirty = true;
 
 	// Reset rotation state
@@ -88,9 +90,11 @@ void FPCamera::Update(double dt)
 
 	//
 
+	movementVector = glm::normalize(input) * movementSpeed;
+
 	if (glm::length(input) > 0.001f) {
-		position += glm::normalize(input) * movementSpeed * static_cast<float>(dt);
-		target += glm::normalize(input) * movementSpeed * static_cast<float>(dt);
+		position += movementVector * static_cast<float>(dt);
+		target += movementVector * static_cast<float>(dt);
 	}
 
 	double deltaX = MouseController::GetInstance()->GetMouseDeltaX();

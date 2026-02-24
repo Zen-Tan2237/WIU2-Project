@@ -8,6 +8,7 @@ class SceneHub : public BaseScene
 public:
 	static const int NUM_TABLES = 2;
 	static const int NUM_STALLS = 4;
+    static const int NUM_GRASSCLUMPS = 4500;
 
     enum GEOMETRY_TYPE_HUB
     {
@@ -39,10 +40,13 @@ public:
     PhysicsObject Table[NUM_TABLES];
 	PhysicsObject Foodstand;
 	PhysicsObject Ferriswheel;
+    glm::vec3 grassClumps[NUM_GRASSCLUMPS];
 
     //debug
     glm::vec3 debugPos;
     float debugScale;
+
+    bool temp = false;
 
 };
 #endif
