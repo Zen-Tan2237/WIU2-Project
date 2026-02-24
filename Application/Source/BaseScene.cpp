@@ -287,17 +287,7 @@ void BaseScene::Init()
 	settings[1] = false;
 
 	for (int i = 0; i < TOTAL_PICKABLES; i++) {
-		pickables[i].name = "";
-		pickables[i].body.position = glm::vec3(0, 0, 0);
-		pickables[i].isHeld = false;
-
-		pickables[i].body.InitPhysicsObject(
-			glm::vec3(0, 0, 0),
-			1.0f, // mass = 0 (treated as static in impulses)
-			BoundingBox::Type::OBB,
-			glm::vec3(.5f, .5f, .1f),
-			settings
-		);
+		pickables[i] = nullptr;
 	}
 
 	noOfInteractives = 0;
@@ -438,6 +428,18 @@ void BaseScene::Update(double dt)
 		camera.Update(dt);
 	}
 
+	// set isHeld
+	for (int i = 0; i < TOTAL_PICKABLES; i++) {
+		if (pickables[i] != nullptr && itemInHand != nullptr) {
+			if (pickables[i] == itemInHand) {
+				pickables[i]->isHeld = true;
+			}
+			else {
+				pickables[i]->isHeld = false;
+			}
+		}
+	}
+
 	// COLLISIONS
 	cameraBody.position = camera.position;
 	cameraBody.velocity = glm::vec3(0.f);
@@ -454,11 +456,13 @@ void BaseScene::Update(double dt)
 	// Pickables - World Objects
 	for (int i = 0; i < TOTAL_PICKABLES; ++i) {
 		for (auto& obj : worldObjects) {
-			if (!pickables[i].isHeld) {
-				if (CheckCollision(pickables[i].body, obj, cd)) {
-					ResolveCollision(cd);
+			if (pickables[i] != nullptr) {
+				if (!pickables[i]->isHeld) {
+					if (CheckCollision(pickables[i]->body, obj, cd)) {
+						ResolveCollision(cd);
+					}
 				}
-			}	
+			}
 		}
 	}
 
@@ -475,8 +479,10 @@ void BaseScene::Update(double dt)
 	//cameraBody.UpdatePhysics(dt);
 
 	for (int i = 0; i < TOTAL_PICKABLES; ++i) {
-		if (!pickables[i].isHeld) {
-			pickables[i].body.UpdatePhysics(dt);
+		if (pickables[i] != nullptr) {
+			if (!pickables[i]->isHeld) {
+				pickables[i]->body.UpdatePhysics(dt);
+			}
 		}
 	}
 
@@ -1168,7 +1174,12 @@ void BaseScene::RenderUI()
 	glm::vec3 euiPos(0, 1000, 0);
 
 	for (int i = 0; i < noOfInteractives; i++) {
-		if (interactivesType[i] == 'I' || !pickables[interactivePickablesIndex[i]].isHeld) {
+		bool temp = interactivesType[i] == 'I';
+		if (!temp && pickables[interactivePickablesIndex[i]] != nullptr) {
+			temp = !pickables[interactivePickablesIndex[i]]->isHeld;
+		}
+
+		if (temp) {
 			euiPos = interactivesPos[i] + glm::vec3(0, 0.25f, 0);
 
 			glm::vec3 dir = camera.position - euiPos;
@@ -1279,15 +1290,16 @@ void BaseScene::addPickables(std::string name, glm::vec3 position)
 	int temp = -1;
 
 	for (int i = 0; i < TOTAL_PICKABLES; i++) {
-		if (pickables[i].name == "") {
-			pickables[i].body.ResetPhysicsProperties();
-			pickables[i].name = name;
-			pickables[i].isHeld = false;
+		if (pickables[i] == nullptr) {
+			pickables[i] = new Pickable;
+			pickables[i]->body.ResetPhysicsProperties();
+			pickables[i]->name = name;
+			pickables[i]->isHeld = false;
 
 			bool settings[2] = { true, false };
 
 			if (name == "Baseball") {
-				pickables[i].body.InitPhysicsObject(
+				pickables[i]->body.InitPhysicsObject(
 					position,
 					1.0f, // mass = 0 (treated as static in impulses)
 					BoundingBox::Type::SPHERE,
@@ -1296,7 +1308,7 @@ void BaseScene::addPickables(std::string name, glm::vec3 position)
 				);
 			}
 			else if (name == "Coke" || name == "Mountain Dew" || name == "Sprite" || name == "Pepsi") {
-				pickables[i].body.InitPhysicsObject(
+				pickables[i]->body.InitPhysicsObject(
 					position,
 					1.0f, // mass = 0 (treated as static in impulses)
 					BoundingBox::Type::OBB,
@@ -1322,9 +1334,8 @@ void BaseScene::addPickables(std::string name, glm::vec3 position)
 
 void BaseScene::removePickables(int index)
 {
-	pickables[index].name = "";
-	pickables[index].body.ResetPhysicsProperties();
-	pickables[index].isHeld = false;
+	delete pickables[index];
+	pickables[index] = nullptr;
 
 	noOfPickables--;
 }
@@ -1332,8 +1343,8 @@ void BaseScene::removePickables(int index)
 void BaseScene::initializePickablesInteractives()
 {
 	for (int i = 0; i < TOTAL_PICKABLES; i++) {
-		if (pickables[i].name != "") {
-			addInteractives(pickables[i].name, 'P', pickables[i].body.position, i);
+		if (pickables[i] != nullptr) {
+			addInteractives(pickables[i]->name, 'P', pickables[i]->body.position, i);
 		}
 	}
 }
@@ -1413,6 +1424,7 @@ void BaseScene::dropItemInHand(int amountToRemove)
 			addPickables(itemToDropName, placementPos);
 		}
 		else {
+			itemInHand->body.ResetPhysicsProperties();
 			itemInHand->body.position = placementPos;
 		}
 	}
@@ -1451,21 +1463,20 @@ void BaseScene::addItemInHand(int index)
 {
 	if (itemInHand == nullptr)
     {
-        itemInHand = &pickables[index];
-		pickables[index].isHeld = true;
+        itemInHand = pickables[index];
         amountOfItem = 1;
     }
-    else if (itemInHand->name == pickables[index].name)
+    else if (itemInHand->name == pickables[index]->name)
     {
 		removePickables(index);
         amountOfItem++;
     }
-    else {
-		dropItemInHand(amountOfItem);
-
-		itemInHand = &pickables[index];
-		pickables[index].isHeld = true;
+	else {
+		Pickable* newItem = pickables[index]; // save it first
+		dropItemInHand(amountOfItem);         // now safe to drop
+		itemInHand = newItem;                 // use saved pointer
 		amountOfItem = 1;
-		removePickables(amountOfItem);
-    }
+		// DON'T removePickables here - newItem is now itemInHand,
+		// isHeld will be set to true in Update, no need to remove it
+	}
 }

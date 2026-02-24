@@ -215,8 +215,7 @@ void SceneHub::Init()
 
 	// setup initial item in hand
 	addPickables("Baseball", glm::vec3(0, 0, 0));
-	itemInHand = &pickables[0];
-	pickables[0].isHeld = true;
+	itemInHand = pickables[0];
 	amountOfItem = 10;
 	previousItemInHandName = "";
 	itemInUse = false;
@@ -231,8 +230,6 @@ void SceneHub::Init()
 	bool miscSettings[2] = { false, false }; // for gravity and drag. override in case of specific objects
 	PhysicsObject wall;
 
-	miscSettings[0] = true; // disable gravity for wall
-	miscSettings[1] = true; // disable drag for wall
 	wall.InitPhysicsObject(glm::vec3(0, 0, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(1, 1, 1), 45, glm::vec3(1, 0, 0), miscSettings);
 
 	worldObjects[0] = wall;
@@ -322,35 +319,42 @@ void SceneHub::Render()
 				+ right * rightOffset
 				+ up * upOffset;
 
+			// Yaw: rotation around Y (horizontal)
+			float yaw = glm::degrees(atan2(forward.x, forward.z));
+
+			// Pitch: rotation around X (vertical)
+			float pitch = glm::degrees(asin(forward.y));
+
 			itemInHand->body.position = itemInHandPos;
+			itemInHand->body.SetOrientation(-pitch, yaw, 0);
 		}
 
 
 		// Render pickable items
 		for (int i = 0; i < TOTAL_PICKABLES; i++) {
-			if (pickables[i].name != "") {
+			if (pickables[i] != nullptr) {
 				modelStack.PushMatrix();
-				modelStack.Translate(pickables[i].body.position.x, pickables[i].body.position.y, pickables[i].body.position.z);
-				glm::mat4 rotation = glm::mat4_cast(pickables[i].body.orientation);
+				modelStack.Translate(pickables[i]->body.position.x, pickables[i]->body.position.y, pickables[i]->body.position.z);
+				glm::mat4 rotation = glm::mat4_cast(pickables[i]->body.orientation);
 				modelStack.MultMatrix(rotation);
 
-				if (pickables[i].name == "Baseball") {
+				if (pickables[i]->name == "Baseball") {
 					modelStack.Scale(0.15f, 0.15f, 0.15f);
 					RenderMesh(meshList[GEO_BASEBALL], enableLight);
 				}
-				else if (pickables[i].name == "Coke") {
+				else if (pickables[i]->name == "Coke") {
 					modelStack.Scale(0.15f, 0.15f, 0.15f);
 					RenderMesh(meshList[GEO_CANSCOKE], enableLight);
 				}
-				else if (pickables[i].name == "Mountain Dew") {
+				else if (pickables[i]->name == "Mountain Dew") {
 					modelStack.Scale(0.15f, 0.15f, 0.15f);
 					RenderMesh(meshList[GEO_CANSMTNDEW], enableLight);
 				}
-				else if (pickables[i].name == "Spite") {
+				else if (pickables[i]->name == "Spite") {
 					modelStack.Scale(0.15f, 0.15f, 0.15f);
 					RenderMesh(meshList[GEO_CANSSPRITE], enableLight);
 				}
-				else if (pickables[i].name == "Pepsi") {
+				else if (pickables[i]->name == "Pepsi") {
 					modelStack.Scale(0.15f, 0.15f, 0.15f);
 					RenderMesh(meshList[GEO_CANSPEPSI], enableLight);
 				}
