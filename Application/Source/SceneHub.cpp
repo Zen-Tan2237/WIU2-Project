@@ -314,7 +314,7 @@ void SceneHub::Update(double dt)
 	}
 
 	// name of interactive, I = interactive, coords
-	addInteractives("Enter Scene 2 (SceneHub)", 'I', glm::vec3(1, 0, 0));
+	addInteractives("Enter Scene 2 (Tilting Table)", 'I', glm::vec3(1, 0, 0));
 	addInteractives("1", 'I', glm::vec3(-1, 0, 0));
 	addInteractives("2", 'I', glm::vec3(0, 0, 1));
 	addInteractives("3", 'I', glm::vec3(0, 0, -1));
@@ -330,7 +330,7 @@ void SceneHub::Update(double dt)
 	if (interactedIndex != -1 && KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_F)) { // means got prompt, is close to and facing smth
 		if (interactivesType[interactedIndex] == 'I') { // its an interactive
 			// do it in actual scene instead
-			if (interactives[interactedIndex] == "Enter Scene 2 (SceneHub)" && nextScene == 0) {
+			if (interactives[interactedIndex] == "Enter Scene 2 (Tilting Table)" && nextScene == 0) {
 				nextScene = 2;
 				nextSceneDelay = 1.f;
 				sceneSwitchHUD.resetScale(glm::vec2(.25f));
@@ -373,7 +373,7 @@ void SceneHub::Update(double dt)
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_U)) {
 		debugPos.y -= 5.f * dt;
 	}
-	std::cout << "Debug Pos: " << debugPos.x << ", " << debugPos.y << ", " << debugPos.z << std::endl;
+	//std::cout << "Debug Pos: " << debugPos.x << ", " << debugPos.y << ", " << debugPos.z << std::endl;
 
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_M)) {
 		debugScale += 2.0f * dt;
@@ -381,7 +381,7 @@ void SceneHub::Update(double dt)
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_N)) {
 		debugScale -= 2.0f * dt;
 	}
-	std::cout << "Debug Scale: " << debugScale << std::endl;	
+	//std::cout << "Debug Scale: " << debugScale << std::endl;	
 
 	// Update grass density based on FPS
 	UpdateGrassDensity(dt);
