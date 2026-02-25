@@ -45,6 +45,12 @@ public:
 		GEO_FOUNTAIN,
 		GEO_MONKEY,
 
+		//scene models
+		GEO_STALL,
+		GEO_TABLE,
+		GEO_FOODSTAND,
+		GEO_FERRISWHEEL,
+
 		//pickables
 		GEO_FIGURINE,
 		GEO_PIG,
