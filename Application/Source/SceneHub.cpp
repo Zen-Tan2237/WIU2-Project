@@ -254,13 +254,13 @@ void SceneHub::Init()
 	worldObjects[4].InitPhysicsObject(glm::vec3(-6, 0.9f, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(2.5f, 1.8f, 1.7f), 0, glm::vec3(0, 1, 0), miscSettings);
 
 	//tables
-	worldObjects[5].InitPhysicsObject(glm::vec3(-3, 0, 3.6f), 0.f, BoundingBox::Type::OBB, glm::vec3(2.2f, 1.5f, 2.2f), 50, glm::vec3(0, 1, 0), miscSettings);
+	worldObjects[5].InitPhysicsObject(glm::vec3(-3, 0, 3.6f), 0.f, BoundingBox::Type::OBB, glm::vec3(1.8f, 1.f, 1.8f), 50, glm::vec3(0, 1, 0), miscSettings);
 
 	//ferris wheel
-	worldObjects[6].InitPhysicsObject(glm::vec3(-10, 0, -7), 0.f, BoundingBox::Type::OBB, glm::vec3(10.f, 9.f, 5.f), 45, glm::vec3(0, 1, 0), miscSettings);
+	worldObjects[6].InitPhysicsObject(glm::vec3(-10, 0, -7), 0.f, BoundingBox::Type::OBB, glm::vec3(10.f, 5.f, 5.f), 45, glm::vec3(0, 1, 0), miscSettings);
 
 	//food stand
-	worldObjects[7].InitPhysicsObject(glm::vec3(-3.6, 0.5f, 5), 0.f, BoundingBox::Type::OBB, glm::vec3(2.2f, 1.f, 1.92f), -15, glm::vec3(0, 1, 0), miscSettings);
+	worldObjects[7].InitPhysicsObject(glm::vec3(-3.6, 0.5f, 5), 0.f, BoundingBox::Type::OBB, glm::vec3(1.5f, 0.5f, 1.3f), -15, glm::vec3(0, 1, 0), miscSettings);
 
 	addPickables("Pepsi", glm::vec3(3, 1, 2));
 

@@ -1,14 +1,14 @@
 
-#ifndef SCENE_TILTING_TABLE_H
-#define SCENE_TILTING_TABLE_H
+#ifndef SCENE_RISE_TOP_H
+#define SCENE_RISE_TOP_H
 
 #include "BaseScene.h"
-class SceneTiltingTable : public BaseScene
+class SceneRiseTop : public BaseScene
 {
 public:
     static const int NUM_GRASSCLUMPS = 9000;
 
-    enum GEOMETRY_TYPE_TILTING_TABLE
+    enum GEOMETRY_TYPE_RISE_TOP
     {
         //debug
         GEO_WALL,
@@ -20,8 +20,8 @@ public:
         NUM_GEOMETRY,
     };
 
-    SceneTiltingTable();
-    ~SceneTiltingTable();
+    SceneRiseTop();
+    ~SceneRiseTop();
     void Init() override;
     void Update(double dt) override;
     void Render() override;

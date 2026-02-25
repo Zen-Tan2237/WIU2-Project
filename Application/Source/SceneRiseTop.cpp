@@ -8,7 +8,7 @@
 //Include GLFW
 #include <GLFW/glfw3.h>
 
-#include "SceneTiltingTable.h"
+#include "SceneRiseTop.h"
 #include "MeshBuilder.h"
 #include <iostream>
 #include "LoadTGA.h"
@@ -17,15 +17,15 @@
 #include "MouseController.h"
 #include "CollisionDetection.h"
 
-SceneTiltingTable::SceneTiltingTable()
+SceneRiseTop::SceneRiseTop()
 {
 }
 
-SceneTiltingTable::~SceneTiltingTable()
+SceneRiseTop::~SceneRiseTop()
 {
 }
 
-void SceneTiltingTable::Init()
+void SceneRiseTop::Init()
 {
 	BaseScene::Init();
 
@@ -264,7 +264,7 @@ void SceneTiltingTable::Init()
 
 }
 
-void SceneTiltingTable::Update(double dt)
+void SceneRiseTop::Update(double dt)
 {
 	BaseScene::Update(dt);
 
@@ -350,7 +350,7 @@ void SceneTiltingTable::Update(double dt)
 	UpdateGrassDensity(dt);
 }
 
-void SceneTiltingTable::Render()
+void SceneRiseTop::Render()
 {
 	// Clear color buffer every frame
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -734,7 +734,7 @@ void SceneTiltingTable::Render()
 	RenderUI();
 }
 
-void SceneTiltingTable::RenderUI()
+void SceneRiseTop::RenderUI()
 {
 	{
 		// Render GUI
@@ -864,12 +864,12 @@ void SceneTiltingTable::RenderUI()
 	}
 }
 
-void SceneTiltingTable::Exit()
+void SceneRiseTop::Exit()
 {
 	BaseScene::Exit();
 }
 
-void SceneTiltingTable::RegenerateGrassPositions()
+void SceneRiseTop::RegenerateGrassPositions()
 {
 	int index = 0;
 	int targetCount = static_cast<int>(NUM_GRASSCLUMPS * grassDensityMultiplier);
@@ -895,7 +895,7 @@ void SceneTiltingTable::RegenerateGrassPositions()
 	activeGrassCount = index;
 }
 
-void SceneTiltingTable::UpdateGrassDensity(double dt)
+void SceneRiseTop::UpdateGrassDensity(double dt)
 {
 	float smoothingFactor = 0.7f;
 	fpsSmoothed = fpsSmoothed * (1.0f - smoothingFactor) + currentFPS * smoothingFactor;

@@ -179,7 +179,7 @@
     <ClCompile Include="Source\SceneKnockdown.cpp" />
     <ClCompile Include="Source\SceneTester.cpp" />
     <ClCompile Include="Source\SceneTexture.cpp" />
-    <ClCompile Include="Source\SceneTiltingTable.cpp" />
+    <ClCompile Include="Source\SceneRiseTop.cpp" />
     <ClCompile Include="Source\shader.cpp" />
     <ClCompile Include="Source\UIElement.cpp" />
   </ItemGroup>
@@ -209,7 +209,7 @@
     <ClInclude Include="Source\SceneKnockdown.h" />
     <ClInclude Include="Source\SceneTester.h" />
     <ClInclude Include="Source\SceneTexture.h" />
-    <ClInclude Include="Source\SceneTiltingTable.h" />
+    <ClInclude Include="Source\SceneRiseTop.h" />
     <ClInclude Include="Source\shader.hpp" />
     <ClInclude Include="Source\UIElement.h" />
     <ClInclude Include="Source\Vertex.h" />

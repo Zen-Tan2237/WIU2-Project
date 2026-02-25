@@ -12,7 +12,7 @@
 #include <stdlib.h>
 
 #include "SceneHub.h"
-#include "SceneTiltingTable.h"
+#include "SceneRiseTop.h"
 #include "SceneFPCamera.h"
 #include "SceneKnockdown.h"
 
@@ -27,7 +27,6 @@
 //debug
 #include "SceneTester.h"
 #include "BaseScene.h"
-#include "SceneTiltingTable.h"
 
 GLFWwindow* m_window;
 const unsigned char FPS = 120; // FPS of this game
@@ -157,7 +156,7 @@ void Application::Run()
 {
 	//Main Loop
 	Scene* scene1 = new SceneHub(); 
-	Scene* scene2 = new SceneTiltingTable();
+	Scene* scene2 = new SceneRiseTop();
 	Scene* scene3 = new SceneTester();
 	Scene* scene4 = new SceneKnockdown();
 	//Scene* scene5 = new Scene5();
