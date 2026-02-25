@@ -229,7 +229,7 @@ void SceneHub::Init()
 	meshList_hub[GEO_FERRISWHEEL]->textureID = LoadTGA("Textures//FerrisWheel.tga");
 
 	// setup initial item in hand
-	addPickables("RTX 5090", glm::vec3(0, 0, 0));
+	addPickables("Figurine", glm::vec3(0, 0, 0));
 	itemInHand = pickables[0];
 	amountOfItem = 10;
 	previousItemInHandName = "";
@@ -245,7 +245,7 @@ void SceneHub::Init()
 	bool miscSettings[2] = { false, false }; // for gravity and drag. override in case of specific objects
 
 	// Floor
-	//worldObjects[0].InitPhysicsObject(glm::vec3(0, 0, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(999, 1, 999), 0, glm::vec3(1, 0, 0), miscSettings);
+	worldObjects[0].InitPhysicsObject(glm::vec3(0, -.5f, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(200, 1, 200), 180, glm::vec3(1, 0, 0), miscSettings);
 
 	//stalls
 	worldObjects[1].InitPhysicsObject(glm::vec3(30, 4.5f, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(8.f, 9.f, 8.5f), 180, glm::vec3(0, 1, 0), miscSettings);
@@ -666,23 +666,6 @@ void SceneHub::Render()
 			modelStack.Rotate(-90, 0.f, 1.f, 0.f);
 			RenderMesh(meshList[GEO_MONKEY], true);
 		}
-	}
-
-
-	{
-		PushPop wallGuard(modelStack);
-		modelStack.Translate(worldObjects[0].position.x, worldObjects[0].position.y, worldObjects[0].position.z);
-		glm::mat4 rotation = glm::mat4_cast(worldObjects[0].orientation);
-		modelStack.MultMatrix(rotation);
-		modelStack.Scale(worldObjects[0].boundingBox.getWidth(), worldObjects[0].boundingBox.getHeight(), worldObjects[0].boundingBox.getDepth());
-		//modelStack.Scale(5.f, 0.1f, 5.f);
-
-		meshList_hub[GEO_WALL]->material.kAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
-		meshList_hub[GEO_WALL]->material.kDiffuse = glm::vec3(1.0f, 1.0f, 1.0f);
-		meshList_hub[GEO_WALL]->material.kSpecular = glm::vec3(0.0f, 0.0f, 0.0f);
-		meshList_hub[GEO_WALL]->material.kShininess = 1.0f;
-
-		RenderMesh(meshList_hub[GEO_WALL], true);
 	}
 
 	{
