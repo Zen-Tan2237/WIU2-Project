@@ -232,6 +232,18 @@ void BaseScene::Init()
 	meshList[GEO_MONKEY] = MeshBuilder::GenerateOBJ("monkey", "Models//Monkey.obj");
 	meshList[GEO_MONKEY]->textureID = LoadTGA("Textures//Monke.tga");
 
+	meshList[GEO_STALL] = MeshBuilder::GenerateOBJ("stall", "Models//minigame_Stall.obj");
+	meshList[GEO_STALL]->textureID = LoadTGA("Textures//minigameStall.tga");
+
+	meshList[GEO_TABLE] = MeshBuilder::GenerateOBJ("table", "Models//table.obj");
+	meshList[GEO_TABLE]->textureID = LoadTGA("Textures//table.tga");
+
+	meshList[GEO_FOODSTAND] = MeshBuilder::GenerateOBJ("foodstand", "Models//Hot_Dog_Stand.obj");
+	meshList[GEO_FOODSTAND]->textureID = LoadTGA("Textures//Hotdog.tga");
+
+	meshList[GEO_FERRISWHEEL] = MeshBuilder::GenerateOBJ("ferriswheel", "Models//FerrisWheel.obj");
+	meshList[GEO_FERRISWHEEL]->textureID = LoadTGA("Textures//FerrisWheel.tga");
+
 	//pickables
 	meshList[GEO_FIGURINE] = MeshBuilder::GenerateOBJ("figurine", "Models//Figurine.obj");
 	meshList[GEO_FIGURINE]->textureID = LoadTGA("Textures//Figurine.tga");
@@ -459,6 +471,26 @@ void BaseScene::Init()
 	meshList[GEO_5090]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
 	meshList[GEO_5090]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
 	meshList[GEO_5090]->material.kShininess = 1.0f;
+
+	meshList[GEO_TABLE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	meshList[GEO_TABLE]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
+	meshList[GEO_TABLE]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+	meshList[GEO_TABLE]->material.kShininess = 1.0f;
+
+	meshList[GEO_FOODSTAND]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	meshList[GEO_FOODSTAND]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
+	meshList[GEO_FOODSTAND]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+	meshList[GEO_FOODSTAND]->material.kShininess = 1.0f;
+
+	meshList[GEO_FERRISWHEEL]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	meshList[GEO_FERRISWHEEL]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
+	meshList[GEO_FERRISWHEEL]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+	meshList[GEO_FERRISWHEEL]->material.kShininess = 1.0f;
+
+	meshList[GEO_STALL]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	meshList[GEO_STALL]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
+	meshList[GEO_STALL]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+	meshList[GEO_STALL]->material.kShininess = 1.0f;
 }
 
 void BaseScene::Update(double dt)

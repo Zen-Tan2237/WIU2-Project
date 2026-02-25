@@ -14,12 +14,6 @@ public:
         GEO_WALL,
         GEO_SPHERE,
 
-        //scene models
-        GEO_STALL,
-        GEO_TABLE,
-        GEO_FOODSTAND,
-        GEO_FERRISWHEEL,
-
         NUM_GEOMETRY,
     };
 

@@ -13,9 +13,6 @@
     <ClCompile Include="Source\SceneTexture.cpp">
       <Filter>Scenes</Filter>
     </ClCompile>
-    <ClCompile Include="Source\SceneTiltingTable.cpp">
-      <Filter>Scenes</Filter>
-    </ClCompile>
     <ClCompile Include="Source\AltAzCamera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -79,6 +76,9 @@
     <ClCompile Include="Source\SceneKnockdown.cpp">
       <Filter>Scenes</Filter>
     </ClCompile>
+    <ClCompile Include="Source\SceneRiseTop.cpp">
+      <Filter>Scenes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\SceneFPCamera.h">
@@ -91,9 +91,6 @@
       <Filter>Scenes</Filter>
     </ClInclude>
     <ClInclude Include="Source\SceneTexture.h">
-      <Filter>Scenes</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\SceneTiltingTable.h">
       <Filter>Scenes</Filter>
     </ClInclude>
     <ClInclude Include="Source\AltAzCamera.h">
@@ -166,6 +163,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\SceneKnockdown.h">
+      <Filter>Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\SceneRiseTop.h">
       <Filter>Scenes</Filter>
     </ClInclude>
   </ItemGroup>
