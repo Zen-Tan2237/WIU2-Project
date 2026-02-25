@@ -18,9 +18,17 @@
 
 
 
+--- ACCESSING AUDIO ENGINE ---
+1) Access with:
+    AudioManager::Instance()
+Call functions like SoundPlay and SoundStop from the instance. Sounds need to be initialized first (see GUIDE TO ADDING SFX)
+    AudioManager::Instance().SoundPlay("sound")
+
+
+
 --- GUIDE ON PLAYING SFX ---
 1) Sounds do not automatically start from the beginning of the file. 
-   Use SoundSeek on sound to return to start, or specify a value in seconds
+Use SoundSeek on sound to return to start, or specify a value in seconds
 2) Use SoundPlay to start playing a sound
 3) Use SoundStop to stop playing
 
@@ -49,6 +57,7 @@ public:
 
 
     bool LoadSound(const std::string& name, const std::string& path); // Load a sound file by name
+    bool SetSoundVolume(const std::string& name, float volume);
     
     // Play a loaded sound (does NOT rewind automatically)
     //  Overload to seek+play in one function call
@@ -61,6 +70,8 @@ public:
     void SoundSeek(const std::string& name, unsigned frameStart = 0);
 
     void SoundStop(const std::string& name); // Stop sound
+
+    void SetLooping(const std::string& name, bool loop);
 
 
 

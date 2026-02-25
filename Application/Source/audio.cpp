@@ -47,8 +47,24 @@ bool AudioManager::LoadSound(const std::string& name, const std::string& path)
     if (resultSound != MA_SUCCESS)
     {
         sounds.erase(it);
+        std::cout << "Failed to load sound: " << name << "\nError code " << resultSound << std::endl;
         return false;
     }
+
+    return true;
+}
+
+bool AudioManager::SetSoundVolume(const std::string& name, float volume)
+{
+    auto it = sounds.find(name);
+
+    if (it == sounds.end())
+    {
+        std::cout << "SetSoundVolume failed: sound not found: " << name << std::endl;
+        return false;
+    }
+
+    ma_sound_set_volume(&it->second, volume);
 
     return true;
 }
@@ -102,6 +118,15 @@ void AudioManager::SoundStop(const std::string& name)
     if (it != sounds.end())
     {
         ma_sound_stop(&it->second);
+    }
+}
+
+void AudioManager::SetLooping(const std::string& name, bool loop)
+{
+    auto it = sounds.find(name);
+    if (it != sounds.end())
+    {
+        ma_sound_set_looping(&it->second, loop ? MA_TRUE : MA_FALSE);
     }
 }
 
