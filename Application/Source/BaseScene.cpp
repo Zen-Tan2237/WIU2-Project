@@ -753,14 +753,10 @@ void BaseScene::HandleKeyPress(double dt)
 
 	// HOLD ITEM HANDLER
 	if (itemInHand != nullptr) {
-		if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_E))
+		if (MouseController::GetInstance()->IsButtonPressed(0) && !itemInUse)
 		{
-			if (itemInUse) {
-				itemInUse = false;
-			}
-			else {
-				itemInUse = true;
-			}
+			itemInUse = true;
+			useItemInHand();
 		}
 
 		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_X))
@@ -1401,5 +1397,19 @@ void BaseScene::addItemInHand(int index)
 		dropItemInHand(amountOfItem);
 		itemInHand = newItem;
 		amountOfItem = 1;
+	}
+}
+
+void BaseScene::useItemInHand()
+{
+	if (itemInHand != nullptr) {
+		if (itemInHand->name == "Baseball") {
+			itemInHand->isHeld = false;
+
+
+			glm::vec3 forward = glm::normalize(camera.target - camera.position);
+
+			itemInHand->body.AddImpulse(glm::vec3((forward * 25.f) - itemInHand->body.position));
+		}
 	}
 }

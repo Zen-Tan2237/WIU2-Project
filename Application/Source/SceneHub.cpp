@@ -229,7 +229,7 @@ void SceneHub::Init()
 	meshList_hub[GEO_FERRISWHEEL]->textureID = LoadTGA("Textures//FerrisWheel.tga");
 
 	// setup initial item in hand
-	addPickables("RTX 5090", glm::vec3(0, 0, 0));
+	addPickables("Baseball", glm::vec3(0, 0, 0));
 	itemInHand = pickables[0];
 	amountOfItem = 10;
 	previousItemInHandName = "";
@@ -315,11 +315,11 @@ void SceneHub::Update(double dt)
 
 	// name of interactive, I = interactive, coords
 	addInteractives("Enter Scene 2 (Tilting Table)", 'I', glm::vec3(1, 0, 0));
-	addInteractives("1", 'I', glm::vec3(-1, 0, 0));
-	addInteractives("2", 'I', glm::vec3(0, 0, 1));
-	addInteractives("3", 'I', glm::vec3(0, 0, -1));
+	addInteractives("Enter Scene 100 (SceneTester)", 'I', glm::vec3(-1, 0, 0));
+	addInteractives("1", 'I', glm::vec3(0, 0, 1));
+	addInteractives("2", 'I', glm::vec3(0, 0, -1));
 
-	addInteractives("4", 'I', glm::vec3(0.f, 1.f, 0.f));
+	addInteractives("3", 'I', glm::vec3(0.f, 1.f, 0.f));
 
 	//addPickables("Halal Pork", glm::vec3(0, 0, 0));
 	initializePickablesInteractives();
@@ -348,8 +348,11 @@ void SceneHub::Update(double dt)
 			else if (interactives[interactedIndex] == "3") {
 				// do something
 			}
-			else if (interactives[interactedIndex] == "4") {
-				// do something
+			else if (interactives[interactedIndex] == "Enter Scene 100 (SceneTester)") {
+				nextScene = 3;
+				nextSceneDelay = 1.f;
+				sceneSwitchHUD.resetScale(glm::vec2(.25f));
+				sceneSwitchHUD.setTargetScale(glm::vec2(1.f));
 			}
 		}
 	}
