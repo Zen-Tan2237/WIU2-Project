@@ -229,7 +229,7 @@ void SceneHub::Init()
 	meshList_hub[GEO_FERRISWHEEL]->textureID = LoadTGA("Textures//FerrisWheel.tga");
 
 	// setup initial item in hand
-	addPickables("Figurine", glm::vec3(0, 0, 0));
+	addPickables("RTX 5090", glm::vec3(0, 0, 0));
 	itemInHand = pickables[0];
 	amountOfItem = 10;
 	previousItemInHandName = "";

@@ -1220,7 +1220,7 @@ void BaseScene::addPickables(std::string name, glm::vec3 position)
 			if (name == "Baseball") {
 				pickables[i]->body.InitPhysicsObject(
 					position,
-					25.0f,
+					5.0f,
 					BoundingBox::Type::SPHERE,
 					glm::vec3(.07f, .07f, .07f),
 					settings
@@ -1229,7 +1229,7 @@ void BaseScene::addPickables(std::string name, glm::vec3 position)
 			else if (name == "Coke" || name == "Mountain Dew" || name == "Sprite" || name == "Pepsi") {
 				pickables[i]->body.InitPhysicsObject(
 					position,
-					25.0f,
+					5.0f,
 					BoundingBox::Type::OBB,
 					glm::vec3(.09f, .18f, .09f),
 					settings
@@ -1238,7 +1238,7 @@ void BaseScene::addPickables(std::string name, glm::vec3 position)
 			else if (pickables[i]->name == "Figurine") {
 				pickables[i]->body.InitPhysicsObject(
 					position,
-					25.0f,
+					5.0f,
 					BoundingBox::Type::OBB,
 					glm::vec3(.11f, .19f, .11f),
 					settings
@@ -1247,7 +1247,7 @@ void BaseScene::addPickables(std::string name, glm::vec3 position)
 			else if (pickables[i]->name == "Halal Pork") {
 				pickables[i]->body.InitPhysicsObject(
 					position,
-					25.0f,
+					5.0f,
 					BoundingBox::Type::OBB,
 					glm::vec3(.09f, .15f, .17f),
 					settings
@@ -1256,7 +1256,7 @@ void BaseScene::addPickables(std::string name, glm::vec3 position)
 			else if (pickables[i]->name == "Plushie") {
 				pickables[i]->body.InitPhysicsObject(
 					position,
-					25.0f,
+					5.0f,
 					BoundingBox::Type::OBB,
 					glm::vec3(.11f, .13f, .05f),
 					settings
@@ -1265,7 +1265,7 @@ void BaseScene::addPickables(std::string name, glm::vec3 position)
 			else if (pickables[i]->name == "RTX 5090") {
 				pickables[i]->body.InitPhysicsObject(
 					position,
-					25.0f,
+					5.0f,
 					BoundingBox::Type::OBB,
 					glm::vec3(.52f, .3f, .18f),
 					settings
