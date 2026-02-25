@@ -168,7 +168,8 @@ void SceneTester::Init()
 
 	// init sound pop
 	AudioManager::Instance().LoadSound("pop", "SFX/244657__dsg__pop-5.flac");
-
+	AudioManager::Instance().LoadSound("whoosh", "SFX/384908__ali_6868__arrow-whoosh-1.wav");
+	AudioManager::Instance().LoadSound("arrowHit", "SFX/708223__mythmazter__arrow_hit_1.wav");
 
 }
 
@@ -544,7 +545,12 @@ void SceneTester::HandleKeyPress()
 
 	if (KeyboardController::GetInstance()->IsKeyPressed('Y')) { // test key to play pop sound
 		AudioManager::Instance().SoundPlay("pop");
-
+	}
+	if (KeyboardController::GetInstance()->IsKeyPressed('N')) { // test key to play pop sound
+		AudioManager::Instance().SoundPlay("whoosh", 0.07f);
+	}
+	if (KeyboardController::GetInstance()->IsKeyPressed('M')) { // test key to play pop sound
+		AudioManager::Instance().SoundPlay("arrowHit", 0.411f);
 	}
 
 }
