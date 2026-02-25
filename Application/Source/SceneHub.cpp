@@ -872,6 +872,7 @@ void SceneHub::RenderUI()
 		RenderTextOnScreen(meshList[GEO_HOMEVIDEOBOLD_FONT], "PART: " + std::to_string(part) + " PHASE: " + std::to_string(phase), glm::vec3(1, 1, 1), 15, 785, 435, 'R', .6f);
 		RenderTextOnScreen(meshList[GEO_HOMEVIDEOBOLD_FONT], "DT MULTIPLIER: " + std::to_string(dtMultiplier), glm::vec3(1, 1, 1), 15, 595, 435, 'R', .6f);
 		RenderTextOnScreen(meshList[GEO_HOMEVIDEOBOLD_FONT], "ACTIVE GRASS COUNT: " + std::to_string(activeGrassCount), glm::vec3(1, 1, 1), 15, 375, 435, 'R', .6f);
+		RenderTextOnScreen(meshList[GEO_HOMEVIDEOBOLD_FONT], "FPS: " + std::to_string(currentFPS), glm::vec3(1, 1, 1), 15, 140, 435, 'R', .6f);
 	}
 
 	// Render EUI
@@ -975,8 +976,6 @@ void SceneHub::RegenerateGrassPositions()
 
 void SceneHub::UpdateGrassDensity(double dt)
 {
-	float currentFPS = static_cast<float>(1.0 / dt);
-
 	float smoothingFactor = 0.7f;
 	fpsSmoothed = fpsSmoothed * (1.0f - smoothingFactor) + currentFPS * smoothingFactor;
 

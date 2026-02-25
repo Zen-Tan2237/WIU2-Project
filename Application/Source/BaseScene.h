@@ -323,6 +323,7 @@ public:
 
 	// DEBUG
 	float dtMultiplier;
+	float currentFPS;
 };
 
 #endif

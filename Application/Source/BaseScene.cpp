@@ -458,6 +458,8 @@ void BaseScene::Init()
 void BaseScene::Update(double dt)
 {
 	// DEBUG
+	currentFPS = static_cast<float>(1.0 / dt);
+
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_Q)) {
 		dtMultiplier -= 0.005f;
 	}
@@ -654,8 +656,7 @@ void BaseScene::Update(double dt)
 	}
 
 	// FPS
-	float temp = 1.f / dt;
-	fps = glm::round(temp * 100.f) / 100.f;
+	fps = glm::round(currentFPS * 100.f) / 100.f;
 }
 
 void BaseScene::Render()
