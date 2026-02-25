@@ -6,8 +6,6 @@
 class SceneHub : public BaseScene
 {
 public:
-	static const int NUM_TABLES = 1;
-	static const int NUM_STALLS = 4;
     static const int NUM_GRASSCLUMPS = 9000;
 
     enum GEOMETRY_TYPE_HUB
@@ -34,12 +32,6 @@ public:
     void Exit() override;
 
     Mesh* meshList_hub[NUM_GEOMETRY];
-
-    //physics objects
-    PhysicsObject Stall[NUM_STALLS];
-    PhysicsObject Table[NUM_TABLES];
-	PhysicsObject Foodstand;
-	PhysicsObject Ferriswheel;
 
     // Grass density management
     int activeGrassCount;
