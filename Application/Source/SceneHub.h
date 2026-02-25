@@ -6,7 +6,7 @@
 class SceneHub : public BaseScene
 {
 public:
-	static const int NUM_TABLES = 2;
+	static const int NUM_TABLES = 1;
 	static const int NUM_STALLS = 4;
     static const int NUM_GRASSCLUMPS = 9000;
 
