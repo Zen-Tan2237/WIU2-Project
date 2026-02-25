@@ -28,7 +28,7 @@ void AudioManager::Shutdown()
     ma_engine_uninit(&engine);
 }
 
-bool AudioManager::LoadSound(const std::string& name, const std::string& path)
+bool AudioManager::LoadSound(const std::string& name, const std::string& path, bool stream)
 {
     if (sounds.find(name) != sounds.end())
         return true;
@@ -41,14 +41,35 @@ bool AudioManager::LoadSound(const std::string& name, const std::string& path)
     if (!inserted)
         return false;
 
+    ma_uint32 flags = 0;
+    if (stream)
+        flags |= MA_SOUND_FLAG_STREAM;
+
+
     ma_result resultSound = ma_sound_init_from_file(&engine, path.c_str(), 0, NULL, NULL, &it->second); // initialize directly in map
         
 
     if (resultSound != MA_SUCCESS)
     {
         sounds.erase(it);
+        std::cout << "Failed to load sound: " << name << "\nError code " << resultSound << std::endl;
         return false;
     }
+
+    return true;
+}
+
+bool AudioManager::SetSoundVolume(const std::string& name, float volume)
+{
+    auto it = sounds.find(name);
+
+    if (it == sounds.end())
+    {
+        std::cout << "SetSoundVolume failed: sound not found: " << name << std::endl;
+        return false;
+    }
+
+    ma_sound_set_volume(&it->second, volume);
 
     return true;
 }
@@ -102,6 +123,15 @@ void AudioManager::SoundStop(const std::string& name)
     if (it != sounds.end())
     {
         ma_sound_stop(&it->second);
+    }
+}
+
+void AudioManager::SetLooping(const std::string& name, bool loop)
+{
+    auto it = sounds.find(name);
+    if (it != sounds.end())
+    {
+        ma_sound_set_looping(&it->second, loop ? MA_TRUE : MA_FALSE);
     }
 }
 
