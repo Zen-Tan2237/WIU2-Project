@@ -243,21 +243,26 @@ void SceneHub::Init()
 
 	// world objects
 	bool miscSettings[2] = { false, false }; // for gravity and drag. override in case of specific objects
-	PhysicsObject wall;
 
-	wall.InitPhysicsObject(glm::vec3(0, 0, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(1, 1, 1), 45, glm::vec3(1, 0, 0), miscSettings);
+	// Floor
+	//worldObjects[0].InitPhysicsObject(glm::vec3(0, 0, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(999, 1, 999), 0, glm::vec3(1, 0, 0), miscSettings);
 
-	Stall[0].InitPhysicsObject(glm::vec3(-30, 4.5f, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(8.f, 9.f, 8.5f), 0, glm::vec3(0, 1, 0), miscSettings);
-	Stall[1].InitPhysicsObject(glm::vec3(30, 4.5f, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(8.f, 9.f, 8.5f), 180, glm::vec3(0, 1, 0), miscSettings);
-	Stall[2].InitPhysicsObject(glm::vec3(0, 4.5f, -30), 0.f, BoundingBox::Type::OBB, glm::vec3(8.f, 9.f, 8.5f), -90, glm::vec3(0, 1, 0), miscSettings);
-	Stall[3].InitPhysicsObject(glm::vec3(0, 4.5f, 30), 0.f, BoundingBox::Type::OBB, glm::vec3(8.f, 9.f, 8.5f), 90, glm::vec3(0, 1, 0), miscSettings);
+	//stalls
+	worldObjects[1].InitPhysicsObject(glm::vec3(30, 4.5f, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(8.f, 9.f, 8.5f), 180, glm::vec3(0, 1, 0), miscSettings);
+	worldObjects[2].InitPhysicsObject(glm::vec3(0, 4.5f, -30), 0.f, BoundingBox::Type::OBB, glm::vec3(8.f, 9.f, 8.5f), -90, glm::vec3(0, 1, 0), miscSettings);
+	worldObjects[3].InitPhysicsObject(glm::vec3(0, 4.5f, 30), 0.f, BoundingBox::Type::OBB, glm::vec3(8.f, 9.f, 8.5f), 90, glm::vec3(0, 1, 0), miscSettings);
+	worldObjects[4].InitPhysicsObject(glm::vec3(-30, 4.5f, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(8.f, 9.f, 8.5f), 0, glm::vec3(0, 1, 0), miscSettings);
 
-	Table[0].InitPhysicsObject(glm::vec3(-15, 0, 18), 0.f, BoundingBox::Type::OBB, glm::vec3(5.f, 2.5f, 5.f), 50, glm::vec3(0, 1, 0), miscSettings);
+	//tables
+	worldObjects[5].InitPhysicsObject(glm::vec3(-15, 0, 18), 0.f, BoundingBox::Type::OBB, glm::vec3(5.f, 2.5f, 5.f), 50, glm::vec3(0, 1, 0), miscSettings);
 
-	Ferriswheel.InitPhysicsObject(glm::vec3(-40, 0, -35), 0.f, BoundingBox::Type::OBB, glm::vec3(50.f, 45.f, 40.f), 45, glm::vec3(0, 1, 0), miscSettings);
+	//ferris wheel
+	worldObjects[6].InitPhysicsObject(glm::vec3(-40, 0, -35), 0.f, BoundingBox::Type::OBB, glm::vec3(50.f, 45.f, 40.f), 45, glm::vec3(0, 1, 0), miscSettings);
+
+	//food stand
+	worldObjects[7].InitPhysicsObject(glm::vec3(-18, 2.5f, 25), 0.f, BoundingBox::Type::OBB, glm::vec3(20.f, 15.f, 20.f), -15, glm::vec3(0, 1, 0), miscSettings);
 
 
-	worldObjects[0] = wall;
 	addPickables("Pepsi", glm::vec3(3, 1, 2));
 
 
@@ -349,25 +354,6 @@ void SceneHub::Update(double dt)
 		}
 	}
 
-	//collisions
-	CollisionData cd;	
-	for (int i = 0; i < NUM_STALLS; ++i) {
-		if (CheckCollision(cameraBody, Stall[i], cd)) {
-			ResolveCollision(cd);
-		}
-	}
-
-	for (int i = 0; i < NUM_TABLES; ++i) {
-		if (CheckCollision(cameraBody, Table[i], cd)) {
-			ResolveCollision(cd);
-		}
-	}
-
-	if (CheckCollision(cameraBody, Ferriswheel, cd)) {
-		ResolveCollision(cd);
-	}
-	
-
 	//debug
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_I)) {
 		debugPos.x += 5.f * dt;
@@ -390,14 +376,12 @@ void SceneHub::Update(double dt)
 	std::cout << "Debug Pos: " << debugPos.x << ", " << debugPos.y << ", " << debugPos.z << std::endl;
 
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_M)) {
-		debugScale += 15.0f * dt;
+		debugScale += 2.0f * dt;
 	}
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_N)) {
-		debugScale -= 15.0f * dt;
+		debugScale -= 2.0f * dt;
 	}
 	std::cout << "Debug Scale: " << debugScale << std::endl;	
-
-	Table[1].position = debugPos;
 
 	// Update grass density based on FPS
 	UpdateGrassDensity(dt);
@@ -634,12 +618,10 @@ void SceneHub::Render()
 
 		glDepthMask(GL_TRUE);
 
-
-		for (int i = 0; i < NUM_TABLES; i++)
 		{
 			PushPop table(modelStack);
-			modelStack.Translate(Table[0].position.x, Table[i].position.y, Table[i].position.z);
-			glm::mat4 rotation = glm::mat4_cast(Table[i].orientation);
+			modelStack.Translate(worldObjects[5].position.x, worldObjects[5].position.y, worldObjects[5].position.z);
+			glm::mat4 rotation = glm::mat4_cast(worldObjects[5].orientation);
 			modelStack.MultMatrix(rotation);
 			modelStack.Scale(.67f, .67f, .67f);
 			RenderMesh(meshList_hub[GEO_TABLE], true);
@@ -647,22 +629,26 @@ void SceneHub::Render()
 
 		{
 			PushPop foodstand(modelStack);
+			modelStack.Translate(worldObjects[7].position.x, worldObjects[7].position.y, worldObjects[7].position.z);
+			glm::mat4 rotation = glm::mat4_cast(worldObjects[7].orientation);
+			modelStack.MultMatrix(rotation);
+			modelStack.Scale(.63f, .63f, .63f);
 			RenderMesh(meshList_hub[GEO_FOODSTAND], true);
 		}
 
 		{
 			PushPop ferriswheel(modelStack);
-			modelStack.Translate(Ferriswheel.position.x, Ferriswheel.position.y, Ferriswheel.position.z);
-			glm::mat4 rotation = glm::mat4_cast(Ferriswheel.orientation);
+			modelStack.Translate(worldObjects[6].position.x, worldObjects[6].position.y, worldObjects[6].position.z);
+			glm::mat4 rotation = glm::mat4_cast(worldObjects[6].orientation);
 			modelStack.MultMatrix(rotation);
 			RenderMesh(meshList_hub[GEO_FERRISWHEEL], true);
 		}
 
-		for (int i = 0; i < NUM_STALLS; i++) 
+		for (int i = 1; i < 5; i++) 
 		{
 			PushPop stall(modelStack);
-			modelStack.Translate(Stall[i].position.x, Stall[i].position.y, Stall[i].position.z);
-			glm::mat4 rotation = glm::mat4_cast(Stall[i].orientation);
+			modelStack.Translate(worldObjects[i].position.x, worldObjects[i].position.y, worldObjects[i].position.z);
+			glm::mat4 rotation = glm::mat4_cast(worldObjects[i].orientation);
 			modelStack.MultMatrix(rotation);
 			RenderMesh(meshList_hub[GEO_STALL], true);
 		}
@@ -813,7 +799,7 @@ void SceneHub::Render()
 
 	{
 		// Render Dialogue
-		std::cout << std::to_string(dialogueFadeHUD.getPosition().y) << std::endl;
+		//std::cout << std::to_string(dialogueFadeHUD.getPosition().y) << std::endl;
 		RenderMeshOnScreen(meshList[GEO_DIALOGUEFADE_GUI], dialogueFadeHUD.getPosition().x, dialogueFadeHUD.getPosition().y, 1600, 900);
 
 		switch (part) {
