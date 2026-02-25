@@ -230,6 +230,7 @@ void BaseScene::Init()
 	meshList[GEO_FOUNTAIN]->textureID = LoadTGA("Textures//Fountain.tga");
 
 	meshList[GEO_MONKEY] = MeshBuilder::GenerateOBJ("monkey", "Models//Monkey.obj");
+	meshList[GEO_MONKEY]->textureID = LoadTGA("Textures//Monke.tga");
 
 	//pickables
 	meshList[GEO_FIGURINE] = MeshBuilder::GenerateOBJ("figurine", "Models//Figurine.obj");
@@ -429,6 +430,11 @@ void BaseScene::Init()
 	meshList[GEO_FENCE]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
 	meshList[GEO_FENCE]->material.kShininess = 1.0f;
 
+	meshList[GEO_MONKEY]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	meshList[GEO_MONKEY]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
+	meshList[GEO_MONKEY]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+	meshList[GEO_MONKEY]->material.kShininess = 1.0f;
+
 	meshList[GEO_FOUNTAIN]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
 	meshList[GEO_FOUNTAIN]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
 	meshList[GEO_FOUNTAIN]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
@@ -458,6 +464,8 @@ void BaseScene::Init()
 void BaseScene::Update(double dt)
 {
 	// DEBUG
+	currentFPS = static_cast<float>(1.0 / dt);
+
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_Q)) {
 		dtMultiplier -= 0.005f;
 	}
@@ -654,8 +662,7 @@ void BaseScene::Update(double dt)
 	}
 
 	// FPS
-	float temp = 1.f / dt;
-	fps = glm::round(temp * 100.f) / 100.f;
+	fps = glm::round(currentFPS * 100.f) / 100.f;
 }
 
 void BaseScene::Render()

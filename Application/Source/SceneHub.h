@@ -6,9 +6,7 @@
 class SceneHub : public BaseScene
 {
 public:
-	static const int NUM_TABLES = 2;
-	static const int NUM_STALLS = 4;
-    static const int NUM_GRASSCLUMPS = 4500;
+    static const int NUM_GRASSCLUMPS = 9000;
 
     enum GEOMETRY_TYPE_HUB
     {
@@ -35,11 +33,14 @@ public:
 
     Mesh* meshList_hub[NUM_GEOMETRY];
 
-    //physics objects
-    PhysicsObject Stall[NUM_STALLS];
-    PhysicsObject Table[NUM_TABLES];
-	PhysicsObject Foodstand;
-	PhysicsObject Ferriswheel;
+    // Grass density management
+    int activeGrassCount;
+    float grassDensityMultiplier;
+    float fpsSmoothed;
+    float targetFPS; // 60 rn
+
+    void UpdateGrassDensity(double dt);
+    void RegenerateGrassPositions();
     glm::vec3 grassClumps[NUM_GRASSCLUMPS];
 
     //debug

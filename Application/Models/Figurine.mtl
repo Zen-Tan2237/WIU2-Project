@@ -4,9 +4,9 @@
 newmtl model_Material_u1_v1.002
 Ns 0.000000
 Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
 Ks 0.000000 0.000000 0.000000
 Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 1
-map_Kd C:/Users/Zen/Downloads/modeliing/kyouko-kirigiri-figure-from-danganronpa/source/{B60523FD-4F0B-462A-9975-BFC84E7BB727}/tex_u1_v1.jpg
