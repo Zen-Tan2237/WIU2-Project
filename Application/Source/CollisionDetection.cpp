@@ -44,7 +44,7 @@ bool CheckCollision(PhysicsObject& objA, PhysicsObject& objB, CollisionData& col
 
 	// AABB vs AABB
 	if (aIsAABB && bIsAABB) {
-		return OverlapAABBAABB(objA, objB, collisionData);
+		return OverlapOBBOBB(objA, objB, collisionData); // Put obb since, aabb not working fine
 	}
 	// OBB vs OBB (both are true OBBs, not axis-aligned)
 	else if (aIsOBB && bIsOBB) {
@@ -52,8 +52,8 @@ bool CheckCollision(PhysicsObject& objA, PhysicsObject& objB, CollisionData& col
 	}
 	// OBB vs AABB (either order)
 	else if ((aIsOBB && bIsAABB) || (aIsAABB && bIsOBB)) {
-		return aIsOBB ? OverlapOBBAABB(objA, objB, collisionData)
-			: OverlapOBBAABB(objB, objA, collisionData);
+		return aIsOBB ? OverlapOBBOBB(objA, objB, collisionData)
+			: OverlapOBBOBB(objB, objA, collisionData);
 	}
 	// Sphere vs Sphere
 	else if (aIsSphere && bIsSphere) {
@@ -62,11 +62,11 @@ bool CheckCollision(PhysicsObject& objA, PhysicsObject& objB, CollisionData& col
 	// AABB vs Sphere (either order)
 	else if ((aIsAABB && bIsSphere) || (aIsSphere && bIsAABB)) {
 		if (aIsAABB) {
-			return OverlapAABBSphere(objA, objB, collisionData);
+			return OverlapOBBSphere(objA, objB, collisionData);
 		}
 		else {
 			// Sphere is A, AABB is B - swap and flip normal
-			bool result = OverlapAABBSphere(objB, objA, collisionData);
+			bool result = OverlapOBBSphere(objB, objA, collisionData);
 			if (result) {
 				// Swap the objects back
 				std::swap(collisionData.pObjA, collisionData.pObjB);
@@ -572,19 +572,13 @@ void ResolveCollision(CollisionData& cd)
 
 	// Positional correction to avoid sinking
 	const float SLOP = 0.001f;
-	const float PERCENT = 0.2f;
-	const float MAX_CORRECTION = 0.5f;
+	const float PERCENT = 1.5f;
 
 	// Apply positional correction
 	if (invMassSum > 0.0f && penetration > SLOP) {
-		float correction = std::max(penetration - SLOP, 0.0f) * PERCENT / invMassSum;
-		correction = std::min(correction, MAX_CORRECTION);
-
-		glm::vec3 separation = normal * correction;
-		if (invMassA > 0.0f)
-			A->position -= separation * invMassA;
-		if (invMassB > 0.0f)
-			B->position += separation * invMassB;
+		glm::vec3 correction = normal * (penetration - SLOP) * PERCENT / invMassSum;
+		A->position -= correction * invMassA;
+		B->position += correction * invMassB;
 	}
 
 	// Calculate relative velocity at contact point

@@ -14,6 +14,7 @@
 #include "SceneHub.h"
 #include "SceneTiltingTable.h"
 #include "SceneFPCamera.h"
+#include "SceneKnockdown.h"
 
 #include "KeyboardController.h"
 #include "MouseController.h"
@@ -158,8 +159,8 @@ void Application::Run()
 	Scene* scene1 = new SceneHub(); 
 	Scene* scene2 = new SceneTiltingTable();
 	Scene* scene3 = new SceneTester();
-	/*Scene* scene4 = new Scene4();
-	Scene* scene5 = new Scene5();*/
+	Scene* scene4 = new SceneKnockdown();
+	//Scene* scene5 = new Scene5();
 	
 	Scene* scene = scene1;
 	scene->Init();
@@ -186,7 +187,8 @@ void Application::Run()
 			case 3:
 				newScene = scene3;
 				break;
-
+			case 4:
+				newScene = scene4;
 			default:
 				break;
 			}
