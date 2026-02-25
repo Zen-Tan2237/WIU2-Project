@@ -572,12 +572,12 @@ void ResolveCollision(CollisionData& cd)
 	float invMassSum = invMassA + invMassB;
 
 	// Positional correction to avoid sinking
-	const float SLOP = 0.01f;
+	const float SLOP = 0.09f;
 	const float PERCENT = 0.2f;
 	const float MAX_CORRECTION = 0.5f;
 
 	// Apply positional correction
-	if (invMassSum > 1e-6f && penetration > SLOP) {
+	if (invMassSum > 0.0f && penetration > SLOP) {
 		float correction = std::max(penetration - SLOP, 0.0f) * PERCENT / invMassSum;
 		correction = std::min(correction, MAX_CORRECTION);
 
@@ -604,7 +604,7 @@ void ResolveCollision(CollisionData& cd)
 
 	// Calculate bounciness coefficient
 	float e = (A->bounciness + B->bounciness) * 0.5f;
-	e = std::max(e * 0.8f, 0.0f);
+	e = std::max(e * 0.6f, 0.0f);
 
 	// ==================== FRICTION CALCULATION ====================
 
