@@ -209,17 +209,19 @@ void SceneRiseTop::Init()
 		glUniform1f(m_parameters[U_LIGHT7_EXPONENT], light[7].exponent);
 	}
 
-	//models
-	//meshList[GEO_STALL] = MeshBuilder::GenerateOBJMTL("Stall", "OBJ//stall.obj", "OBJ//stall.mtl");
-
-	//debug
+	// DEBUG
 	meshList_riseTop[GEO_WALL] = MeshBuilder::GenerateCube("wall", glm::vec3(1.f, 0.f, 0.f), 1.f);
 	meshList_riseTop[GEO_SPHERE] = MeshBuilder::GenerateSphere("sphere", glm::vec3(0.f, 1.f, 0.f), 1.f, 36, 18);
 
+
+	// MODELS
 	meshList_riseTop[GEO_STALL] = MeshBuilder::GenerateOBJ("stall", "Models//minigame_Stall.obj");
 	meshList_riseTop[GEO_STALL]->textureID = LoadTGA("Textures//minigameStall.tga");
 
-	// setup initial item in hand
+	meshList_riseTop[GEO_RISETOP] = MeshBuilder::GenerateOBJ("Rise Top", "Models//RiseTop.obj");
+	meshList_riseTop[GEO_RISETOP]->textureID = LoadTGA("Textures//RiseTop.tga");
+
+	// INITIAL ITEM IN HAND
 	addPickables("Baseball", glm::vec3(0, 0, 0));
 	itemInHand = pickables[0];
 	amountOfItem = 10;
@@ -232,29 +234,35 @@ void SceneRiseTop::Init()
 	phaseDurations[0][1] = 6.7f;
 	phaseDurations[0][2] = 6.7f;
 
-	// world objects
+	// CAMERA INIT
+	camera.Init(glm::vec3(0, 0.9f, 3.5), glm::vec3(0, 0.9f, 4.5), glm::vec3(0, 1.9f, 3.5));
+
+	// WORLD OBJECTS
 	bool miscSettings[2] = { false, false }; // for gravity and drag. override in case of specific objects
 
 	// Floor
 	worldObjects[0].InitPhysicsObject(glm::vec3(0, -0.5f, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(200, 1, 200), 0, glm::vec3(1, 0, 0), miscSettings);
 
-	//stalls
-	worldObjects[1].InitPhysicsObject(glm::vec3(6, 0.9f, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(2.f, 1.8f, 1.7f), 180, glm::vec3(0, 1, 0), miscSettings);
-	worldObjects[2].InitPhysicsObject(glm::vec3(0, 0.9f, -6), 0.f, BoundingBox::Type::OBB, glm::vec3(2.5f, 1.8f, 1.7f), -90, glm::vec3(0, 1, 0), miscSettings);
-	worldObjects[3].InitPhysicsObject(glm::vec3(0, 0.9f, 6), 0.f, BoundingBox::Type::OBB, glm::vec3(2.5f, 1.8f, 1.7f), 90, glm::vec3(0, 1, 0), miscSettings);
-	worldObjects[4].InitPhysicsObject(glm::vec3(-6, 0.9f, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(2.5f, 1.8f, 1.7f), 0, glm::vec3(0, 1, 0), miscSettings);
+	// Stall
+	worldObjects[1].InitPhysicsObject(glm::vec3(0, 0.9f, 6), 0.f, BoundingBox::Type::OBB, glm::vec3(1.5f, 1.4f, 1.7f), 90, glm::vec3(0, 1, 0), miscSettings);
 
-	//tables
+	// Rise Top
+	worldObjects[2].InitPhysicsObject(glm::vec3(0, 0.f, 6.5f), 0.f, BoundingBox::Type::OBB, glm::vec3(1.5f, 1.4f, 1.7f), 180, glm::vec3(0, 1, 0), miscSettings);
+
+	// Tables
 	worldObjects[5].InitPhysicsObject(glm::vec3(-3, 0, 3.6f), 0.f, BoundingBox::Type::OBB, glm::vec3(1.8f, 1.f, 1.8f), 50, glm::vec3(0, 1, 0), miscSettings);
 
-	//ferris wheel
+	// Ferris Wheel
 	worldObjects[6].InitPhysicsObject(glm::vec3(-10, 0, -7), 0.f, BoundingBox::Type::OBB, glm::vec3(10.f, 5.f, 5.f), 45, glm::vec3(0, 1, 0), miscSettings);
 
-	//food stand
+	// Food Stand
 	worldObjects[7].InitPhysicsObject(glm::vec3(-3.6, 0.5f, 5), 0.f, BoundingBox::Type::OBB, glm::vec3(1.5f, 0.5f, 1.3f), -15, glm::vec3(0, 1, 0), miscSettings);
 
 
 	int index = 0;
+
+	//
+	phase = 0;
 
 	// Grass density initialization
 	targetFPS = 60.0f;
@@ -270,6 +278,11 @@ void SceneRiseTop::Init()
 	meshList_riseTop[GEO_STALL]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
 	meshList_riseTop[GEO_STALL]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
 	meshList_riseTop[GEO_STALL]->material.kShininess = 1.0f;
+
+	meshList_riseTop[GEO_RISETOP]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	meshList_riseTop[GEO_RISETOP]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
+	meshList_riseTop[GEO_RISETOP]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+	meshList_riseTop[GEO_RISETOP]->material.kShininess = 1.0f;
 
 }
 
@@ -302,7 +315,7 @@ void SceneRiseTop::Update(double dt)
 	if (interactedIndex != -1 && KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_F)) { // means got prompt, is close to and facing smth
 		if (interactivesType[interactedIndex] == 'I') { // its an interactive
 			// do it in actual scene instead
-			if (interactives[interactedIndex] == "Enter Scene 1 (SceneHub)" && nextScene == 0) {
+			if (interactives[interactedIndex] == "Return to Hub" && nextScene == 0) {
 				nextScene = 1;
 				nextSceneDelay = 1.f;
 				sceneSwitchHUD.resetScale(glm::vec2(.25f));
@@ -626,14 +639,22 @@ void SceneRiseTop::Render()
 		RenderMesh(meshList[GEO_FERRISWHEEL], true);
 	}
 
-	for (int i = 1; i < 2; i++)
 	{
 		PushPop stall(modelStack);
-		modelStack.Translate(worldObjects[i].position.x, worldObjects[i].position.y, worldObjects[i].position.z);
-		glm::mat4 rotation = glm::mat4_cast(worldObjects[i].orientation);
+		modelStack.Translate(worldObjects[1].position.x, worldObjects[1].position.y, worldObjects[1].position.z);
+		glm::mat4 rotation = glm::mat4_cast(worldObjects[1].orientation);
 		modelStack.MultMatrix(rotation);
 		modelStack.Scale(0.2f, 0.2f, 0.2f);
-		RenderMesh(meshList_hub[GEO_STALL], true);
+		RenderMesh(meshList_riseTop[GEO_STALL], true);
+	}
+
+	{
+		PushPop riseTop(modelStack);
+		modelStack.Translate(worldObjects[2].position.x, worldObjects[2].position.y, worldObjects[2].position.z);
+		glm::mat4 rotation = glm::mat4_cast(worldObjects[2].orientation);
+		modelStack.MultMatrix(rotation);
+		modelStack.Scale(0.65f, 0.65f, 0.65f);
+		RenderMesh(meshList_riseTop[GEO_RISETOP], true);
 	}
 
 	//{
@@ -761,13 +782,13 @@ void SceneRiseTop::Render()
 		case 0: // part 1
 			switch (phase) {
 			case 0:
-				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Welcome to our crooked carnival, today you will be earning points through our various minigames and challenges.", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
+				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Oh hey there.", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
 				break;
 			case 1:
-				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "you can redeem your points for fantastic prizes such as, a anime figure or A GEFORCE RTX 5090!", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
+				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Game's caught your attention?", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
 				break;
 			case 2:
-				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "But be careful, if you lose all your points, you will be trapped here forever!", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
+				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Here's a quick guide", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
 				break;
 			default:
 				break;
