@@ -264,22 +264,14 @@ void SceneHub::Init()
 
 	int index = 0;
 
-	for (int x = -1; x < 2; x++) {
-		for (int z = -1; z < 2; z++) {
-			for (int i = 0; i < NUM_GRASSCLUMPS / 9; i++) {
+	// Grass density initialization
+	targetFPS = 60.0f;
+	fpsSmoothed = 60.0f;
+	grassDensityMultiplier = 1.0f;
+	activeGrassCount = NUM_GRASSCLUMPS;
 
-				glm::vec3 pos(
-					((rand() % 40000) - 20000) / 500.f,
-					0.f,
-					((rand() % 40000) - 20000) / 500.f
-				);
-
-				pos += glm::vec3(x * 40.f, 0.f, z * 40.f);
-
-				grassClumps[index++] = pos;
-			}
-		}
-	}
+	// Initial grass generation
+	RegenerateGrassPositions();
 
 	//
 	meshList_hub[GEO_TABLE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
@@ -407,6 +399,9 @@ void SceneHub::Update(double dt)
 	std::cout << "Debug Scale: " << debugScale << std::endl;	
 
 	Table[1].position = debugPos;
+
+	// Update grass density based on FPS
+	UpdateGrassDensity(dt);
 }
 
 void SceneHub::Render()
@@ -609,16 +604,18 @@ void SceneHub::Render()
 			RenderMesh(meshList[GEO_FENCE], true);
 		}
 
-		glm::vec3 localCamPos = camera.position / 0.2f; // camera in local space
-
+		glm::vec3 localCamPos = camera.position / 0.2f;
 		glm::vec3 forward = glm::normalize(camera.target - camera.position);
-		// forward direction is the same in both spaces since it's a uniform scale
 
 		glDepthMask(GL_FALSE);
-		for (auto& pos : grassClumps) {
+
+		// Only render active grass count
+		for (int i = 0; i < activeGrassCount; i++) {
+			glm::vec3 pos = grassClumps[i];
 			glm::vec3 toGrass = pos - localCamPos;
 			float dist = glm::length(toGrass);
-			if (dist > 40.f) continue; // now in local space units, 20 = good draw distance
+
+			if (dist > 40.f) continue;
 
 			if (dist > 0.001f) {
 				float dot = glm::dot(forward, toGrass / dist);
@@ -635,7 +632,9 @@ void SceneHub::Render()
 			modelStack.Scale(3.f, 2.f, 3.f);
 			RenderMesh(meshList[GEO_GRASS], false);
 		}
+
 		glDepthMask(GL_TRUE);
+
 
 		for (int i = 0; i < NUM_TABLES; i++)
 		{
@@ -872,6 +871,7 @@ void SceneHub::RenderUI()
 		// DEBUG
 		RenderTextOnScreen(meshList[GEO_HOMEVIDEOBOLD_FONT], "PART: " + std::to_string(part) + " PHASE: " + std::to_string(phase), glm::vec3(1, 1, 1), 15, 785, 435, 'R', .6f);
 		RenderTextOnScreen(meshList[GEO_HOMEVIDEOBOLD_FONT], "DT MULTIPLIER: " + std::to_string(dtMultiplier), glm::vec3(1, 1, 1), 15, 595, 435, 'R', .6f);
+		RenderTextOnScreen(meshList[GEO_HOMEVIDEOBOLD_FONT], "ACTIVE GRASS COUNT: " + std::to_string(activeGrassCount), glm::vec3(1, 1, 1), 15, 375, 435, 'R', .6f);
 	}
 
 	// Render EUI
@@ -945,4 +945,58 @@ void SceneHub::RenderUI()
 void SceneHub::Exit()
 {
 	BaseScene::Exit();
+}
+
+void SceneHub::RegenerateGrassPositions()
+{
+	int index = 0;
+	int targetCount = static_cast<int>(NUM_GRASSCLUMPS * grassDensityMultiplier);
+
+	// distribute grass across 3x3 grid sections
+	int grassPerSection = targetCount / 9;
+
+	for (int x = -1; x < 2; x++) {
+		for (int z = -1; z < 2; z++) {
+			for (int i = 0; i < grassPerSection && index < NUM_GRASSCLUMPS; i++) {
+				glm::vec3 pos(
+					((rand() % 40000) - 20000) / 500.f,
+					0.f,
+					((rand() % 40000) - 20000) / 500.f
+				);
+
+				pos += glm::vec3(x * 40.f, 0.f, z * 40.f);
+				grassClumps[index++] = pos;
+			}
+		}
+	}
+
+	activeGrassCount = index;
+}	
+
+void SceneHub::UpdateGrassDensity(double dt)
+{
+	float currentFPS = static_cast<float>(1.0 / dt);
+
+	float smoothingFactor = 0.7f;
+	fpsSmoothed = fpsSmoothed * (1.0f - smoothingFactor) + currentFPS * smoothingFactor;
+
+	// fps ratio
+	float fpsRatio = fpsSmoothed / targetFPS;
+
+	if (fpsRatio < 0.8f) {
+		grassDensityMultiplier -= 0.05f * static_cast<float>(dt);
+	}
+	// increase if ratio is good
+	else if (fpsRatio > 1.05f && grassDensityMultiplier < 1.0f) {
+		grassDensityMultiplier += 0.02f * static_cast<float>(dt);
+	}
+
+	// clamp density multiplier
+	grassDensityMultiplier = glm::clamp(grassDensityMultiplier, 0.2f, 1.0f);
+
+	// regenerate grass positions if density changed significantly
+	int targetCount = static_cast<int>(NUM_GRASSCLUMPS * grassDensityMultiplier);
+	if (abs(targetCount - activeGrassCount) > NUM_GRASSCLUMPS * 0.05f) {
+		RegenerateGrassPositions();
+	}
 }
