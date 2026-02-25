@@ -15,6 +15,7 @@
 #include "SceneRiseTop.h"
 #include "SceneFPCamera.h"
 #include "SceneKnockdown.h"
+#include "SceneBB.h"
 
 #include "KeyboardController.h"
 #include "MouseController.h"
@@ -157,7 +158,7 @@ void Application::Run()
 	//Main Loop
 	Scene* scene1 = new SceneHub(); 
 	Scene* scene2 = new SceneRiseTop();
-	Scene* scene3 = new SceneTester();
+	Scene* scene3 = new SceneBB();
 	Scene* scene4 = new SceneKnockdown();
 	
 	Scene* scene = scene1;
@@ -193,9 +194,11 @@ void Application::Run()
 
 			if (newScene)
 			{
+				int accumulatedCash = scene->accumulatedCash; //all scenes share cash $$$monners
 				scene->Exit();
 				newScene->Init();
 				scene = newScene;
+				scene->accumulatedCash = accumulatedCash;
 			}
 
 			scene->nextScene = 0; // reset trigger

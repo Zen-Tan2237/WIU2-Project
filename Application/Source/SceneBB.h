@@ -1,9 +1,9 @@
 
-#ifndef SCENE_KNOCKDOWN_H
-#define SCENE_KNOCKDOWN_H
+#ifndef SCENE_BB_H
+#define SCENE_BB_H
 
 #include "BaseScene.h"
-class SceneKnockdown : public BaseScene
+class SceneBB : public BaseScene
 {
 public:
     static const int NUM_GRASSCLUMPS = 4500;
@@ -19,20 +19,17 @@ public:
         GEO_TABLE,
         GEO_FOODSTAND,
         GEO_FERRISWHEEL,
-        GEO_PEPSI,
 
         NUM_GEOMETRY,
     };
 
-    SceneKnockdown();
-    ~SceneKnockdown();
+    SceneBB();
+    ~SceneBB();
     void Init() override;
     void Update(double dt) override;
     void Render() override;
     void RenderUI();
     void Exit() override;
-
-	void generateCanPositions(int pattern);
 
     Mesh* meshList_hub[NUM_GEOMETRY];
 

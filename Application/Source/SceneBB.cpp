@@ -8,7 +8,7 @@
 //Include GLFW
 #include <GLFW/glfw3.h>
 
-#include "SceneHub.h"
+#include "SceneBB.h"
 #include "MeshBuilder.h"
 #include <iostream>
 #include "LoadTGA.h"
@@ -17,15 +17,15 @@
 #include "MouseController.h"
 #include "CollisionDetection.h"
 
-SceneHub::SceneHub()
+SceneBB::SceneBB()
 {
 }
 
-SceneHub::~SceneHub()
+SceneBB::~SceneBB()
 {
 }
 
-void SceneHub::Init()
+void SceneBB::Init()
 {
 	BaseScene::Init();
 
@@ -216,6 +216,18 @@ void SceneHub::Init()
 	meshList_hub[GEO_WALL] = MeshBuilder::GenerateCube("wall", glm::vec3(1.f, 0.f, 0.f), 1.f);
 	meshList_hub[GEO_SPHERE] = MeshBuilder::GenerateSphere("sphere", glm::vec3(0.f, 1.f, 0.f), 1.f, 36, 18);
 
+	meshList_hub[GEO_STALL] = MeshBuilder::GenerateOBJ("stall", "Models//minigame_Stall.obj");
+	meshList_hub[GEO_STALL]->textureID = LoadTGA("Textures//minigameStall.tga");
+
+	meshList_hub[GEO_TABLE] = MeshBuilder::GenerateOBJ("table", "Models//table.obj");
+	meshList_hub[GEO_TABLE]->textureID = LoadTGA("Textures//table.tga");
+
+	meshList_hub[GEO_FOODSTAND] = MeshBuilder::GenerateOBJ("foodstand", "Models//Hot_Dog_Stand.obj");
+	meshList_hub[GEO_FOODSTAND]->textureID = LoadTGA("Textures//Hotdog.tga");
+
+	meshList_hub[GEO_FERRISWHEEL] = MeshBuilder::GenerateOBJ("ferriswheel", "Models//FerrisWheel.obj");
+	meshList_hub[GEO_FERRISWHEEL]->textureID = LoadTGA("Textures//FerrisWheel.tga");
+
 	// setup initial item in hand
 	addPickables("Baseball", glm::vec3(0, 0, 0));
 	itemInHand = pickables[0];
@@ -236,22 +248,19 @@ void SceneHub::Init()
 	worldObjects[0].InitPhysicsObject(glm::vec3(0, -0.5f, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(200, 1, 200), 0, glm::vec3(1, 0, 0), miscSettings);
 
 	//stalls
-	worldObjects[1].InitPhysicsObject(glm::vec3(6, 0.9f, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(1.7f, 1.8f, 1.7f), 180, glm::vec3(0, 1, 0), miscSettings);
-	worldObjects[2].InitPhysicsObject(glm::vec3(0, 0.9f, -6), 0.f, BoundingBox::Type::OBB, glm::vec3(1.7f, 1.8f, 1.7f), -90, glm::vec3(0, 1, 0), miscSettings);
-	worldObjects[3].InitPhysicsObject(glm::vec3(0, 0.9f, 6), 0.f, BoundingBox::Type::OBB, glm::vec3(1.7f, 1.8f, 1.7f), 90, glm::vec3(0, 1, 0), miscSettings);
-	worldObjects[4].InitPhysicsObject(glm::vec3(-6, 0.9f, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(1.7f, 1.8f, 1.7f), 0, glm::vec3(0, 1, 0), miscSettings);
+	worldObjects[1].InitPhysicsObject(glm::vec3(6, 0.9f, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(2.f, 1.8f, 1.7f), 180, glm::vec3(0, 1, 0), miscSettings);
+	worldObjects[2].InitPhysicsObject(glm::vec3(0, 0.9f, -6), 0.f, BoundingBox::Type::OBB, glm::vec3(2.5f, 1.8f, 1.7f), -90, glm::vec3(0, 1, 0), miscSettings);
+	worldObjects[3].InitPhysicsObject(glm::vec3(0, 0.9f, 6), 0.f, BoundingBox::Type::OBB, glm::vec3(2.5f, 1.8f, 1.7f), 90, glm::vec3(0, 1, 0), miscSettings);
+	worldObjects[4].InitPhysicsObject(glm::vec3(-6, 0.9f, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(2.5f, 1.8f, 1.7f), 0, glm::vec3(0, 1, 0), miscSettings);
 
 	//tables
-	worldObjects[5].InitPhysicsObject(glm::vec3(-3, 0, 3.6f), 0.f, BoundingBox::Type::OBB, glm::vec3(1.8f, 1.f, 1.8f), 50, glm::vec3(0, 1, 0), miscSettings);
+	worldObjects[5].InitPhysicsObject(glm::vec3(-3, 0, 3.6f), 0.f, BoundingBox::Type::OBB, glm::vec3(2.2f, 1.5f, 2.2f), 50, glm::vec3(0, 1, 0), miscSettings);
 
 	//ferris wheel
-	worldObjects[6].InitPhysicsObject(glm::vec3(-10, 0, -7), 0.f, BoundingBox::Type::OBB, glm::vec3(10.f, 5.f, 5.f), 45, glm::vec3(0, 1, 0), miscSettings);
+	worldObjects[6].InitPhysicsObject(glm::vec3(-10, 0, -7), 0.f, BoundingBox::Type::OBB, glm::vec3(10.f, 9.f, 5.f), 45, glm::vec3(0, 1, 0), miscSettings);
 
 	//food stand
-	worldObjects[7].InitPhysicsObject(glm::vec3(-3.6, 0.5f, 5), 0.f, BoundingBox::Type::OBB, glm::vec3(1.5f, 0.5f, 1.3f), -15, glm::vec3(0, 1, 0), miscSettings);
-
-	//fountain
-	worldObjects[8].InitPhysicsObject(glm::vec3(0, 0.3f, 0), 0.f, BoundingBox::Type::SPHERE, glm::vec3(1.3f, 0, 0), 0, glm::vec3(0, 1, 0), miscSettings);
+	worldObjects[7].InitPhysicsObject(glm::vec3(-3.6, 0.5f, 5), 0.f, BoundingBox::Type::OBB, glm::vec3(2.2f, 1.f, 1.92f), -15, glm::vec3(0, 1, 0), miscSettings);
 
 	addPickables("Pepsi", glm::vec3(3, 1, 2));
 
@@ -266,9 +275,31 @@ void SceneHub::Init()
 
 	// Initial grass generation
 	RegenerateGrassPositions();
+
+	//
+	meshList_hub[GEO_TABLE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	meshList_hub[GEO_TABLE]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
+	meshList_hub[GEO_TABLE]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+	meshList_hub[GEO_TABLE]->material.kShininess = 1.0f;
+
+	meshList_hub[GEO_FOODSTAND]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	meshList_hub[GEO_FOODSTAND]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
+	meshList_hub[GEO_FOODSTAND]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+	meshList_hub[GEO_FOODSTAND]->material.kShininess = 1.0f;
+
+	meshList_hub[GEO_FERRISWHEEL]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	meshList_hub[GEO_FERRISWHEEL]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
+	meshList_hub[GEO_FERRISWHEEL]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+	meshList_hub[GEO_FERRISWHEEL]->material.kShininess = 1.0f;
+
+	meshList_hub[GEO_STALL]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	meshList_hub[GEO_STALL]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
+	meshList_hub[GEO_STALL]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+	meshList_hub[GEO_STALL]->material.kShininess = 1.0f;
+
 }
 
-void SceneHub::Update(double dt)
+void SceneBB::Update(double dt)
 {
 	BaseScene::Update(dt);
 
@@ -282,10 +313,12 @@ void SceneHub::Update(double dt)
 	}
 
 	// name of interactive, I = interactive, coords
-	addInteractives("Play Rise To The Top ($5)", 'I', glm::vec3(0, 0.6f, 5.6f));
-	addInteractives("Play Basketball Toss ($5)", 'I', glm::vec3(5.6f, 0.6, 0));
-	addInteractives("Play Can Knockdown Game ($5)", 'I', glm::vec3(-5.6f, 0.6f, 0));
-	addInteractives("Talk to monkey", 'I',glm::vec3(-1.3f, 0.55f, 0.f));
+	addInteractives("Enter Scene 2 (Tilting Table)", 'I', glm::vec3(1, 0, 0));
+	addInteractives("1", 'I', glm::vec3(-1, 0, 0));
+	addInteractives("2", 'I', glm::vec3(0, 0, 1));
+	addInteractives("Enter SceneTester", 'I', glm::vec3(0, 0, -1));
+
+	addInteractives("Enter Can Knockdown Game", 'I', glm::vec3(0.f, 1.f, 0.f));
 
 	//addPickables("Halal Pork", glm::vec3(0, 0, 0));
 	initializePickablesInteractives();
@@ -296,71 +329,70 @@ void SceneHub::Update(double dt)
 	if (interactedIndex != -1 && KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_F)) { // means got prompt, is close to and facing smth
 		if (interactivesType[interactedIndex] == 'I') { // its an interactive
 			// do it in actual scene instead
-			if (interactives[interactedIndex] == "Play Rise To The Top ($5)" && nextScene == 0) {
+			if (interactives[interactedIndex] == "Enter Scene 2 (Tilting Table)" && nextScene == 0) {
 				nextScene = 2;
-				accumulatedCash -= 5;
 				nextSceneDelay = 1.f;
 				sceneSwitchHUD.resetScale(glm::vec2(.25f));
 				sceneSwitchHUD.setTargetScale(glm::vec2(1.f));
 			}
-			else if (interactives[interactedIndex] == "Play Basketball Toss ($5)") {
-				nextScene = 3;
-				accumulatedCash -= 5;
-				nextSceneDelay = 0.5f;
-				sceneSwitchHUD.resetScale(glm::vec2(.25f));
-				sceneSwitchHUD.setTargetScale(glm::vec2(1.f));
-			}
-			else if (interactives[interactedIndex] == "Play Can Knockdown Game ($5)" && nextScene == 0) {
-					nextScene = 4;
-					accumulatedCash -= 5;
-					nextSceneDelay = 1.f;
-					sceneSwitchHUD.resetScale(glm::vec2(.25f));
-					sceneSwitchHUD.setTargetScale(glm::vec2(1.f));
-			}
-			else if (interactives[interactedIndex] == "Talk to monkey") { //change later
+			else if (interactives[interactedIndex] == "1") {
 				if (part == 0)
 				{
 					addPickables("Pepsi", glm::vec3(0, 5, 0));
 				}
+			}
+			else if (interactives[interactedIndex] == "2") {
+				// do something
+			}
+			else if (interactives[interactedIndex] == "Enter SceneTester") {
+				nextScene = 3;
+				nextSceneDelay = 1.f;
+				sceneSwitchHUD.resetScale(glm::vec2(.25f));
+				sceneSwitchHUD.setTargetScale(glm::vec2(1.f));
+			}
+			else if (interactives[interactedIndex] == "Enter Can Knockdown Game" && nextScene == 0) {
+					nextScene = 4;
+					nextSceneDelay = 1.f;
+					sceneSwitchHUD.resetScale(glm::vec2(.25f));
+					sceneSwitchHUD.setTargetScale(glm::vec2(1.f));
 			}
 		}
 	}
 
 	//debug
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_I)) {
-		debugPos.x += 2.f * dt;
+		debugPos.x += 5.f * dt;
 	}
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_J)) {
-		debugPos.z += 2.f * dt;
+		debugPos.z += 5.f * dt;
 	}
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_K)) {
-		debugPos.x -= 2.f * dt;
+		debugPos.x -= 5.f * dt;
 	}
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_L)) {
-		debugPos.z -= 2.f * dt;
+		debugPos.z -= 5.f * dt;
 	}
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_O)) {
-		debugPos.y += 2.f * dt;
+		debugPos.y += 5.f * dt;
 	}
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_U)) {
-		debugPos.y -= 2.f * dt;
+		debugPos.y -= 5.f * dt;
 	}
-	std::cout << "Debug Pos: " << debugPos.x << ", " << debugPos.y << ", " << debugPos.z << std::endl;
+	//std::cout << "Debug Pos: " << debugPos.x << ", " << debugPos.y << ", " << debugPos.z << std::endl;
 
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_M)) {
-		debugScale += 0.5f * dt;
+		debugScale += 2.0f * dt;
 	}
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_N)) {
-		debugScale -= 0.5f * dt;
+		debugScale -= 2.0f * dt;
 	}
-	//std::cout << "Debug Scale: " << debugScale << std::endl;
-	std::cout << accumulatedCash << std::endl;
+	std::cout << "Debug Scale: " << debugScale << std::endl;
 
 	// Update grass density based on FPS
 	UpdateGrassDensity(dt);
 }
 
-void SceneHub::Render()
+void SceneBB::Render()
 {
 	// Clear color buffer every frame
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -532,19 +564,11 @@ void SceneHub::Render()
 	}
 
 	{
-		PushPop debug(modelStack);
-		modelStack.Translate(debugPos.x, debugPos.y, debugPos.z);
-		modelStack.Scale(debugScale, debugScale, debugScale);
-		RenderMesh(meshList_hub[GEO_SPHERE], false);
-	}
-
-	{
 		PushPop skybox(modelStack);
 		modelStack.Scale(2.f, 2.f, 2.f);
 		RenderSkybox();
 	}
 
-	//debug
 	for (int i = 0; i < TOTAL_PHYSICSOBJECT; i++) {
 		PushPop debug(modelStack);
 		modelStack.Translate(worldObjects[i].position.x, worldObjects[i].position.y, worldObjects[i].position.z);
@@ -613,7 +637,7 @@ void SceneHub::Render()
 		glm::mat4 rotation = glm::mat4_cast(worldObjects[5].orientation);
 		modelStack.MultMatrix(rotation);
 		modelStack.Scale(.13f, .13f, .13f);
-		RenderMesh(meshList[GEO_TABLE], true);
+		RenderMesh(meshList_hub[GEO_TABLE], true);
 		modelStack.Scale(worldObjects[5].boundingBox.getWidth(), worldObjects[5].boundingBox.getHeight(), worldObjects[5].boundingBox.getDepth());
 		//RenderMesh(meshList_hub[GEO_WALL], true);
 	}
@@ -624,7 +648,10 @@ void SceneHub::Render()
 		glm::mat4 rotation = glm::mat4_cast(worldObjects[7].orientation);
 		modelStack.MultMatrix(rotation);
 		modelStack.Scale(.12f, .12f, .12f);
-		RenderMesh(meshList[GEO_FOODSTAND], true);
+		RenderMesh(meshList_hub[GEO_FOODSTAND], true);
+		//modelStack.Scale(debugScale, debugScale, debugScale);
+		//modelStack.Scale(worldObjects[7].boundingBox.getWidth(), worldObjects[7].boundingBox.getHeight(), worldObjects[7].boundingBox.getDepth());
+		//RenderMesh(meshList_hub[GEO_WALL], true);
 	}
 
 	{
@@ -633,7 +660,7 @@ void SceneHub::Render()
 		glm::mat4 rotation = glm::mat4_cast(worldObjects[6].orientation);
 		modelStack.MultMatrix(rotation);
 		modelStack.Scale(.2f, .2f, .2f);
-		RenderMesh(meshList[GEO_FERRISWHEEL], true);
+		RenderMesh(meshList_hub[GEO_FERRISWHEEL], true);
 	}
 
 	for (int i = 1; i < 5; i++)
@@ -643,19 +670,19 @@ void SceneHub::Render()
 		glm::mat4 rotation = glm::mat4_cast(worldObjects[i].orientation);
 		modelStack.MultMatrix(rotation);
 		modelStack.Scale(0.2f, 0.2f, 0.2f);
-		RenderMesh(meshList[GEO_STALL], true);
+		RenderMesh(meshList_hub[GEO_STALL], true);
 	}
 
-	{
-		PushPop fountain(modelStack);
-		modelStack.Translate(worldObjects[8].position.x, worldObjects[8].position.y, worldObjects[8].position.z);
-		modelStack.Scale(0.22f, 0.22f, 0.22f);
-		RenderMesh(meshList[GEO_FOUNTAIN], true);
-	}
+	//{
+	//	PushPop fountain(modelStack);
+	//	modelStack.Translate(Fountain.position.x, Fountain.position.y, Fountain.position.z);
+	//	modelStack.Scale(1.5f, 1.5f, 1.5f);
+	//	RenderMesh(meshList[GEO_FOUNTAIN], true);
+	//}
 
 	{
 		PushPop monkey(modelStack);
-		modelStack.Translate(-1.3f, 0.3f, 0.f);
+		modelStack.Translate(-2.f, 0.24f, 0.f);
 		modelStack.Rotate(-90, 0.f, 1.f, 0.f);
 		modelStack.Scale(0.1f, 0.1f, 0.1f);
 		RenderMesh(meshList[GEO_MONKEY], true);
@@ -791,7 +818,7 @@ void SceneHub::Render()
 	RenderUI();
 }
 
-void SceneHub::RenderUI()
+void SceneBB::RenderUI()
 {
 	{
 		// Render GUI
@@ -921,12 +948,12 @@ void SceneHub::RenderUI()
 	}
 }
 
-void SceneHub::Exit()
+void SceneBB::Exit()
 {
 	BaseScene::Exit();
 }
 
-void SceneHub::RegenerateGrassPositions()
+void SceneBB::RegenerateGrassPositions()
 {
 	int index = 0;
 	int targetCount = static_cast<int>(NUM_GRASSCLUMPS * grassDensityMultiplier);
@@ -952,7 +979,7 @@ void SceneHub::RegenerateGrassPositions()
 	activeGrassCount = index;
 }
 
-void SceneHub::UpdateGrassDensity(double dt)
+void SceneBB::UpdateGrassDensity(double dt)
 {
 	float smoothingFactor = 0.9f;
 	fpsSmoothed = fpsSmoothed * (1.0f - smoothingFactor) + currentFPS * smoothingFactor;
@@ -961,7 +988,7 @@ void SceneHub::UpdateGrassDensity(double dt)
 	float fpsRatio = fpsSmoothed / targetFPS;
 
 	if (fpsRatio < 0.9f) {
-		grassDensityMultiplier -= 0.1f * static_cast<float>(dt);
+		grassDensityMultiplier -= 0.2f * static_cast<float>(dt);
 	}
 	// increase if ratio is good
 	else if (fpsRatio > 1.05f && grassDensityMultiplier < 1.0f) {
@@ -969,11 +996,11 @@ void SceneHub::UpdateGrassDensity(double dt)
 	}
 
 	// clamp density multiplier
-	grassDensityMultiplier = glm::clamp(grassDensityMultiplier, 0.1f, 1.0f);
+	grassDensityMultiplier = glm::clamp(grassDensityMultiplier, 0.2f, 1.0f);
 
 	// regenerate grass positions if density changed significantly
 	int targetCount = static_cast<int>(NUM_GRASSCLUMPS * grassDensityMultiplier);
-	if (abs(targetCount - activeGrassCount) > NUM_GRASSCLUMPS * 0.025f) {
+	if (abs(targetCount - activeGrassCount) > NUM_GRASSCLUMPS * 0.05f) {
 		RegenerateGrassPositions();
 	}
 }

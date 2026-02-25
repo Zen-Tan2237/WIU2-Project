@@ -79,6 +79,7 @@
     <ClCompile Include="Source\SceneRiseTop.cpp">
       <Filter>Scenes</Filter>
     </ClCompile>
+    <ClCompile Include="Source\SceneBB.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\SceneFPCamera.h">
@@ -168,16 +169,24 @@
     <ClInclude Include="Source\SceneRiseTop.h">
       <Filter>Scenes</Filter>
     </ClInclude>
+    <ClInclude Include="Source\SceneBB.h" />
   </ItemGroup>
   <ItemGroup>
-    <Media Include="SFX\384908__ali_6868__arrow-whoosh-1.wav" />
-    <Media Include="SFX\708223__mythmazter__arrow_hit_1.wav" />
-    <Media Include="..\..\..\..\Downloads\maxwell-the-cat-theme (online-audio-converter.com).wav" />
-    <Media Include="SFX\truth-detector-bassboosted.mp3" />
-    <Media Include="SFX\wrong-lie-incorrect-buzzer.mp3" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="SFX\244657__dsg__pop-5.flac" />
+    <Media Include="SFX\wrong-lie-incorrect-buzzer.mp3">
+      <Filter>SFX</Filter>
+    </Media>
+    <Media Include="SFX\384908__ali_6868__arrow-whoosh-1.wav">
+      <Filter>SFX</Filter>
+    </Media>
+    <Media Include="SFX\708223__mythmazter__arrow_hit_1.wav">
+      <Filter>SFX</Filter>
+    </Media>
+    <Media Include="..\..\..\..\Downloads\maxwell-the-cat-theme (online-audio-converter.com).wav">
+      <Filter>SFX</Filter>
+    </Media>
+    <Media Include="SFX\truth-detector-bassboosted.mp3">
+      <Filter>SFX</Filter>
+    </Media>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Source Files">
@@ -189,10 +198,18 @@
     <Filter Include="Scenes">
       <UniqueIdentifier>{36cb0eeb-5a64-45fe-bc51-80931237afb3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SFX">
+      <UniqueIdentifier>{fcf00c54-09a0-4259-bbb0-435bcd51e3b5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="gtaiv.txt">
       <Filter>Header Files</Filter>
     </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="SFX\244657__dsg__pop-5.flac">
+      <Filter>SFX</Filter>
+    </None>
   </ItemGroup>
 </Project>
