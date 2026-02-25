@@ -594,7 +594,7 @@ void SceneHub::Render()
 		RenderMesh(meshList[GEO_FENCE], true);
 	}
 
-	glm::vec3 localCamPos = camera.position / 0.2f;
+	glm::vec3 localCamPos = camera.position;
 	glm::vec3 forward = glm::normalize(camera.target - camera.position);
 
 	glDepthMask(GL_FALSE);
@@ -605,7 +605,7 @@ void SceneHub::Render()
 		glm::vec3 toGrass = pos - localCamPos;
 		float dist = glm::length(toGrass);
 
-		if (dist > 40.f) continue;
+		if (dist > 15.f) continue;
 
 		if (dist > 0.001f) {
 			float dot = glm::dot(forward, toGrass / dist);
@@ -619,7 +619,7 @@ void SceneHub::Render()
 		PushPop grass(modelStack);
 		modelStack.Translate(pos.x, pos.y, pos.z);
 		modelStack.Rotate(yaw, 0, 1, 0);
-		modelStack.Scale(0.4f, 0.4f, 0.4f);
+		modelStack.Scale(.4f, .6f, .4f);
 		RenderMesh(meshList[GEO_GRASS], false);
 	}
 
@@ -959,12 +959,12 @@ void SceneHub::RegenerateGrassPositions()
 		for (int z = -1; z < 2; z++) {
 			for (int i = 0; i < grassPerSection && index < NUM_GRASSCLUMPS; i++) {
 				glm::vec3 pos(
-					((rand() % 40000) - 20000) / 500.f,
+					((rand() % 7000) - 3500) / 500.f,
 					0.f,
-					((rand() % 40000) - 20000) / 500.f
+					((rand() % 7000) - 3500) / 500.f
 				);
 
-				pos += glm::vec3(x * 40.f, 0.f, z * 40.f);
+				pos += glm::vec3(x * 7.f, 0.f, z * 7.f);
 				grassClumps[index++] = pos;
 			}
 		}
@@ -975,14 +975,14 @@ void SceneHub::RegenerateGrassPositions()
 
 void SceneHub::UpdateGrassDensity(double dt)
 {
-	float smoothingFactor = 0.7f;
+	float smoothingFactor = 0.9f;
 	fpsSmoothed = fpsSmoothed * (1.0f - smoothingFactor) + currentFPS * smoothingFactor;
 
 	// fps ratio
 	float fpsRatio = fpsSmoothed / targetFPS;
 
-	if (fpsRatio < 0.8f) {
-		grassDensityMultiplier -= 0.05f * static_cast<float>(dt);
+	if (fpsRatio < 0.9f) {
+		grassDensityMultiplier -= 0.2f * static_cast<float>(dt);
 	}
 	// increase if ratio is good
 	else if (fpsRatio > 1.05f && grassDensityMultiplier < 1.0f) {
