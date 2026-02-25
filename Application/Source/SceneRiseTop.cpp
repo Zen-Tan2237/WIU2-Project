@@ -222,20 +222,26 @@ void SceneRiseTop::Init()
 	meshList_riseTop[GEO_RISETOP]->textureID = LoadTGA("Textures//RiseTop.tga");
 
 	// INITIAL ITEM IN HAND
-	addPickables("Baseball", glm::vec3(0, 0, 0));
+	addPickables("Coke", glm::vec3(0, 0, 0));
 	itemInHand = pickables[0];
-	amountOfItem = 10;
+	amountOfItem = 5;
 	previousItemInHandName = "";
 	itemInUse = false;
 
+	// Grass density initialization
+	targetFPS = 60.0f;
+	fpsSmoothed = 60.0f;
+	grassDensityMultiplier = 1.0f;
+	activeGrassCount = NUM_GRASSCLUMPS;
+
 	// setup phase durations here ([first one is part][second one is phase]. phase means like u want a constant stream of dialgoues
 	// make sure whenver u do part++, u have like (if part == <the number they should be at>) then part++
-	phaseDurations[0][0] = 6.7f;
+	phaseDurations[0][0] = 3.f;
 	phaseDurations[0][1] = 6.7f;
 	phaseDurations[0][2] = 6.7f;
 
 	// CAMERA INIT
-	camera.Init(glm::vec3(0, 0.9f, 3.5), glm::vec3(0, 0.9f, 4.5), glm::vec3(0, 1.9f, 3.5));
+	camera.Init(glm::vec3(0, 0.9f, 4.f), glm::vec3(0, 0.9f, 5.f), glm::vec3(0, 1.9f, 4.f));
 
 	// WORLD OBJECTS
 	bool miscSettings[2] = { false, false }; // for gravity and drag. override in case of specific objects
@@ -247,7 +253,7 @@ void SceneRiseTop::Init()
 	worldObjects[1].InitPhysicsObject(glm::vec3(0, 0.9f, 6), 0.f, BoundingBox::Type::OBB, glm::vec3(1.5f, 1.4f, 1.7f), 90, glm::vec3(0, 1, 0), miscSettings);
 
 	// Rise Top
-	worldObjects[2].InitPhysicsObject(glm::vec3(0, 0.f, 6.5f), 0.f, BoundingBox::Type::OBB, glm::vec3(1.5f, 1.4f, 1.7f), 180, glm::vec3(0, 1, 0), miscSettings);
+	worldObjects[2].InitPhysicsObject(glm::vec3(0, 0.f, 6.5f), 0.f, BoundingBox::Type::OBB, glm::vec3(0.f, 0.f, 0.f), 180, glm::vec3(0, 1, 0), miscSettings);
 
 	// Tables
 	worldObjects[5].InitPhysicsObject(glm::vec3(-3, 0, 3.6f), 0.f, BoundingBox::Type::OBB, glm::vec3(1.8f, 1.f, 1.8f), 50, glm::vec3(0, 1, 0), miscSettings);
@@ -378,8 +384,8 @@ void SceneRiseTop::Render()
 	// Load view matrix stack and set it with camera position, target position and up direction
 	viewStack.LoadIdentity();
 	viewStack.LookAt(
-		camera.position.x, camera.position.y, camera.position.z,
-		camera.target.x, camera.target.y, camera.target.z,
+		camera.position.x + m_viewBobOffset.x, camera.position.y + m_viewBobOffset.y, camera.position.z + m_viewBobOffset.z,
+		camera.target.x + m_viewBobOffset.x, camera.target.y + m_viewBobOffset.y, camera.target.z + m_viewBobOffset.z,
 		camera.up.x, camera.up.y, camera.up.z
 	);
 
@@ -949,12 +955,12 @@ void SceneRiseTop::RegenerateGrassPositions()
 		for (int z = -1; z < 2; z++) {
 			for (int i = 0; i < grassPerSection && index < NUM_GRASSCLUMPS; i++) {
 				glm::vec3 pos(
-					((rand() % 40000) - 20000) / 500.f,
+					((rand() % 7000) - 3500) / 500.f,
 					0.f,
-					((rand() % 40000) - 20000) / 500.f
+					((rand() % 7000) - 3500) / 500.f
 				);
 
-				pos += glm::vec3(x * 40.f, 0.f, z * 40.f);
+				pos += glm::vec3(x * 7.f, 0.f, z * 7.f);
 				grassClumps[index++] = pos;
 			}
 		}
@@ -965,14 +971,14 @@ void SceneRiseTop::RegenerateGrassPositions()
 
 void SceneRiseTop::UpdateGrassDensity(double dt)
 {
-	float smoothingFactor = 0.7f;
+	float smoothingFactor = 0.9f;
 	fpsSmoothed = fpsSmoothed * (1.0f - smoothingFactor) + currentFPS * smoothingFactor;
 
 	// fps ratio
 	float fpsRatio = fpsSmoothed / targetFPS;
 
 	if (fpsRatio < 0.8f) {
-		grassDensityMultiplier -= 0.05f * static_cast<float>(dt);
+		grassDensityMultiplier -= 0.1f * static_cast<float>(dt);
 	}
 	// increase if ratio is good
 	else if (fpsRatio > 1.05f && grassDensityMultiplier < 1.0f) {
@@ -980,11 +986,11 @@ void SceneRiseTop::UpdateGrassDensity(double dt)
 	}
 
 	// clamp density multiplier
-	grassDensityMultiplier = glm::clamp(grassDensityMultiplier, 0.2f, 1.0f);
+	grassDensityMultiplier = glm::clamp(grassDensityMultiplier, 0.1f, 1.0f);
 
 	// regenerate grass positions if density changed significantly
 	int targetCount = static_cast<int>(NUM_GRASSCLUMPS * grassDensityMultiplier);
-	if (abs(targetCount - activeGrassCount) > NUM_GRASSCLUMPS * 0.05f) {
+	if (abs(targetCount - activeGrassCount) > NUM_GRASSCLUMPS * 0.1f) {
 		RegenerateGrassPositions();
 	}
 }
