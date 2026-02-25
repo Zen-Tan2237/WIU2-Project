@@ -250,6 +250,9 @@ void SceneHub::Init()
 	//food stand
 	worldObjects[7].InitPhysicsObject(glm::vec3(-3.6, 0.5f, 5), 0.f, BoundingBox::Type::OBB, glm::vec3(1.5f, 0.5f, 1.3f), -15, glm::vec3(0, 1, 0), miscSettings);
 
+	//fountain
+	worldObjects[8].InitPhysicsObject(glm::vec3(0, 0.3f, 0), 0.f, BoundingBox::Type::SPHERE, glm::vec3(1.3f, 0, 0), 0, glm::vec3(0, 1, 0), miscSettings);
+
 	addPickables("Pepsi", glm::vec3(3, 1, 2));
 
 
@@ -279,12 +282,10 @@ void SceneHub::Update(double dt)
 	}
 
 	// name of interactive, I = interactive, coords
-	addInteractives("Play Rise To The Top ($5)", 'I', glm::vec3(1, 0, 0));
-	addInteractives("1", 'I', glm::vec3(-1, 0, 0));
-	addInteractives("2", 'I', glm::vec3(0, 0, 1));
-	addInteractives("Enter Basketball Toss", 'I', glm::vec3(0, 0, -1));
-
-	addInteractives("Enter Can Knockdown Game", 'I', glm::vec3(0.f, 1.f, 0.f));
+	addInteractives("Play Rise To The Top ($5)", 'I', glm::vec3(0, 0.6f, 5.6f));
+	addInteractives("Play Basketball Toss ($5)", 'I', glm::vec3(5.6f, 0.6, 0));
+	addInteractives("Play Can Knockdown Game ($5)", 'I', glm::vec3(-5.6f, 0.6f, 0));
+	addInteractives("Talk to monkey", 'I',glm::vec3(-1.3f, 0.55f, 0.f));
 
 	//addPickables("Halal Pork", glm::vec3(0, 0, 0));
 	initializePickablesInteractives();
@@ -297,62 +298,63 @@ void SceneHub::Update(double dt)
 			// do it in actual scene instead
 			if (interactives[interactedIndex] == "Play Rise To The Top ($5)" && nextScene == 0) {
 				nextScene = 2;
+				accumulatedCash -= 5;
 				nextSceneDelay = 1.f;
 				sceneSwitchHUD.resetScale(glm::vec2(.25f));
 				sceneSwitchHUD.setTargetScale(glm::vec2(1.f));
 			}
-			else if (interactives[interactedIndex] == "1") {
-				if (part == 0)
-				{
-					addPickables("Pepsi", glm::vec3(0, 5, 0));
-				}
-			}
-			else if (interactives[interactedIndex] == "2") {
-				// do something
-			}
-			else if (interactives[interactedIndex] == "Enter Basketball Toss") {
+			else if (interactives[interactedIndex] == "Play Basketball Toss ($5)") {
 				nextScene = 3;
+				accumulatedCash -= 5;
 				nextSceneDelay = 0.5f;
 				sceneSwitchHUD.resetScale(glm::vec2(.25f));
 				sceneSwitchHUD.setTargetScale(glm::vec2(1.f));
 			}
-			else if (interactives[interactedIndex] == "Enter Can Knockdown Game" && nextScene == 0) {
+			else if (interactives[interactedIndex] == "Play Can Knockdown Game ($5)" && nextScene == 0) {
 					nextScene = 4;
+					accumulatedCash -= 5;
 					nextSceneDelay = 1.f;
 					sceneSwitchHUD.resetScale(glm::vec2(.25f));
 					sceneSwitchHUD.setTargetScale(glm::vec2(1.f));
+			}
+			else if (interactives[interactedIndex] == "Talk to monkey") { //change later
+				if (part == 0)
+				{
+					addPickables("Pepsi", glm::vec3(0, 5, 0));
+				}
 			}
 		}
 	}
 
 	//debug
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_I)) {
-		debugPos.x += 5.f * dt;
+		debugPos.x += 2.f * dt;
 	}
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_J)) {
-		debugPos.z += 5.f * dt;
+		debugPos.z += 2.f * dt;
 	}
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_K)) {
-		debugPos.x -= 5.f * dt;
+		debugPos.x -= 2.f * dt;
 	}
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_L)) {
-		debugPos.z -= 5.f * dt;
+		debugPos.z -= 2.f * dt;
 	}
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_O)) {
-		debugPos.y += 5.f * dt;
+		debugPos.y += 2.f * dt;
 	}
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_U)) {
-		debugPos.y -= 5.f * dt;
+		debugPos.y -= 2.f * dt;
 	}
-	//std::cout << "Debug Pos: " << debugPos.x << ", " << debugPos.y << ", " << debugPos.z << std::endl;
+	std::cout << "Debug Pos: " << debugPos.x << ", " << debugPos.y << ", " << debugPos.z << std::endl;
 
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_M)) {
-		debugScale += 2.0f * dt;
+		debugScale += 0.5f * dt;
 	}
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_N)) {
-		debugScale -= 2.0f * dt;
+		debugScale -= 0.5f * dt;
 	}
-	std::cout << "Debug Scale: " << debugScale << std::endl;
+	//std::cout << "Debug Scale: " << debugScale << std::endl;
+	std::cout << accumulatedCash << std::endl;
 
 	// Update grass density based on FPS
 	UpdateGrassDensity(dt);
@@ -530,11 +532,19 @@ void SceneHub::Render()
 	}
 
 	{
+		PushPop debug(modelStack);
+		modelStack.Translate(debugPos.x, debugPos.y, debugPos.z);
+		modelStack.Scale(debugScale, debugScale, debugScale);
+		RenderMesh(meshList_hub[GEO_SPHERE], false);
+	}
+
+	{
 		PushPop skybox(modelStack);
 		modelStack.Scale(2.f, 2.f, 2.f);
 		RenderSkybox();
 	}
 
+	//debug
 	for (int i = 0; i < TOTAL_PHYSICSOBJECT; i++) {
 		PushPop debug(modelStack);
 		modelStack.Translate(worldObjects[i].position.x, worldObjects[i].position.y, worldObjects[i].position.z);
@@ -615,9 +625,6 @@ void SceneHub::Render()
 		modelStack.MultMatrix(rotation);
 		modelStack.Scale(.12f, .12f, .12f);
 		RenderMesh(meshList[GEO_FOODSTAND], true);
-		//modelStack.Scale(debugScale, debugScale, debugScale);
-		//modelStack.Scale(worldObjects[7].boundingBox.getWidth(), worldObjects[7].boundingBox.getHeight(), worldObjects[7].boundingBox.getDepth());
-		//RenderMesh(meshList_hub[GEO_WALL], true);
 	}
 
 	{
@@ -639,16 +646,16 @@ void SceneHub::Render()
 		RenderMesh(meshList[GEO_STALL], true);
 	}
 
-	//{
-	//	PushPop fountain(modelStack);
-	//	modelStack.Translate(Fountain.position.x, Fountain.position.y, Fountain.position.z);
-	//	modelStack.Scale(1.5f, 1.5f, 1.5f);
-	//	RenderMesh(meshList[GEO_FOUNTAIN], true);
-	//}
+	{
+		PushPop fountain(modelStack);
+		modelStack.Translate(worldObjects[8].position.x, worldObjects[8].position.y, worldObjects[8].position.z);
+		modelStack.Scale(0.22f, 0.22f, 0.22f);
+		RenderMesh(meshList[GEO_FOUNTAIN], true);
+	}
 
 	{
 		PushPop monkey(modelStack);
-		modelStack.Translate(-2.f, 0.24f, 0.f);
+		modelStack.Translate(-1.3f, 0.3f, 0.f);
 		modelStack.Rotate(-90, 0.f, 1.f, 0.f);
 		modelStack.Scale(0.1f, 0.1f, 0.1f);
 		RenderMesh(meshList[GEO_MONKEY], true);
