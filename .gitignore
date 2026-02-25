@@ -30,3 +30,5 @@ Release/
 *.tlog
 *.pdb
 *.idb
+/Application/Application.vcxproj.filters
+/Application/Application.vcxproj.filters
