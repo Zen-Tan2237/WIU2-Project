@@ -166,10 +166,11 @@ void SceneTester::Init()
 
 	player.InitPhysicsObject(camera.position, 0.f, BoundingBox::Type::OBB, glm::vec3(0.5f, 5.f, 0.5f), miscSettings);
 
-	// init sound pop
+	// init sounds
 	AudioManager::Instance().LoadSound("pop", "SFX/244657__dsg__pop-5.flac");
 	AudioManager::Instance().LoadSound("whoosh", "SFX/384908__ali_6868__arrow-whoosh-1.wav");
 	AudioManager::Instance().LoadSound("arrowHit", "SFX/708223__mythmazter__arrow_hit_1.wav");
+	//AudioManager::Instance().LoadSound("catTheme", "SFX/maxwell-the-cat-theme (online-audio-converter.com).wav");
 
 }
 
