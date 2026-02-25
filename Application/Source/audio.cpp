@@ -30,19 +30,6 @@ void AudioManager::Shutdown()
 
 bool AudioManager::LoadSound(const std::string& name, const std::string& path)
 {
-    //if (sounds.find(name) != sounds.end())
-    //    return true; // already loaded
-
-    //ma_sound sound;
-    //if (ma_sound_init_from_file(&engine, path.c_str(), 0, NULL, NULL, &sound) != MA_SUCCESS)
-    //{
-    //    std::cerr << "Failed to load sound: " << path << std::endl;
-    //    return false;
-    //}
-
-    //sounds[name] = sound;
-    //return true;
-
     if (sounds.find(name) != sounds.end())
         return true;
 
