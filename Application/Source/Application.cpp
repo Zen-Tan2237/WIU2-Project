@@ -12,9 +12,10 @@
 #include <stdlib.h>
 
 #include "SceneHub.h"
-#include "SceneTiltingTable.h"
+#include "SceneRiseTop.h"
 #include "SceneFPCamera.h"
 #include "SceneKnockdown.h"
+#include "SceneBB.h"
 
 #include "KeyboardController.h"
 #include "MouseController.h"
@@ -27,7 +28,6 @@
 //debug
 #include "SceneTester.h"
 #include "BaseScene.h"
-#include "SceneTiltingTable.h"
 
 GLFWwindow* m_window;
 const unsigned char FPS = 120; // FPS of this game
@@ -157,10 +157,9 @@ void Application::Run()
 {
 	//Main Loop
 	Scene* scene1 = new SceneHub(); 
-	Scene* scene2 = new SceneTiltingTable();
-	Scene* scene3 = new SceneTester();
+	Scene* scene2 = new SceneRiseTop();
+	Scene* scene3 = new SceneBB();
 	Scene* scene4 = new SceneKnockdown();
-	//Scene* scene5 = new Scene5();
 	
 	Scene* scene = scene1;
 	scene->Init();
@@ -217,12 +216,18 @@ void Application::Run()
 		m_timer.waitUntil(frameTime);
 	}
 	scene->Exit();
-	delete scene; //delete when scene switching implimented
-	/*delete scene1;
-	delete scene2;*/
-	/*delete scene3;
-	delete scene4;
-	delete scene5;*/
+	if (scene1 != nullptr) {
+		delete scene1;
+	}
+	if (scene2 != nullptr) {
+		delete scene2;
+	}
+	if (scene3 != nullptr) {
+		delete scene3;
+	}
+	if (scene4 != nullptr) {
+		delete scene4;
+	}
 }
 
 void Application::Exit()
