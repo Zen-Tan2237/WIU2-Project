@@ -542,10 +542,9 @@ void ApplyPositionalCorrection(PhysicsObject* objA, PhysicsObject* objB, const C
 
 	if (invMassSum < 1e-6f) return; // Both static
 
-	const float percent = 0.2f;
 	const float slop = 0.01f;
 	float penetrationCorrection = std::max(cd.penetration - slop, 0.0f);
-	glm::vec3 correction = (penetrationCorrection / invMassSum) * percent * cd.collisionNormal;
+	glm::vec3 correction = (penetrationCorrection / invMassSum) * cd.collisionNormal;
 
 	if (invMassA > 0.0f) {
 		objA->position -= invMassA * correction;
@@ -573,7 +572,7 @@ void ResolveCollision(CollisionData& cd)
 
 	// Positional correction to avoid sinking
 	const float SLOP = 0.09f;
-	const float PERCENT = 0.2f;
+	const float PERCENT = 1.0f;
 	const float MAX_CORRECTION = 0.5f;
 
 	// Apply positional correction
