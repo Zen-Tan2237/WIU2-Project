@@ -6,7 +6,7 @@
 class SceneKnockdown : public BaseScene
 {
 public:
-    static const int NUM_GRASSCLUMPS = 9000;
+    static const int NUM_GRASSCLUMPS = 4500;
 
     enum GEOMETRY_TYPE_HUB
     {
@@ -19,6 +19,7 @@ public:
         GEO_TABLE,
         GEO_FOODSTAND,
         GEO_FERRISWHEEL,
+        GEO_PEPSI,
 
         NUM_GEOMETRY,
     };
@@ -30,6 +31,8 @@ public:
     void Render() override;
     void RenderUI();
     void Exit() override;
+
+	void generateCanPositions(int pattern);
 
     Mesh* meshList_hub[NUM_GEOMETRY];
 
