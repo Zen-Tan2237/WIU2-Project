@@ -229,7 +229,7 @@ void SceneHub::Init()
 	meshList_hub[GEO_FERRISWHEEL]->textureID = LoadTGA("Textures//FerrisWheel.tga");
 
 	// setup initial item in hand
-	addPickables("Baseball", glm::vec3(0, 0, 0));
+	addPickables("RTX 5090", glm::vec3(0, 0, 0));
 	itemInHand = pickables[0];
 	amountOfItem = 10;
 	previousItemInHandName = "";
@@ -745,7 +745,19 @@ void SceneHub::Render()
 			float pitch = glm::degrees(asin(forward.y));
 
 			itemInHand->body.position = itemInHandPos;
-			itemInHand->body.SetOrientation(-pitch, yaw, 0);
+
+			// rotation offsets when held
+			if (itemInHand->name == "Halal Pork") {
+				itemInHand->body.SetOrientation(0, 180.f, 0);
+			}
+			else if (itemInHand->name == "RTX 5090") {
+				itemInHand->body.SetOrientation(0, 100.f, 0);
+			}
+			else {
+				itemInHand->body.SetOrientation(0, 0, 0);
+			}
+
+			itemInHand->body.RotateOrientation(-pitch, yaw, 0);
 		}
 
 
@@ -776,6 +788,22 @@ void SceneHub::Render()
 				else if (pickables[i]->name == "Pepsi") {
 					modelStack.Scale(0.15f, 0.15f, 0.15f);
 					RenderMesh(meshList[GEO_CANSPEPSI], enableLight);
+				}
+				else if (pickables[i]->name == "Figurine") {
+					modelStack.Scale(0.15f, 0.15f, 0.15f);
+					RenderMesh(meshList[GEO_FIGURINE], enableLight);
+				}
+				else if (pickables[i]->name == "Halal Pork") {
+					modelStack.Scale(0.15f, 0.15f, 0.15f);
+					RenderMesh(meshList[GEO_PIG], enableLight);
+				}
+				else if (pickables[i]->name == "Plushie") {
+					modelStack.Scale(0.15f, 0.15f, 0.15f);
+					RenderMesh(meshList[GEO_PLUSHIE], enableLight);
+				}
+				else if (pickables[i]->name == "RTX 5090") {
+					modelStack.Scale(0.15f, 0.15f, 0.15f);
+					RenderMesh(meshList[GEO_5090], enableLight);
 				}
 
 				modelStack.PopMatrix();

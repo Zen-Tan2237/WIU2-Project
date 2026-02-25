@@ -1212,6 +1212,42 @@ void BaseScene::addPickables(std::string name, glm::vec3 position)
 					settings
 				);
 			}
+			else if (pickables[i]->name == "Figurine") {
+				pickables[i]->body.InitPhysicsObject(
+					position,
+					25.0f,
+					BoundingBox::Type::OBB,
+					glm::vec3(.11f, .19f, .11f),
+					settings
+				);
+			}
+			else if (pickables[i]->name == "Halal Pork") {
+				pickables[i]->body.InitPhysicsObject(
+					position,
+					25.0f,
+					BoundingBox::Type::OBB,
+					glm::vec3(.09f, .15f, .17f),
+					settings
+				);
+			}
+			else if (pickables[i]->name == "Plushie") {
+				pickables[i]->body.InitPhysicsObject(
+					position,
+					25.0f,
+					BoundingBox::Type::OBB,
+					glm::vec3(.11f, .13f, .05f),
+					settings
+				);
+			}
+			else if (pickables[i]->name == "RTX 5090") {
+				pickables[i]->body.InitPhysicsObject(
+					position,
+					25.0f,
+					BoundingBox::Type::OBB,
+					glm::vec3(.52f, .3f, .18f),
+					settings
+				);
+			}
 			
 
 			temp = i;
