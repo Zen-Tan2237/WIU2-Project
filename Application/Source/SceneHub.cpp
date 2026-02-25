@@ -247,15 +247,14 @@ void SceneHub::Init()
 
 	wall.InitPhysicsObject(glm::vec3(0, 0, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(1, 1, 1), 45, glm::vec3(1, 0, 0), miscSettings);
 
-	Stall[0].InitPhysicsObject(glm::vec3(-30, 0, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(6.5f, 5.3f, 8.5f), 0, glm::vec3(0, 1, 0), miscSettings);
-	Stall[1].InitPhysicsObject(glm::vec3(30, 0, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(6.5f, 5.3f, 8.5f), 180, glm::vec3(0, 1, 0), miscSettings);
-	Stall[2].InitPhysicsObject(glm::vec3(0, 0, -30), 0.f, BoundingBox::Type::OBB, glm::vec3(6.5f, 5.3f, 8.5f), -90, glm::vec3(0, 1, 0), miscSettings);
-	Stall[3].InitPhysicsObject(glm::vec3(0, 0, 30), 0.f, BoundingBox::Type::OBB, glm::vec3(6.5f, 5.3f, 8.5f), 90, glm::vec3(0, 1, 0), miscSettings);
+	Stall[0].InitPhysicsObject(glm::vec3(-30, 4.5f, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(8.f, 9.f, 8.5f), 0, glm::vec3(0, 1, 0), miscSettings);
+	Stall[1].InitPhysicsObject(glm::vec3(30, 4.5f, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(8.f, 9.f, 8.5f), 180, glm::vec3(0, 1, 0), miscSettings);
+	Stall[2].InitPhysicsObject(glm::vec3(0, 4.5f, -30), 0.f, BoundingBox::Type::OBB, glm::vec3(8.f, 9.f, 8.5f), -90, glm::vec3(0, 1, 0), miscSettings);
+	Stall[3].InitPhysicsObject(glm::vec3(0, 4.5f, 30), 0.f, BoundingBox::Type::OBB, glm::vec3(8.f, 9.f, 8.5f), 90, glm::vec3(0, 1, 0), miscSettings);
 
 	Table[0].InitPhysicsObject(glm::vec3(-15, 0, 18), 0.f, BoundingBox::Type::OBB, glm::vec3(5.f, 2.5f, 5.f), 50, glm::vec3(0, 1, 0), miscSettings);
-	Table[1].InitPhysicsObject(glm::vec3(15, 0, 18), 0.f, BoundingBox::Type::OBB, glm::vec3(5.f, 2.5f, 5.f), -50, glm::vec3(0, 1, 0), miscSettings);
 
-	Ferriswheel.InitPhysicsObject(glm::vec3(-40, 0, -35), 0.f, BoundingBox::Type::OBB, glm::vec3(10.f, 10.f, 5.f), 45, glm::vec3(0, 1, 0), miscSettings);
+	Ferriswheel.InitPhysicsObject(glm::vec3(-40, 0, -35), 0.f, BoundingBox::Type::OBB, glm::vec3(50.f, 45.f, 40.f), 45, glm::vec3(0, 1, 0), miscSettings);
 
 
 	worldObjects[0] = wall;
