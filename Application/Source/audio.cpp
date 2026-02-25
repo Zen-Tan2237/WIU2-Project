@@ -28,7 +28,7 @@ void AudioManager::Shutdown()
     ma_engine_uninit(&engine);
 }
 
-bool AudioManager::LoadSound(const std::string& name, const std::string& path)
+bool AudioManager::LoadSound(const std::string& name, const std::string& path, bool stream)
 {
     if (sounds.find(name) != sounds.end())
         return true;
@@ -40,6 +40,11 @@ bool AudioManager::LoadSound(const std::string& name, const std::string& path)
 
     if (!inserted)
         return false;
+
+    ma_uint32 flags = 0;
+    if (stream)
+        flags |= MA_SOUND_FLAG_STREAM;
+
 
     ma_result resultSound = ma_sound_init_from_file(&engine, path.c_str(), 0, NULL, NULL, &it->second); // initialize directly in map
         

@@ -56,7 +56,7 @@ public:
 
 
 
-    bool LoadSound(const std::string& name, const std::string& path); // Load a sound file by name
+    bool LoadSound(const std::string& name, const std::string& path, bool stream = false); // Load a sound file by name
     bool SetSoundVolume(const std::string& name, float volume);
     
     // Play a loaded sound (does NOT rewind automatically)
