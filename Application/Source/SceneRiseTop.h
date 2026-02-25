@@ -28,7 +28,7 @@ public:
     void RenderUI();
     void Exit() override;
 
-    Mesh* meshList_hub[NUM_GEOMETRY];
+    Mesh* meshList_riseTop[NUM_GEOMETRY];
 
     // Grass density management
     int activeGrassCount;

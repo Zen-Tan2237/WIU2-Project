@@ -155,7 +155,7 @@ void Application::Init()
 void Application::Run()
 {
 	//Main Loop
-	Scene* scene1 = new SceneHub(); 
+	Scene* scene1 = new SceneRiseTop(); 
 	Scene* scene2 = new SceneRiseTop();
 	Scene* scene3 = new SceneTester();
 	Scene* scene4 = new SceneKnockdown();
