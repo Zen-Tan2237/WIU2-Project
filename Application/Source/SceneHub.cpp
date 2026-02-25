@@ -282,7 +282,7 @@ void SceneHub::Update(double dt)
 	addInteractives("Play Rise To The Top ($5)", 'I', glm::vec3(1, 0, 0));
 	addInteractives("1", 'I', glm::vec3(-1, 0, 0));
 	addInteractives("2", 'I', glm::vec3(0, 0, 1));
-	addInteractives("Enter SceneTester", 'I', glm::vec3(0, 0, -1));
+	addInteractives("Enter Basketball Toss", 'I', glm::vec3(0, 0, -1));
 
 	addInteractives("Enter Can Knockdown Game", 'I', glm::vec3(0.f, 1.f, 0.f));
 
@@ -310,9 +310,9 @@ void SceneHub::Update(double dt)
 			else if (interactives[interactedIndex] == "2") {
 				// do something
 			}
-			else if (interactives[interactedIndex] == "Enter SceneTester") {
+			else if (interactives[interactedIndex] == "Enter Basketball Toss") {
 				nextScene = 3;
-				nextSceneDelay = 1.f;
+				nextSceneDelay = 0.5f;
 				sceneSwitchHUD.resetScale(glm::vec2(.25f));
 				sceneSwitchHUD.setTargetScale(glm::vec2(1.f));
 			}
