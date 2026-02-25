@@ -988,7 +988,7 @@ void SceneHub::UpdateGrassDensity(double dt)
 	float fpsRatio = fpsSmoothed / targetFPS;
 
 	if (fpsRatio < 0.9f) {
-		grassDensityMultiplier -= 0.2f * static_cast<float>(dt);
+		grassDensityMultiplier -= 0.1f * static_cast<float>(dt);
 	}
 	// increase if ratio is good
 	else if (fpsRatio > 1.05f && grassDensityMultiplier < 1.0f) {
@@ -996,11 +996,11 @@ void SceneHub::UpdateGrassDensity(double dt)
 	}
 
 	// clamp density multiplier
-	grassDensityMultiplier = glm::clamp(grassDensityMultiplier, 0.2f, 1.0f);
+	grassDensityMultiplier = glm::clamp(grassDensityMultiplier, 0.1f, 1.0f);
 
 	// regenerate grass positions if density changed significantly
 	int targetCount = static_cast<int>(NUM_GRASSCLUMPS * grassDensityMultiplier);
-	if (abs(targetCount - activeGrassCount) > NUM_GRASSCLUMPS * 0.05f) {
+	if (abs(targetCount - activeGrassCount) > NUM_GRASSCLUMPS * 0.025f) {
 		RegenerateGrassPositions();
 	}
 }
