@@ -473,7 +473,7 @@ void BaseScene::Update(double dt)
 		dtMultiplier += 0.005f;
 	}
 
-	std::cout << dtMultiplier << std::endl;
+	//std::cout << dtMultiplier << std::endl;
 
 	dt *= dtMultiplier;
 	//
