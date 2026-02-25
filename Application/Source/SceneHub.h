@@ -6,7 +6,7 @@
 class SceneHub : public BaseScene
 {
 public:
-    static const int NUM_GRASSCLUMPS = 9000;
+    static const int NUM_GRASSCLUMPS = 4500;
 
     enum GEOMETRY_TYPE_HUB
     {
