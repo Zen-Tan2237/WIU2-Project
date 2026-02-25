@@ -473,7 +473,7 @@ void BaseScene::Update(double dt)
 		dtMultiplier += 0.005f;
 	}
 
-	std::cout << dtMultiplier << std::endl;
+	//std::cout << dtMultiplier << std::endl;
 
 	dt *= dtMultiplier;
 	//
@@ -549,34 +549,56 @@ void BaseScene::Update(double dt)
 	cameraBody.position = camera.position;
 	cameraBody.velocity = glm::vec3(0);
 
-	CollisionData cd;
-	for (auto& obj : worldObjects) {	// Camera - World Objects
-		if (CheckCollision(cameraBody, obj, cd))
-		{
-			ResolveCollision(cd);
-		}
-	}
+	const int COLLISION_ITERATIONS = 1;
 
-	for (int i = 0; i < TOTAL_PICKABLES; ++i) {	// Pickables - World Objects
+	for (int iter = 0; iter < COLLISION_ITERATIONS; iter++) {
+		// Camera - World Objects
+		int index = 0;
 		for (auto& obj : worldObjects) {
-			if (pickables[i] != nullptr) {
-				if (!pickables[i]->isHeld) {
-					if (CheckCollision(pickables[i]->body, obj, cd)) {
-						ResolveCollision(cd);
+			CollisionData cd;
+			if (CheckCollision(cameraBody, obj, cd) && index != 0) {
+				ResolveCollision(cd);
+			}
+			index++;
+		}
+
+		for (int i = 0; i < TOTAL_PICKABLES; ++i) {	// Pickables - World Objects
+			for (auto& obj : worldObjects) {
+				if (pickables[i] != nullptr) {
+					if (!pickables[i]->isHeld) {
+						CollisionData cd;
+						if (CheckCollision(pickables[i]->body, obj, cd)) {
+							ResolveCollision(cd);
+						}
 					}
 				}
 			}
 		}
-	}
 
-	// Pickables - Camera
-	//for (int i = 0; i < TOTAL_PICKABLES; ++i) {
-	//	if (!pickables[i].isHeld) {
-	//		if (CheckCollision(cameraBody, pickables[i].body, cd)) {
-	//			ResolveCollision(cd);
-	//		}
-	//	}
-	//}
+		for (int i = 0; i < TOTAL_PICKABLES - 1; ++i) {
+			if (pickables[i] != nullptr) {
+				for (int o = i + 1; o < TOTAL_PICKABLES; ++o) {
+					if (pickables[o] != nullptr) {
+						if (!pickables[i]->isHeld && !pickables[o]->isHeld) {
+							CollisionData cd;
+							if (CheckCollision(pickables[i]->body, pickables[o]->body, cd)) {
+								ResolveCollision(cd);
+							}
+						}
+					}
+				}
+			}
+		}
+
+		// Pickables - Camera
+		//for (int i = 0; i < TOTAL_PICKABLES; ++i) {
+		//	if (!pickables[i].isHeld) {
+		//		if (CheckCollision(cameraBody, pickables[i].body, cd)) {
+		//			ResolveCollision(cd);
+		//		}
+		//	}
+		//}
+	}
 
 	// UPDATE PHYSICS
 	//cameraBody.UpdatePhysics(dt);
@@ -589,9 +611,10 @@ void BaseScene::Update(double dt)
 		}
 	}
 
-	for (auto& obj : worldObjects) {
+	/*for (auto& obj : worldObjects) {
 		obj.UpdatePhysics(dt);
-	}
+	}*/
+
 
 	camera.position = cameraBody.position;
 
@@ -730,14 +753,10 @@ void BaseScene::HandleKeyPress(double dt)
 
 	// HOLD ITEM HANDLER
 	if (itemInHand != nullptr) {
-		if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_E))
+		if (MouseController::GetInstance()->IsButtonPressed(0) && !itemInUse)
 		{
-			if (itemInUse) {
-				itemInUse = false;
-			}
-			else {
-				itemInUse = true;
-			}
+			itemInUse = true;
+			useItemInHand();
 		}
 
 		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_X))
@@ -1192,12 +1211,12 @@ void BaseScene::addPickables(std::string name, glm::vec3 position)
 			pickables[i]->name = name;
 			pickables[i]->isHeld = false;
 
-			bool settings[2] = { true, false };
+			bool settings[2] = { true, true };
 
 			if (name == "Baseball") {
 				pickables[i]->body.InitPhysicsObject(
 					position,
-					25.0f,
+					5.0f,
 					BoundingBox::Type::SPHERE,
 					glm::vec3(.07f, .07f, .07f),
 					settings
@@ -1206,9 +1225,45 @@ void BaseScene::addPickables(std::string name, glm::vec3 position)
 			else if (name == "Coke" || name == "Mountain Dew" || name == "Sprite" || name == "Pepsi") {
 				pickables[i]->body.InitPhysicsObject(
 					position,
-					25.0f,
+					5.0f,
 					BoundingBox::Type::OBB,
 					glm::vec3(.09f, .18f, .09f),
+					settings
+				);
+			}
+			else if (pickables[i]->name == "Figurine") {
+				pickables[i]->body.InitPhysicsObject(
+					position,
+					5.0f,
+					BoundingBox::Type::OBB,
+					glm::vec3(.11f, .19f, .11f),
+					settings
+				);
+			}
+			else if (pickables[i]->name == "Halal Pork") {
+				pickables[i]->body.InitPhysicsObject(
+					position,
+					5.0f,
+					BoundingBox::Type::OBB,
+					glm::vec3(.09f, .15f, .17f),
+					settings
+				);
+			}
+			else if (pickables[i]->name == "Plushie") {
+				pickables[i]->body.InitPhysicsObject(
+					position,
+					5.0f,
+					BoundingBox::Type::OBB,
+					glm::vec3(.11f, .13f, .05f),
+					settings
+				);
+			}
+			else if (pickables[i]->name == "RTX 5090") {
+				pickables[i]->body.InitPhysicsObject(
+					position,
+					5.0f,
+					BoundingBox::Type::OBB,
+					glm::vec3(.52f, .3f, .18f),
 					settings
 				);
 			}
@@ -1342,5 +1397,19 @@ void BaseScene::addItemInHand(int index)
 		dropItemInHand(amountOfItem);
 		itemInHand = newItem;
 		amountOfItem = 1;
+	}
+}
+
+void BaseScene::useItemInHand()
+{
+	if (itemInHand != nullptr) {
+		if (itemInHand->name == "Baseball") {
+			itemInHand->isHeld = false;
+
+
+			glm::vec3 forward = glm::normalize(camera.target - camera.position);
+
+			itemInHand->body.AddImpulse(glm::vec3((forward * 25.f) - itemInHand->body.position));
+		}
 	}
 }

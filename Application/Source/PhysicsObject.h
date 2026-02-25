@@ -12,7 +12,11 @@
 // Usage Instructions:
 // 1. Create an instance of PhysicsObject for any objects to have physics properties and behaviors.
 // 1b. Feel free to inherit from this class to add more specific properties (ie. player being the first person cam)
+// do: class Child : public PhysicsObject { ... };
 // 2. Call InitPhysicsObject() to init the physics properties of the object, like mass, position and bounding box properties.
+// do either: obj.InitPhysicsObject(pos, mass, BoundingBox::Type::bbType, vec3(bbWidth, bbHeight, bbDepth), miscSettings);
+// or: obj.InitPhysicsObject(pos, mass, BoundingBox::Type::bbType, vec3(bbWidth, bbHeight, bbDepth), angleDeg, rotAxis, miscSettings);
+// or: obj.InitPhysicsObject(pos, mass, BoundingBox::Type::bbType, vec3(bbWidth, bbHeight, bbDepth), quatOrientation, miscSettings);
 // 2b. The only bounding box properties needed to be set is the type and dimensions, the others are calculated during initialisation.
 // 2c. note that the dimensions are a glm::vec3, for spheres, x component is for radius, rest are ignored.
 // For OBB, x is width, y is height and z is depth.
@@ -39,8 +43,8 @@ public:
 
 	// misc properties for physics calculations
 	float mass{ 1.f };
-	float bounciness{ 0.5f }; // Coefficient of restitution for collisions
-	float friction{ 0.5f }; // Coefficient of friction for collisions (Currently a stub, to be added when needed)
+	float bounciness{ 0.0f }; // Coefficient of restitution for collisions
+	float friction{ 0.5f }; // Coefficient of friction for collisions 
 
 	// misc properties to enable/disable certain physics features
 	bool GravityEnabled{ false };

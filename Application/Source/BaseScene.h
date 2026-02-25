@@ -241,6 +241,7 @@ public:
 	void getClosestInteractive();
 	void dropItemInHand(int amountToRemove);
 	void addItemInHand(int index);
+	void useItemInHand();
 
 	unsigned m_vertexArrayID;
 	Mesh* meshList[NUM_GEOMETRY];
