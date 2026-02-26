@@ -10,21 +10,17 @@ void PhysicsObject::AddBoundingBox(BoundingBox box) {
 }
 
 bool PhysicsObject::isOBBanAABB() const {
-	if (boundingBox.getType() == BoundingBox::Type::SPHERE) {
-		return false;
-	}
-	else {
-		glm::quat identityQuat(1.f, 0.f, 0.f, 0.f);
-		glm::quat negIdentityQuat(-1.f, 0.f, 0.f, 0.f);
-		if (orientation == identityQuat || orientation == negIdentityQuat) {
-			return true;
-		}
-	}
-	return false;
+	if (boundingBox.getType() == BoundingBox::Type::SPHERE) return false;
+
+	// If orientation is "close enough" to identity (or -identity), treat as AABB
+	const glm::quat id(1.f, 0.f, 0.f, 0.f);
+	float d = std::abs(glm::dot(glm::normalize(orientation), id)); // abs handles -identity too
+	return d > 0.9999f; // tweak if needed
 }
 
 void PhysicsObject::AddImpulse(const glm::vec3& impulse)
 {
+	if (mass <= 0.f) return; // Static objects don't respond to impulses
 	velocity += impulse / mass;
 }
 
@@ -46,72 +42,50 @@ void PhysicsObject::UpdateInertiaTensors() {
 
 void PhysicsObject::UpdatePhysics(double dt) {
 	float fdt = static_cast<float>(dt);
-
-	// No time has passed, no need to update
 	if (fdt <= 0.f) return;
 
-	// update inertia tensors based on current orientation
-	UpdateInertiaTensors();
-
-	// Warp orientation
+	// Normalise orientation
 	orientation = glm::normalize(orientation);
 
-	// Important params
-	const float Drag = 0.5f; // Drag coefficient (tunable)
-	const float AngularDrag = 0.5f; // Angular drag coefficient (tunable)
-	const float SpeedThreshold = 0.01f; // Threshold below which we consider the object to be at rest
-	const float AngularSpeedThreshold = 0.01f; // Threshold below which we consider the object to be at rest in terms of rotation
+	// Reset accumulators you actually integrate
+	acceleration = glm::vec3(0.f);
 
-	// If gravity is enabled, apply it as a force
-	if (GravityEnabled && mass > 0) {
-		glm::vec3 gravityForce = glm::vec3(0.f, -9.81f, 0.f);
-		totalForces += gravityForce * mass;
+	// Gravity
+	if (GravityEnabled && mass > 0.f) {
+		totalForces += glm::vec3(0.f, -9.81f, 0.f) * mass;
 	}
 
-	// If drag is enabled, apply it as a force opposite to the velocity
-	if (DragEnabled && mass > 0) {
-		glm::vec3 dragForce = -Drag * velocity;
-		totalForces += dragForce;
-		acceleration += dragForce * (1.f / mass);
+	// Linear drag
+	const float Drag = 0.5f;
+	if (DragEnabled && mass > 0.f) {
+		totalForces += -Drag * velocity;
 	}
 
-	// Apply angular drag
-	glm::vec3 angularDragTorque = -AngularDrag * angularVelocity;
-	totalTorque += angularDragTorque;
+	// Angular drag
+	const float AngularDrag = 0.5f;
+	totalTorque += -AngularDrag * angularVelocity;
 
-	// Apply acceleration from forces
-	if (mass > 0) {
-		acceleration = totalForces * (1.f / mass);
-	}
-
-	// Apply angular acceleration from torque
+	// Integrate angular
+	UpdateInertiaTensors();
 	glm::vec3 angularAcceleration = invInertiaWorld * totalTorque;
 	angularVelocity += angularAcceleration * fdt;
 
+	glm::quat omega(0.f, angularVelocity.x, angularVelocity.y, angularVelocity.z);
+	orientation += 0.5f * omega * orientation * fdt;
+	orientation = glm::normalize(orientation);
 
-	// apply angular velocity to orientation
-	orientation += 0.5f * glm::quat(0.f, angularVelocity) * orientation * fdt;
-
-	// Semi-implicit Euler integration for linear motion
+	// Integrate linear (semi-implicit euler)
+	if (mass > 0.f) acceleration = totalForces / mass;
 	velocity += acceleration * fdt;
 	position += velocity * fdt;
 
+	// Sleep thresholds (consider lowering)
+	const float SpeedThreshold = 0.01f;
+	const float AngularSpeedThreshold = 0.01f;
+	if (glm::length(velocity) < SpeedThreshold) velocity = glm::vec3(0.f);
+	if (glm::length(angularVelocity) < AngularSpeedThreshold) angularVelocity = glm::vec3(0.f);
 
-	// Snap to 0 velocity if below threshold to prevent jitter
-	if (glm::length(velocity) < SpeedThreshold) {
-		velocity = glm::vec3(0.f);
-	}
-
-	// Snap to 0 angular velocity if below threshold to prevent jitter
-	if (glm::length(angularVelocity) < AngularSpeedThreshold) {
-		angularVelocity = glm::vec3(0.f);
-	}
-
-	// Warp orientation again to prevent implicit scaling from numerical errors
-	orientation = glm::normalize(orientation);
-
-	// Reset forces and torque for the next frame
-	ForcesSetZero();    
+	ForcesSetZero();
 }
 
 void PhysicsObject::ForcesSetZero() {

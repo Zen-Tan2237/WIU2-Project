@@ -16,6 +16,7 @@
 #include "KeyboardController.h"
 #include "MouseController.h"
 #include "CollisionDetection.h"
+#include <vector>
 
 SceneKnockdown::SceneKnockdown()
 {
@@ -401,11 +402,67 @@ void SceneKnockdown::Update(double dt)
 	}
 	std::cout << "Debug Scale: " << debugScale << std::endl;
 
+	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_SPACE)) {
+		// Shoot the item in hand
+	}
+
 	// Update grass density based on FPS
 	UpdateGrassDensity(dt);
 
 	std::cout << camera.position.x << camera.position.y << camera.position.z << std::endl;
 	std::cout << camera.target.x << camera.target.y << camera.target.z << std::endl;
+
+	std::vector<CollisionData> contacts;
+	contacts.reserve(256);
+
+	// Baseball pickables vs cans
+	for (int i = 0; i < noOfPickables; i++) {
+		if (!pickables[i] || pickables[i]->name != "Baseball") continue;
+
+		for (int j = 0; j < numOfCansInPlay; j++) {
+			CollisionData cd;
+			if (CheckCollision(pickables[i]->body, cans[j], cd)) {
+				startPhysicsUpdateForCans = true;
+				contacts.push_back(cd);
+			}
+		}
+	}
+
+	if (startPhysicsUpdateForCans) {
+		// can vs can (unique pairs only)
+		for (int i = 0; i < numOfCansInPlay; i++) {
+			for (int j = i + 1; j < numOfCansInPlay; j++) {
+				CollisionData cd;
+				if (CheckCollision(cans[i], cans[j], cd)) {
+					contacts.push_back(cd);
+				}
+			}
+		}
+
+		// world vs can
+		for (PhysicsObject& obj : worldObjects) {
+			for (int i = 0; i < numOfCansInPlay; i++) {
+				CollisionData cd;
+				if (CheckCollision(obj, cans[i], cd)) {
+					contacts.push_back(cd);
+				}
+			}
+		}
+	}
+
+	if (startPhysicsUpdateForCans) {
+		const int SOLVER_ITERS = 8; // 6–10 is fine
+
+		for (int iter = 0; iter < SOLVER_ITERS; ++iter) {
+			for (auto& cd : contacts) {
+				ResolveCollision(cd);
+			}
+		}
+
+		for (int i = 0; i < numOfCansInPlay; i++) {
+			cans[i].UpdatePhysics(dt);
+		}
+	}
 }
 
 void SceneKnockdown::Render()
@@ -781,7 +838,19 @@ void SceneKnockdown::Render()
 			itemInHand->body.position = itemInHandPos;
 			itemInHand->body.SetOrientation(-pitch, yaw, 0);
 		}
-
+		// Render cans
+		for (int i = 0; i < numOfCansInPlay; i++){
+			PushPop cansGuard(modelStack);
+			modelStack.Translate(cans[i].position.x, cans[i].position.y, cans[i].position.z);
+			glm::mat4 rotation = glm::mat4_cast(cans[i].orientation);
+			modelStack.MultMatrix(rotation);
+			modelStack.Scale(0.15f, 0.15f, 0.15f);
+			meshList_hub[GEO_PEPSI]->material.kAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
+			meshList_hub[GEO_PEPSI]->material.kDiffuse = glm::vec3(1.0f, 1.0f, 1.0f);
+			meshList_hub[GEO_PEPSI]->material.kSpecular = glm::vec3(0.0f, 0.0f, 0.0f);
+			meshList_hub[GEO_PEPSI]->material.kShininess = 1.0f;
+			RenderMesh(meshList_hub[GEO_PEPSI], true);
+		}
 
 		// Render pickable items
 		for (int i = 0; i < TOTAL_PICKABLES; i++) {
@@ -1042,12 +1111,13 @@ void SceneKnockdown::generateCanPositions(int pattern) {
 	bool settings[2] = { true , true };
 	switch (pattern) {
 	case 1:
-		worldObjects[10].InitPhysicsObject(glm::vec3(-6.6, 0.8f, 0.1f), 5.f, BoundingBox::Type::OBB, canSize, settings);
-		worldObjects[11].InitPhysicsObject(glm::vec3(-6.6, 0.8f, -0.1f), 5.f, BoundingBox::Type::OBB, canSize, settings);
-		worldObjects[12].InitPhysicsObject(glm::vec3(-6.6, 0.8f, 0.f), 5.f, BoundingBox::Type::OBB, canSize, settings);
-		worldObjects[13].InitPhysicsObject(glm::vec3(-6.6, 0.98f, 0.05f), 5.f, BoundingBox::Type::OBB, canSize, settings);
-		worldObjects[14].InitPhysicsObject(glm::vec3(-6.6, 0.98f, -0.05f), 5.f, BoundingBox::Type::OBB, canSize, settings);
-		worldObjects[15].InitPhysicsObject(glm::vec3(-6.6, 1.16f, 0.f), 5.f, BoundingBox::Type::OBB, canSize, settings);
+		cans[0].InitPhysicsObject(glm::vec3(-6.6, 0.8f, 0.1f), 5.f, BoundingBox::Type::OBB, canSize, settings);
+		cans[1].InitPhysicsObject(glm::vec3(-6.6, 0.8f, -0.1f), 5.f, BoundingBox::Type::OBB, canSize, settings);
+		cans[2].InitPhysicsObject(glm::vec3(-6.6, 0.8f, 0.f), 5.f, BoundingBox::Type::OBB, canSize, settings);
+		cans[3].InitPhysicsObject(glm::vec3(-6.6, 0.98f, 0.05f), 5.f, BoundingBox::Type::OBB, canSize, settings);
+		cans[4].InitPhysicsObject(glm::vec3(-6.6, 0.98f, -0.05f), 5.f, BoundingBox::Type::OBB, canSize, settings);
+		cans[5].InitPhysicsObject(glm::vec3(-6.6, 1.16f, 0.f), 5.f, BoundingBox::Type::OBB, canSize, settings);
+		numOfCansInPlay = 6;
 		break;
 	case 2:
 		break;
@@ -1055,12 +1125,14 @@ void SceneKnockdown::generateCanPositions(int pattern) {
 		break;
 	default:
 		// Default to pattern 1
-		worldObjects[10].InitPhysicsObject(glm::vec3(-6.6, 0.7f, 0.1f), 5.f, BoundingBox::Type::OBB, canSize, settings);
-		worldObjects[11].InitPhysicsObject(glm::vec3(-6.6, 0.7f, -0.1f), 5.f, BoundingBox::Type::OBB, canSize, settings);
-		worldObjects[12].InitPhysicsObject(glm::vec3(-6.6, 0.7f, 0.f), 5.f, BoundingBox::Type::OBB, canSize, settings);
-		worldObjects[13].InitPhysicsObject(glm::vec3(-6.6, 0.88f, 0.05f), 5.f, BoundingBox::Type::OBB, canSize, settings);
-		worldObjects[14].InitPhysicsObject(glm::vec3(-6.6, 0.88f, -0.05f), 5.f, BoundingBox::Type::OBB, canSize, settings);
-		worldObjects[15].InitPhysicsObject(glm::vec3(-6.6, 1.06f, 0.f), 5.f, BoundingBox::Type::OBB, canSize, settings);
+		cans[0].InitPhysicsObject(glm::vec3(-6.6, 0.8f, 0.1f), 5.f, BoundingBox::Type::OBB, canSize, settings);
+		cans[1].InitPhysicsObject(glm::vec3(-6.6, 0.8f, -0.1f), 5.f, BoundingBox::Type::OBB, canSize, settings);
+		cans[2].InitPhysicsObject(glm::vec3(-6.6, 0.8f, 0.f), 5.f, BoundingBox::Type::OBB, canSize, settings);
+		cans[3].InitPhysicsObject(glm::vec3(-6.6, 0.98f, 0.05f), 5.f, BoundingBox::Type::OBB, canSize, settings);
+		cans[4].InitPhysicsObject(glm::vec3(-6.6, 0.98f, -0.05f), 5.f, BoundingBox::Type::OBB, canSize, settings);
+		cans[5].InitPhysicsObject(glm::vec3(-6.6, 1.16f, 0.f), 5.f, BoundingBox::Type::OBB, canSize, settings);
+		numOfCansInPlay = 6;
 		break;
+
 	}
 }

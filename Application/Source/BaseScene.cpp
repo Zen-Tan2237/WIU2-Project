@@ -1462,13 +1462,13 @@ void BaseScene::useItemInHand()
 
 			if (amountOfItem > 0) {
 				addPickables(itemToDropName, placementPos);
-				pickables[newestPickableIndex]->body.AddImpulse(glm::normalize((camera.position + forward * 5.f + glm::vec3(0, 1.f, 0)) - placementPos) * strength);
+				pickables[newestPickableIndex]->body.AddImpulse(glm::normalize((camera.position + forward * 2.f + glm::vec3(0, 1.f, 0)) - placementPos) * strength);
 			}
 			else {
 				itemInHand->body.ResetPhysicsProperties();
 				itemInHand->body.position = placementPos;
 				itemInHand->isHeld = false;
-				itemInHand->body.AddImpulse(glm::normalize((camera.position + forward * 5.f + glm::vec3(0, 1.f, 0)) - placementPos) * strength);
+				itemInHand->body.AddImpulse(glm::normalize((camera.position + forward * 2.f + glm::vec3(0, 1.f, 0)) - placementPos) * strength);
 			}
 
 			if (amountOfItem == 0) {
