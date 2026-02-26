@@ -264,8 +264,8 @@ void BaseScene::Init()
 	meshList[GEO_PINGPONGBALL] = MeshBuilder::GenerateOBJ("Ping Pong Ball", "Models//PingPongBall.obj");
 	meshList[GEO_PINGPONGBALL]->textureID = LoadTGA("Textures//Table_Tennis.tga");
 
-	//meshList[GEO_CONTROLLER] = MeshBuilder::GenerateOBJ("Controller", "Models//Controller.obj");
-	//meshList[GEO_CONTROLLER]->textureID = LoadTGA("Textures//Controller.tga");
+	meshList[GEO_CONTROLLER] = MeshBuilder::GenerateOBJ("Controller", "Models//Controller.obj");
+	meshList[GEO_CONTROLLER]->textureID = LoadTGA("Textures//Controller.tga");
 
 	// SKYBOX
 	meshList[GEO_FRONT] = MeshBuilder::GenerateQuad("Front", glm::vec3(1.f, 1.f, 1.f), 100.f);
@@ -511,10 +511,10 @@ void BaseScene::Init()
 	meshList[GEO_STALL]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
 	meshList[GEO_STALL]->material.kShininess = 1.0f;
 
-	//meshList[GEO_CONTROLLER]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
-	//meshList[GEO_CONTROLLER]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
-	//meshList[GEO_CONTROLLER]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
-	//meshList[GEO_CONTROLLER]->material.kShininess = 1.0f;
+	meshList[GEO_CONTROLLER]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	meshList[GEO_CONTROLLER]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
+	meshList[GEO_CONTROLLER]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+	meshList[GEO_CONTROLLER]->material.kShininess = 1.0f;
 
 	AudioManager::Instance().LoadSound("Drink", "SFX/Drink.mp3");
 }
@@ -664,7 +664,7 @@ void BaseScene::Update(double dt)
 	}
 
 	// RESOLVE COLLISIONS
-	const int MAX_ITER = 8;
+	const int MAX_ITER = 1;
 
 	for (int iter = 0; iter < MAX_ITER; ++iter) {
 		for (auto& cd : contacts) {
@@ -756,6 +756,7 @@ void BaseScene::Update(double dt)
 	if (oldPart != part) {
 		oldPart = part;
 		phase = 0;
+		currPhaseElapsed = 0.f;
 	}
 	if (oldPhase != phase) {
 		oldPhase = phase;
@@ -1394,7 +1395,7 @@ void BaseScene::addPickables(std::string name, glm::vec3 position)
 					position,
 					5.0f,
 					BoundingBox::Type::OBB,
-					glm::vec3(.05f, .05f, .05f),
+					glm::vec3(.12f, .07f, .07f),
 					settings
 				);
 			}

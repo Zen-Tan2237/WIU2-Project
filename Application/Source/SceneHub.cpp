@@ -980,6 +980,9 @@ void SceneHub::Render()
 			else if (itemInHand->name == "RTX 5090") {
 				itemInHand->body.SetOrientation(0, 100.f, 0);
 			}
+			else if (itemInHand->name == "Controller") {
+				itemInHand->body.SetOrientation(90.f, 0, 90.f);
+			}
 			else {
 				itemInHand->body.SetOrientation(0, 0, 0);
 			}

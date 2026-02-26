@@ -224,7 +224,7 @@ void SceneRiseTop::Init()
 
 
 	// INITIAL ITEM IN HAND
-	addPickables("Mountain Dew", glm::vec3(0, 0, 0));
+	addPickables("Controller", glm::vec3(0, 0, 0));
 	itemInHand = pickables[0];
 	amountOfItem = 5;
 	previousItemInHandName = "";
@@ -249,9 +249,10 @@ void SceneRiseTop::Init()
 
 
 	// PHASE DURATIONS
+	part = 1;
 	phase = 0;
 
-	phaseDurations[0][0] = 1.8f;  // "Woah there!"
+	phaseDurations[0][0] = 3.8f;  // "Woah there!"
 	phaseDurations[0][1] = 2.5f;  // "This plank has a mind of its own."
 	phaseDurations[0][2] = 2.3f;  // "It won't stay balanced for long."
 	phaseDurations[0][3] = 2.2f;  // "Press A to push it left."
@@ -261,13 +262,16 @@ void SceneRiseTop::Init()
 	phaseDurations[0][7] = 2.3f;  // "Or the ball will roll off!"
 	phaseDurations[0][8] = 2.4f;  // "Small corrections work best."
 	phaseDurations[0][9] = 2.2f;  // "Ready to test your reflexes?"
-	phaseDurations[0][10] = 3.f;  // "
 
-	phaseDurations[2][0] = 3.f;  //
-	phaseDurations[2][1] = 1.f;  //
-	phaseDurations[2][2] = 1.f;  //
-	phaseDurations[2][3] = 1.f;  //
-	phaseDurations[2][4] = 1.f;  //
+	phaseDurations[1][0] = 100.f;  // "
+
+	phaseDurations[2][0] = 100.f;  // "
+
+	phaseDurations[3][0] = 3.f;  //
+	phaseDurations[3][1] = 1.f;  //
+	phaseDurations[3][2] = 1.f;  //
+	phaseDurations[3][3] = 1.f;  //
+	phaseDurations[3][4] = 1.f;  //
 
 
 	// GRASS DENSITY
@@ -365,7 +369,7 @@ void SceneRiseTop::Update(double dt)
 	// PHASE HANDLING
 	switch (part) {
 	case 0:
-		if (phase > 10) {	
+		if (phase > 9) {	
 			part++;
 		}
 		break;
@@ -373,8 +377,17 @@ void SceneRiseTop::Update(double dt)
 	case 1:
 		addInteractives("Place PingPong Ball (Start)", 'I', worldObjects[7].position + glm::vec3(0.f, .25f, -.1f));
 		break;
-		
+
 	case 2:
+		if (itemInHand != nullptr) {
+			if (itemInHand->name == "Controller") {
+				part++;
+			}
+		}
+		
+		break;
+		
+	case 3:
 		if (phase > 4) {
 			part++;
 			gameTimeElapsed = 0.f;
@@ -383,7 +396,7 @@ void SceneRiseTop::Update(double dt)
 		}
 		break;
 		
-	case 3:
+	case 4:
 		gameTimeElapsed += dt;
 		changeOrientationElapsed += dt;
 
@@ -400,6 +413,35 @@ void SceneRiseTop::Update(double dt)
 			}
 			else {
 				direction = 1;
+			}
+		}
+
+		if (itemInHand != nullptr) {
+			if (itemInHand->name == "Controller") {
+				int extraInstableStrength = 0.f;
+				if (direction = 1) {
+					if (playerPlankTargetOrientation < plankTargetOrientation) {
+						extraInstableStrength = glm::clamp((plankTargetOrientation - playerPlankTargetOrientation) * 4.f, 0.f, 100.f);
+					}
+				}
+				else {
+					if (playerPlankTargetOrientation > plankTargetOrientation) {
+						extraInstableStrength = glm::clamp((playerPlankTargetOrientation - plankTargetOrientation) * 4.f, 0.f, 100.f);
+					}
+				}
+
+
+				if (MouseController::GetInstance()->IsButtonDown(0)) {
+					playerPlankTargetOrientation += (20 + extraInstableStrength) * dt;
+				}
+				if (MouseController::GetInstance()->IsButtonDown(1)) {
+					playerPlankTargetOrientation -= (20 + extraInstableStrength) * dt;
+				}
+
+				if (MouseController::GetInstance()->IsButtonUp(0) && MouseController::GetInstance()->IsButtonUp(1)) {
+					float t = 1.f - std::exp(-0.5f * (float)dt);
+					playerPlankTargetOrientation += (plankTargetOrientation - playerPlankTargetOrientation) * t;
+				}
 			}
 		}
 
@@ -794,7 +836,22 @@ void SceneRiseTop::Render()
 			float pitch = glm::degrees(asin(forward.y));
 
 			itemInHand->body.position = itemInHandPos;
-			itemInHand->body.SetOrientation(-pitch, yaw, 0);
+
+			// rotation offsets when held
+			if (itemInHand->name == "Pig") {
+				itemInHand->body.SetOrientation(0, 180.f, 0);
+			}
+			else if (itemInHand->name == "RTX 5090") {
+				itemInHand->body.SetOrientation(0, 100.f, 0);
+			}
+			else if (itemInHand->name == "Controller") {
+				itemInHand->body.SetOrientation(-90.f, 0, -90.f);
+			}
+			else {
+				itemInHand->body.SetOrientation(0, 0, 0);
+			}
+
+			itemInHand->body.RotateOrientation(-pitch, yaw, 0);
 		}
 
 
@@ -830,7 +887,7 @@ void SceneRiseTop::Render()
 					modelStack.Scale(0.15f, 0.15f, 0.15f);
 					RenderMesh(meshList[GEO_FIGURINE], enableLight);
 				}
-				else if (pickables[i]->name == "Halal Pork") {
+				else if (pickables[i]->name == "Pig") {
 					modelStack.Scale(0.15f, 0.15f, 0.15f);
 					RenderMesh(meshList[GEO_PIG], enableLight);
 				}
@@ -845,6 +902,10 @@ void SceneRiseTop::Render()
 				else if (pickables[i]->name == "PingPong Ball") {
 					modelStack.Scale(0.02f, 0.02f, 0.02f);
 					RenderMesh(meshList[GEO_PINGPONGBALL], enableLight);
+				}
+				else if (pickables[i]->name == "Controller") {
+					modelStack.Scale(0.02f, 0.02f, 0.02f);
+					RenderMesh(meshList[GEO_CONTROLLER], enableLight);
 				}
 
 				modelStack.PopMatrix();
@@ -872,11 +933,11 @@ void SceneRiseTop::Render()
 				break;
 
 			case 3:
-				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Press A to push it left.", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
+				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Hold LMB to tilt it left.", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
 				break;
 
 			case 4:
-				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Press D to push it right.", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
+				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Press RMB to tilt it right.", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
 				break;
 
 			case 5:
@@ -898,18 +959,35 @@ void SceneRiseTop::Render()
 			case 9:
 				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Ready to test your reflexes?", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
 				break;
-				
-			case 10:
-				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Oh yea my bad mister, I'm speaking to you through a speaker, can't place the PingPong ball for you", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
-				break;
 
 			default:
 				break;
 			}
 
 			break;
+		case 1:
+			switch (phase) {
+			case 0:
+				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Pass me a PingPong Ball and we'll start! Equip the controller to control the plank.", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
+				break;
 
+			default:
+				break;
+			}
+			break;
+			
 		case 2:
+			switch (phase) {
+			case 0:
+				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Equip the controller. It will allow you to control the plank", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
+				break;
+
+			default:
+				break;
+			}
+			break;
+
+		case 3:
 			switch (phase) {
 			case 0:
 				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Aight let's go!", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
