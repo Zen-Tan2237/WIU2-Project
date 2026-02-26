@@ -2,7 +2,10 @@
 #ifndef SCENE_KNOCKDOWN_H
 #define SCENE_KNOCKDOWN_H
 
+#include "CollisionDetection.h"
+
 #include "BaseScene.h"
+
 class SceneKnockdown : public BaseScene
 {
 public:
@@ -35,6 +38,11 @@ public:
 	void generateCanPositions(int pattern);
 
     Mesh* meshList_hub[NUM_GEOMETRY];
+
+    //Cans
+    PhysicsObject cans[10];
+    bool startPhysicsUpdateForCans = false;
+    int numOfCansInPlay = 0;
 
     // Grass density management
     int activeGrassCount;

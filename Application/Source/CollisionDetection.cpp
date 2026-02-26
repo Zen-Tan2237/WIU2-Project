@@ -2,6 +2,15 @@
 #include <iostream>
 #include <algorithm>
 #include <cmath>
+#include <cfloat> // For FLT_MAX
+
+// Helper function to project OBB half-extents onto an axis
+static float ProjectOBBRadiusOnAxis(const glm::vec3 axes[3], const glm::vec3& halfExtents, const glm::vec3& axis)
+{
+	return halfExtents.x * std::abs(glm::dot(axes[0], axis)) +
+		halfExtents.y * std::abs(glm::dot(axes[1], axis)) +
+		halfExtents.z * std::abs(glm::dot(axes[2], axis));
+}
 
 // Helper function to safely normalize vectors and provide fallback
 glm::vec3 SafeNormalize(const glm::vec3& vec, const glm::vec3& fallback = glm::vec3(0.f, 1.f, 0.f))
@@ -33,8 +42,19 @@ glm::vec3 GetSupportPoint(const glm::vec3& center, const glm::vec3 axes[3], cons
 	return point;
 }
 
+void ClearCollisionData(CollisionData& data)
+{
+	data.collisionNormal = glm::vec3(0.f);
+	data.contactPoint = glm::vec3(0.f);
+	data.contactPointB = glm::vec3(0.f);
+	data.penetration = 0.f;
+	data.pObjA = nullptr;
+	data.pObjB = nullptr;
+}
+
 bool CheckCollision(PhysicsObject& objA, PhysicsObject& objB, CollisionData& collisionData)
 {
+	ClearCollisionData(collisionData);
 	bool aIsAABB = objA.boundingBox.getType() == BoundingBox::Type::OBB && objA.isOBBanAABB();
 	bool bIsAABB = objB.boundingBox.getType() == BoundingBox::Type::OBB && objB.isOBBanAABB();
 	bool aIsOBB = objA.boundingBox.getType() == BoundingBox::Type::OBB && !objA.isOBBanAABB();
@@ -73,6 +93,7 @@ bool CheckCollision(PhysicsObject& objA, PhysicsObject& objB, CollisionData& col
 				std::swap(collisionData.contactPoint, collisionData.contactPointB);
 				// Flip the normal to point from A to B
 				collisionData.collisionNormal = -collisionData.collisionNormal;
+				GenerateTangentBitangent(collisionData.collisionNormal, collisionData.tangent, collisionData.bitangent); // Regenerate tangent and bitangent after flipping normal
 			}
 			return result;
 		}
@@ -91,6 +112,7 @@ bool CheckCollision(PhysicsObject& objA, PhysicsObject& objB, CollisionData& col
 				std::swap(collisionData.contactPoint, collisionData.contactPointB);
 				// Flip the normal to point from A to B
 				collisionData.collisionNormal = -collisionData.collisionNormal;
+				GenerateTangentBitangent(collisionData.collisionNormal, collisionData.tangent, collisionData.bitangent); // Regenerate tangent and bitangent after flipping normal
 			}
 			return result;
 		}
@@ -163,6 +185,9 @@ bool OverlapOBBOBB(PhysicsObject& objA, PhysicsObject& objB, CollisionData& coll
 	glm::mat3 rotA = glm::mat3_cast(objA.orientation);
 	glm::mat3 rotB = glm::mat3_cast(objB.orientation);
 
+	if (objA.isOBBanAABB()) rotA = glm::mat3(1.f);
+	if (objB.isOBBanAABB()) rotB = glm::mat3(1.f);
+
 	// Extract axes
 	glm::vec3 axesA[3] = { rotA[0], rotA[1], rotA[2] };
 	glm::vec3 axesB[3] = { rotB[0], rotB[1], rotB[2] };
@@ -177,48 +202,34 @@ bool OverlapOBBOBB(PhysicsObject& objA, PhysicsObject& objB, CollisionData& coll
 	glm::vec3 minAxis = glm::vec3(0.f);
 	int minAxisIndex = -1;
 
-	// Test axes from OBB A (3 axes)
+	// Make sure axes are normalised (cheap safety)
 	for (int i = 0; i < 3; ++i) {
-		glm::vec3 axis = axesA[i];
-		float distOnAxis = std::abs(glm::dot(translation, axis));
-
-		// Project extents onto axis
-		float projA = halfExtentsA[i];
-		float projB = 0.0f;
-		for (int j = 0; j < 3; ++j) {
-			projB += halfExtentsB[j] * std::abs(glm::dot(axesB[j], axis));
-		}
-
-		float penetration = projA + projB - distOnAxis;
-		if (penetration < 0.0f) return false;
-
-		if (penetration < minPenetration) {
-			minPenetration = penetration;
-			minAxis = axis;
-			minAxisIndex = i;
-		}
+		axesA[i] = SafeNormalize(axesA[i], glm::vec3(1, 0, 0));
+		axesB[i] = SafeNormalize(axesB[i], glm::vec3(1, 0, 0));
 	}
 
-	// Test axes from OBB B (3 axes)
+	// Test axes from A
+	for (int i = 0; i < 3; ++i) {
+		glm::vec3 axis = axesA[i];
+		float dist = std::abs(glm::dot(translation, axis));
+		float projA = ProjectOBBRadiusOnAxis(axesA, halfExtentsA, axis);
+		float projB = ProjectOBBRadiusOnAxis(axesB, halfExtentsB, axis);
+
+		float pen = projA + projB - dist;
+		if (pen < 0.f) return false;
+		if (pen < minPenetration) { minPenetration = pen; minAxis = axis; }
+	}
+
+	// Test axes from B
 	for (int i = 0; i < 3; ++i) {
 		glm::vec3 axis = axesB[i];
-		float distOnAxis = std::abs(glm::dot(translation, axis));
+		float dist = std::abs(glm::dot(translation, axis));
+		float projA = ProjectOBBRadiusOnAxis(axesA, halfExtentsA, axis);
+		float projB = ProjectOBBRadiusOnAxis(axesB, halfExtentsB, axis);
 
-		// Project extents onto axis
-		float projA = 0.0f;
-		for (int j = 0; j < 3; ++j) {
-			projA += halfExtentsA[j] * std::abs(glm::dot(axesA[j], axis));
-		}
-		float projB = halfExtentsB[i];
-
-		float penetration = projA + projB - distOnAxis;
-		if (penetration < 0.0f) return false;
-
-		if (penetration < minPenetration) {
-			minPenetration = penetration;
-			minAxis = axis;
-			minAxisIndex = 3 + i;
-		}
+		float pen = projA + projB - dist;
+		if (pen < 0.f) return false;
+		if (pen < minPenetration) { minPenetration = pen; minAxis = axis; }
 	}
 
 	// Test cross product axes (9 axes)
@@ -263,7 +274,6 @@ bool OverlapOBBOBB(PhysicsObject& objA, PhysicsObject& objB, CollisionData& coll
 	}
 	collisionData.collisionNormal = SafeNormalize(minAxis, glm::vec3(0.f, 1.f, 0.f));
 
-	// Use support points for better contact approximation
 	collisionData.contactPoint = GetSupportPoint(centerA, axesA, halfExtentsA, collisionData.collisionNormal);
 	collisionData.contactPointB = GetSupportPoint(centerB, axesB, halfExtentsB, -collisionData.collisionNormal);
 
@@ -457,8 +467,21 @@ bool OverlapAABBSphere(PhysicsObject& AABB, PhysicsObject& Sphere, CollisionData
 	bool isColliding = distSquared <= radiusSquared;
 
 	if (isColliding) {
-		// Safely calculate collision normal pointing from AABB to sphere
-		collisionData.collisionNormal = SafeNormalize(diff, glm::vec3(0.f, 1.f, 0.f));
+
+		if (distSquared < 1e-8f) {
+			// Sphere centre is inside AABB -> choose normal from nearest face
+			glm::vec3 local = sphereCenter - AABB.position;
+			glm::vec3 he = AABB.boundingBox.getHalfExtents();
+
+			float dx = he.x - std::abs(local.x);
+			float dy = he.y - std::abs(local.y);
+			float dz = he.z - std::abs(local.z);
+
+			if (dx <= dy && dx <= dz) diff = glm::vec3((local.x >= 0.f) ? 1.f : -1.f, 0.f, 0.f);
+			else if (dy <= dx && dy <= dz) diff = glm::vec3(0.f, (local.y >= 0.f) ? 1.f : -1.f, 0.f);
+			else diff = glm::vec3(0.f, 0.f, (local.z >= 0.f) ? 1.f : -1.f);
+		}
+		collisionData.collisionNormal = SafeNormalize(diff);
 
 		// Contact point on AABB surface (closest point)
 		collisionData.contactPoint = closestPoint;
@@ -491,7 +514,9 @@ bool OverlapOBBSphere(PhysicsObject& OBB, PhysicsObject& Sphere, CollisionData& 
 	// Get OBB axes from orientation
 	glm::mat3 rotationMatrix = glm::mat3_cast(OBB.orientation);
 	glm::vec3 obbAxes[3] = { rotationMatrix[0], rotationMatrix[1], rotationMatrix[2] };
-
+	for (int i = 0; i < 3; ++i) {
+		obbAxes[i] = SafeNormalize(obbAxes[i], glm::vec3(1, 0, 0));
+	}
 	// Find closest point on OBB to sphere center
 	glm::vec3 closestPointOnOBB = obbCenter;
 	for (int i = 0; i < 3; ++i) {
@@ -508,8 +533,25 @@ bool OverlapOBBSphere(PhysicsObject& OBB, PhysicsObject& Sphere, CollisionData& 
 	bool isColliding = distSquared <= radiusSquared;
 
 	if (isColliding) {
-		// Safely calculate collision normal
-		collisionData.collisionNormal = SafeNormalize(diff, glm::vec3(0.f, 1.f, 0.f));
+		// Handle case where sphere center is inside OBB (distance is very small)
+		if (distSquared < 1e-8f) {
+			// Sphere centre inside OBB -> choose nearest face normal in OBB local coords
+			glm::mat3 R = glm::mat3_cast(OBB.orientation);
+			glm::vec3 local = glm::transpose(R) * (sphereCenter - obbCenter);
+			glm::vec3 he = halfExtents;
+
+			float dx = he.x - std::abs(local.x);
+			float dy = he.y - std::abs(local.y);
+			float dz = he.z - std::abs(local.z);
+
+			glm::vec3 localN;
+			if (dx <= dy && dx <= dz) localN = glm::vec3((local.x >= 0.f) ? 1.f : -1.f, 0.f, 0.f);
+			else if (dy <= dx && dy <= dz) localN = glm::vec3(0.f, (local.y >= 0.f) ? 1.f : -1.f, 0.f);
+			else localN = glm::vec3(0.f, 0.f, (local.z >= 0.f) ? 1.f : -1.f);
+
+			diff = R * localN; // convert back to world normal direction
+		}
+		collisionData.collisionNormal = SafeNormalize(diff);
 
 		// Contact point on OBB surface (closest point)
 		collisionData.contactPoint = closestPointOnOBB;
@@ -521,37 +563,14 @@ bool OverlapOBBSphere(PhysicsObject& OBB, PhysicsObject& Sphere, CollisionData& 
 		// Penetration depth
 		collisionData.penetration = sphereRadius - distance;
 
-		collisionData.pObjA = const_cast<PhysicsObject*>(&OBB);
-		collisionData.pObjB = const_cast<PhysicsObject*>(&Sphere);
+		collisionData.pObjA = &OBB;
+		collisionData.pObjB = &Sphere;
 
 		// Generate tangent and bitangent from normal
 		GenerateTangentBitangent(collisionData.collisionNormal, collisionData.tangent, collisionData.bitangent);
 	}
 
 	return isColliding;
-}
-
-
-void ApplyPositionalCorrection(PhysicsObject* objA, PhysicsObject* objB, const CollisionData& cd)
-{
-	if (!objA || !objB) return;
-
-	float invMassA = (objA->mass > 0.0f) ? 1.0f / objA->mass : 0.0f;
-	float invMassB = (objB->mass > 0.0f) ? 1.0f / objB->mass : 0.0f;
-	float invMassSum = invMassA + invMassB;
-
-	if (invMassSum < 1e-6f) return; // Both static
-
-	const float slop = 0.01f;
-	float penetrationCorrection = std::max(cd.penetration - slop, 0.0f);
-	glm::vec3 correction = (penetrationCorrection / invMassSum) * cd.collisionNormal;
-
-	if (invMassA > 0.0f) {
-		objA->position -= invMassA * correction;
-	}
-	if (invMassB > 0.0f) {
-		objB->position += invMassB * correction;
-	}
 }
 
 void ResolveCollision(CollisionData& cd)
@@ -570,9 +589,12 @@ void ResolveCollision(CollisionData& cd)
 	float invMassB = (B->mass > 0.0f) ? 1.0f / B->mass : 0.0f;
 	float invMassSum = invMassA + invMassB;
 
+	if (invMassSum <= 0.f) return;
+
+
 	// Positional correction to avoid sinking
 	const float SLOP = 0.001f;
-	const float PERCENT = 1.5f;
+	const float PERCENT = 0.2f;
 
 	// Apply positional correction
 	if (invMassSum > 0.0f && penetration > SLOP) {
@@ -580,8 +602,7 @@ void ResolveCollision(CollisionData& cd)
 		A->position -= correction * invMassA;
 		B->position += correction * invMassB;
 	}
-
-	// Calculate relative velocity at contact point
+	// Calculate ra and rb (vectors from centers of mass to contact point)
 	glm::vec3 ra = cd.contactPoint - A->position;
 	glm::vec3 rb = cd.contactPointB - B->position;
 
@@ -593,11 +614,12 @@ void ResolveCollision(CollisionData& cd)
 	float velAlongNormal = glm::dot(relVel, normal);
 
 	// Prevent applying impulse if objects are separating
-	if (velAlongNormal >= -1e-6f) return;
+	if (velAlongNormal > 0.0f && penetration <= SLOP) return;
 
 	// Calculate bounciness coefficient
 	float e = (A->bounciness + B->bounciness) * 0.5f;
 	e = std::max(e * 0.6f, 0.0f);
+	if (std::abs(velAlongNormal) < 0.5f) e = 0.0f;
 
 	// ==================== FRICTION CALCULATION ====================
 

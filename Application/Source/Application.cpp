@@ -160,6 +160,7 @@ void Application::Run()
 	Scene* scene2 = new SceneRiseTop();
 	Scene* scene3 = new SceneBB();
 	Scene* scene4 = new SceneKnockdown();
+	Scene* scene5 = new SceneTester();
 	
 	Scene* scene = scene1;
 	scene->Init();
