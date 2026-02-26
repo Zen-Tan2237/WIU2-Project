@@ -15,10 +15,8 @@ public:
         GEO_SPHERE,
 
         //scene models
-        GEO_STALL,
-        GEO_TABLE,
-        GEO_FOODSTAND,
-        GEO_FERRISWHEEL,
+        GEO_BBALL,
+        GEO_HOOP,
 
         NUM_GEOMETRY,
     };

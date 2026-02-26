@@ -6,7 +6,7 @@
 class SceneRiseTop : public BaseScene
 {
 public:
-    static const int NUM_GRASSCLUMPS = 9000;
+    static const int NUM_GRASSCLUMPS = 4500;
 
     enum GEOMETRY_TYPE_RISE_TOP
     {
@@ -31,7 +31,7 @@ public:
 
     Mesh* meshList_riseTop[NUM_GEOMETRY];
 
-    // Grass density management
+    // GRASS VARIABLES
     int activeGrassCount;
     float grassDensityMultiplier;
     float fpsSmoothed;
@@ -43,6 +43,7 @@ public:
 
     //
     float plankTargetOrientation;
+    float playerPlankTargetOrientation;
     float plankOrientation;
 
     double gameTimeElapsed;
@@ -51,8 +52,8 @@ public:
     float lerpOrientationSpeed;
     int direction;
 
-    //debug
-    bool temp = false;
+    // DEBUG
+    bool showBoundingBox = false;
 
 };
 #endif

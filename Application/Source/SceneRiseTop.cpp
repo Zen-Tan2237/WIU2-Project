@@ -29,7 +29,7 @@ void SceneRiseTop::Init()
 {
 	BaseScene::Init();
 
-	//light
+	// LIGHTS
 	{
 		light[0].position = glm::vec3(0, 5, 0);
 		light[0].color = glm::vec3(1, 1, 1);
@@ -210,9 +210,8 @@ void SceneRiseTop::Init()
 	}
 
 	// DEBUG
-	meshList_riseTop[GEO_WALL] = MeshBuilder::GenerateCube("wall", glm::vec3(1.f, 0.f, 0.f), 1.f);
-	meshList_riseTop[GEO_SPHERE] = MeshBuilder::GenerateSphere("sphere", glm::vec3(0.f, 1.f, 0.f), 1.f, 36, 18);
-
+	meshList_riseTop[GEO_WALL] = MeshBuilder::GenerateCube("Wall", glm::vec3(1.f, 0.f, 0.f), 1.f);
+	meshList_riseTop[GEO_SPHERE] = MeshBuilder::GenerateSphere("Sphere", glm::vec3(0.f, 1.f, 0.f), 1.f, 36, 18);
 
 	// MODELS
 	meshList_riseTop[GEO_STALL] = MeshBuilder::GenerateOBJ("stall", "Models//minigame_Stall.obj");
@@ -220,6 +219,9 @@ void SceneRiseTop::Init()
 
 	meshList_riseTop[GEO_PLANK] = MeshBuilder::GenerateOBJ("Plank", "Models//WoodPlank.obj");
 	meshList_riseTop[GEO_PLANK]->textureID = LoadTGA("Textures//WoodPlanks.tga");
+
+
+
 
 	// INITIAL ITEM IN HAND
 	addPickables("Mountain Dew", glm::vec3(0, 0, 0));
@@ -229,17 +231,25 @@ void SceneRiseTop::Init()
 	itemInUse = false;
 
 
-	//
-	plankTargetOrientation = 0.f;
-	plankOrientation = 0.f;
-
-	//
+	// INITIAL PICKABLES
 	for (int i = 0; i < 5; i++) {
 		addPickables("PingPong Ball", glm::vec3(.5f + (rand() % 11 + 5) / 100.f, 1.f, 5.55f + (rand() % 11 + 5) / 100.f));
 	}
 
-	// setup phase durations here ([first one is part][second one is phase]. phase means like u want a constant stream of dialgoues
-	// make sure whenver u do part++, u have like (if part == <the number they should be at>) then part++
+
+	// VARIABLE INITIALIZATIONS
+	plankTargetOrientation = 0.f;
+	plankOrientation = 0.f;
+
+	gameTimeElapsed = 0.f;
+	changeOrientationElapsed = 0.f;
+	changeOrientation = 0.f;
+	lerpOrientationSpeed = 0.f;
+	direction = 1;
+
+
+	// PHASE DURATIONS
+	phase = 0;
 
 	phaseDurations[0][0] = 1.8f;  // "Woah there!"
 	phaseDurations[0][1] = 2.5f;  // "This plank has a mind of its own."
@@ -260,8 +270,18 @@ void SceneRiseTop::Init()
 	phaseDurations[2][4] = 1.f;  //
 
 
+	// GRASS DENSITY
+	targetFPS = 60.0f;
+	fpsSmoothed = 0.0f;
+	grassDensityMultiplier = 0.0f;
+	activeGrassCount = 0;
+
+	RegenerateGrassPositions();
+
+
 	// CAMERA INIT
 	camera.Init(glm::vec3(0, 0.9f, 4.f), glm::vec3(0, 0.9f, 5.f), glm::vec3(0, 1.9f, 4.f));
+
 
 	// WORLD OBJECTS
 	bool miscSettings[2] = { false, false }; // for gravity and drag. override in case of specific objects
@@ -276,37 +296,44 @@ void SceneRiseTop::Init()
 	worldObjects[4].InitPhysicsObject(glm::vec3(-6, 0.9f, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(1.5f, 1.4f, 1.7f), 0, glm::vec3(0, 1, 0), miscSettings);
 
 	// Stall Tables
-	worldObjects[5].InitPhysicsObject(glm::vec3(6.1, 0.25f, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(1.3f, .5f, 1.7f), 180, glm::vec3(0, 1, 0), miscSettings);
-	worldObjects[6].InitPhysicsObject(glm::vec3(0, 0.25f, -6.1), 0.f, BoundingBox::Type::OBB, glm::vec3(1.3f, .5f, 1.7f), -90, glm::vec3(0, 1, 0), miscSettings);
-	worldObjects[7].InitPhysicsObject(glm::vec3(0, 0.25f, 6.1), 0.f, BoundingBox::Type::OBB, glm::vec3(1.3f, .5f, 1.7f), 90, glm::vec3(0, 1, 0), miscSettings);
-	worldObjects[8].InitPhysicsObject(glm::vec3(-6.1, 0.25f, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(1.3f, .5f, 1.7f), 0, glm::vec3(0, 1, 0), miscSettings);
+	worldObjects[5].InitPhysicsObject(glm::vec3(5.655f, 0.25f, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(.475f, .5f, 1.74f), 180, glm::vec3(0, 1, 0), miscSettings);
+	worldObjects[6].InitPhysicsObject(glm::vec3(0, 0.25f, -5.655f), 0.f, BoundingBox::Type::OBB, glm::vec3(.475f, .5f, 1.74f), -90, glm::vec3(0, 1, 0), miscSettings);\
+	worldObjects[7].InitPhysicsObject(glm::vec3(0, 0.25f, 5.655f), 0.f, BoundingBox::Type::OBB, glm::vec3(.475f, .5f, 1.74f), 90, glm::vec3(0, 1, 0), miscSettings);
+	worldObjects[8].InitPhysicsObject(glm::vec3(-5.655f, 0.25f, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(.475f, .5f, 1.74f), 0, glm::vec3(0, 1, 0), miscSettings);
+	//
+	worldObjects[9].InitPhysicsObject(glm::vec3(6.1175f, 0.25f, -.86f), 0.f, BoundingBox::Type::OBB, glm::vec3(1.4f, .5f, .02f), 180, glm::vec3(0, 1, 0), miscSettings);
+	worldObjects[10].InitPhysicsObject(glm::vec3(6.1175f, 0.25f, .86f), 0.f, BoundingBox::Type::OBB, glm::vec3(1.4f, .5f, .02f), 180, glm::vec3(0, 1, 0), miscSettings);
+	worldObjects[11].InitPhysicsObject(glm::vec3(6.8075, 0.25f, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(.02f, .5f, 1.74f), -90, glm::vec3(0, 1, 0), miscSettings);
+
+	worldObjects[12].InitPhysicsObject(glm::vec3(-.86f, 0.25f, -6.1175f), 0.f, BoundingBox::Type::OBB, glm::vec3(1.4f, .5f, .02f), -90, glm::vec3(0, 1, 0), miscSettings);
+	worldObjects[13].InitPhysicsObject(glm::vec3(.86f, 0.25f, -6.1175f), 0.f, BoundingBox::Type::OBB, glm::vec3(1.4f, .5f, .02f), -90, glm::vec3(0, 1, 0), miscSettings);
+	worldObjects[14].InitPhysicsObject(glm::vec3(0, 0.25f, -6.8075), 0.f, BoundingBox::Type::OBB, glm::vec3(.02f, .5f, 1.74f), -90, glm::vec3(0, 1, 0), miscSettings);
+
+	worldObjects[15].InitPhysicsObject(glm::vec3(-.86f, 0.25f, 6.1175f), 0.f, BoundingBox::Type::OBB, glm::vec3(1.4f, .5f, .02f), 90, glm::vec3(0, 1, 0), miscSettings);
+	worldObjects[16].InitPhysicsObject(glm::vec3(.86f, 0.25f, 6.1175f), 0.f, BoundingBox::Type::OBB, glm::vec3(1.4f, .5f, .02f), 90, glm::vec3(0, 1, 0), miscSettings);
+	worldObjects[17].InitPhysicsObject(glm::vec3(0, 0.25f, 6.8075), 0.f, BoundingBox::Type::OBB, glm::vec3(.02f, .5f, 1.74f), 90, glm::vec3(0, 1, 0), miscSettings);
+
+	worldObjects[18].InitPhysicsObject(glm::vec3(-6.1175f, 0.25f, -.86f), 0.f, BoundingBox::Type::OBB, glm::vec3(1.4f, .5f, .02f), 0, glm::vec3(0, 1, 0), miscSettings);
+	worldObjects[19].InitPhysicsObject(glm::vec3(-6.1175f, 0.25f, .86f), 0.f, BoundingBox::Type::OBB, glm::vec3(1.4f, .5f, .02f), 0, glm::vec3(0, 1, 0), miscSettings);
+	worldObjects[20].InitPhysicsObject(glm::vec3(-6.8075, 0.25f, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(.02f, .5f, 1.74f), 0, glm::vec3(0, 1, 0), miscSettings);
+
 
 	// Tables
-	worldObjects[9].InitPhysicsObject(glm::vec3(-3, 0, 3.6f), 0.f, BoundingBox::Type::OBB, glm::vec3(1.8f, 1.f, 1.8f), 50, glm::vec3(0, 1, 0), miscSettings);
+	worldObjects[21].InitPhysicsObject(glm::vec3(-3, 0, 3.6f), 0.f, BoundingBox::Type::OBB, glm::vec3(1.4f, 1.1f, 1.4f), 50, glm::vec3(0, 1, 0), miscSettings);
 
 	// Ferris Wheel
-	worldObjects[10].InitPhysicsObject(glm::vec3(-10, 0, -7), 0.f, BoundingBox::Type::OBB, glm::vec3(10.f, 5.f, 5.f), 45, glm::vec3(0, 1, 0), miscSettings);
+	worldObjects[22].InitPhysicsObject(glm::vec3(-10, 0, -7), 0.f, BoundingBox::Type::OBB, glm::vec3(10.f, 5.f, 5.f), 45, glm::vec3(0, 1, 0), miscSettings);
 
 	// Food Stand
-	worldObjects[11].InitPhysicsObject(glm::vec3(-3.6, 0.5f, 5), 0.f, BoundingBox::Type::OBB, glm::vec3(1.5f, 0.5f, 1.3f), -15, glm::vec3(0, 1, 0), miscSettings);
+	worldObjects[23].InitPhysicsObject(glm::vec3(-3.6, 0.5f, 5), 0.f, BoundingBox::Type::OBB, glm::vec3(1.3f, 0.7f, 1.1f), -15, glm::vec3(0, 1, 0), miscSettings);
+
+	// Fountain
+	worldObjects[24].InitPhysicsObject(glm::vec3(0, 0.3f, 0), 0.f, BoundingBox::Type::SPHERE, glm::vec3(1.45f, 0, 0), 0, glm::vec3(0, 1, 0), miscSettings);
 
 	// Plank
-	worldObjects[12].InitPhysicsObject(glm::vec3(1, 0.5f, 6.6f), 0.f, BoundingBox::Type::OBB, glm::vec3(.15f, 0.03f, 1.1f), 90.f, glm::vec3(0, 1, 0), miscSettings);
+	worldObjects[25].InitPhysicsObject(glm::vec3(0, 0.6f, 6.6f), 0.f, BoundingBox::Type::OBB, glm::vec3(.15f, 0.03f, 1.1f), 90.f, glm::vec3(0, 1, 0), miscSettings);
 
-	//
-	phase = 0;
-	gameTimeElapsed = 0.f;
-
-	// Grass density initialization
-	targetFPS = 60.0f;
-	fpsSmoothed = 0.0f;
-	grassDensityMultiplier = 0.0f;
-	activeGrassCount = NUM_GRASSCLUMPS;
-
-	// Initial grass generation
-	RegenerateGrassPositions();
-
-	//
+	// MATERIAL INITIALIZATIONS
 	meshList_riseTop[GEO_STALL]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
 	meshList_riseTop[GEO_STALL]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
 	meshList_riseTop[GEO_STALL]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
@@ -322,19 +349,20 @@ void SceneRiseTop::Update(double dt)
 {
 	BaseScene::Update(dt);
 
+	// BOUNDING BOX TOGGLE
 	if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_M)) {
-		if (temp) {
-			temp = false;
+		if (showBoundingBox) {
+			showBoundingBox = false;
 		}
 		else {
-			temp = true;
+			showBoundingBox = true;
 		}
 	}
 
-	// name of interactive, I = interactive, coords
+	// INITIAL INTERACTIVES
 	addInteractives("Return to Hub", 'I', glm::vec3(1, 0, 0));
 
-
+	// PHASE HANDLING
 	switch (part) {
 	case 0:
 		if (phase > 10) {	
@@ -343,7 +371,7 @@ void SceneRiseTop::Update(double dt)
 		break;
 
 	case 1:
-		addInteractives("Place PingPong Ball (Start)", 'I', worldObjects[7].position + glm::vec3(0.f, .5f, -.5f));
+		addInteractives("Place PingPong Ball (Start)", 'I', worldObjects[7].position + glm::vec3(0.f, .25f, -.1f));
 		break;
 		
 	case 2:
@@ -361,6 +389,7 @@ void SceneRiseTop::Update(double dt)
 
 		if (changeOrientationElapsed >= changeOrientation) {
 			plankTargetOrientation = 10.f + (rand() % 200) / 10.f;
+			playerPlankTargetOrientation = plankTargetOrientation + ((rand() % 100) / 10.f) * direction;
 			plankTargetOrientation *= direction;
 			lerpOrientationSpeed = 0.5f + (rand() % 20) / 10.f;
 			changeOrientationElapsed = 0.f;
@@ -384,9 +413,9 @@ void SceneRiseTop::Update(double dt)
 	getClosestInteractive();
 
 
-	// handle what type of interactive, what type of event
-	if (interactedIndex != -1 && KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_F)) { // means got prompt, is close to and facing smth
-		if (interactivesType[interactedIndex] == 'I') { // its an interactive
+	// INTERACTIVES EVENT HANDLER
+	if (interactedIndex != -1 && KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_F)) {
+		if (interactivesType[interactedIndex] == 'I') {
 			if (interactives[interactedIndex] == "Return to Hub" && nextScene == 0) {
 				nextScene = 1;
 				nextSceneDelay = 1.f;
@@ -396,7 +425,16 @@ void SceneRiseTop::Update(double dt)
 			else if (interactives[interactedIndex] == "Place PingPong Ball (Start)") {
 				if (part == 1 && itemInHand != nullptr) {
 					if (itemInHand->name == "PingPong Ball") {
-						dropItemInHand(1);
+						if (amountOfItem > 1) {
+							dropItemInHand(1);
+							pickables[newestPickableIndex]->body.position = glm::vec3(0, 0.8f, 6.6f);
+						}
+						else {
+							Pickable* temp = itemInHand;
+							dropItemInHand(1);
+							temp->body.position = glm::vec3(0, 0.8f, 6.6f);
+						}
+						
 						part++;
 					}
 				}
@@ -404,10 +442,12 @@ void SceneRiseTop::Update(double dt)
 		}
 	}
 
+	//
 	float t = 1.f - std::exp(-lerpOrientationSpeed * (float)dt);
 	plankOrientation += (plankTargetOrientation - plankOrientation) * t;
+	plankOrientation += (playerPlankTargetOrientation - plankOrientation) * t;
 
-	// Update grass density based on FPS
+	// UPDATE GRASS DENSITY
 	UpdateGrassDensity(dt);
 }
 
@@ -576,9 +616,9 @@ void SceneRiseTop::Render()
 		}
 	}
 
+	// GENERAL MODELS
 	{
 		PushPop axesGuard(modelStack);
-		// Render objects
 		//RenderMesh(meshList[GEO_AXES], false);
 	}
 
@@ -608,67 +648,38 @@ void SceneRiseTop::Render()
 		RenderMesh(meshList[GEO_FENCE], true);
 	}
 
-	glm::vec3 localCamPos = camera.position;
-	glm::vec3 forward = glm::normalize(camera.target - camera.position);
-
-	glDepthMask(GL_FALSE);
-
-	// Only render active grass count
-	for (int i = 0; i < activeGrassCount; i++) {
-		glm::vec3 pos = grassClumps[i];
-		glm::vec3 toGrass = pos - localCamPos;
-		float dist = glm::length(toGrass);
-
-		if (dist > 15.f) continue;
-
-		if (dist > 0.001f) {
-			float dot = glm::dot(forward, toGrass / dist);
-			if (dot < 0.25f) continue;
-		}
-
-		glm::vec3 dir = localCamPos - pos;
-		dir.y = 0.f;
-		float yaw = glm::degrees(atan2(dir.x, dir.z));
-
-		PushPop grass(modelStack);
-		modelStack.Translate(pos.x, pos.y, pos.z);
-		modelStack.Rotate(yaw, 0, 1, 0);
-		modelStack.Scale(.4f, .6f, .4f);
-		RenderMesh(meshList[GEO_GRASS], false);
-	}
-
-	glDepthMask(GL_TRUE);
-
 	{
 		PushPop table(modelStack);
-		modelStack.Translate(worldObjects[9].position.x, worldObjects[9].position.y, worldObjects[9].position.z);
-		glm::mat4 rotation = glm::mat4_cast(worldObjects[9].orientation);
+		modelStack.Translate(worldObjects[21].position.x, worldObjects[21].position.y, worldObjects[21].position.z);
+		glm::mat4 rotation = glm::mat4_cast(worldObjects[21].orientation);
 		modelStack.MultMatrix(rotation);
 		modelStack.Scale(.13f, .13f, .13f);
 		RenderMesh(meshList[GEO_TABLE], true);
-		//modelStack.Scale(worldObjects[9].boundingBox.getWidth(), worldObjects[9].boundingBox.getHeight(), worldObjects[9].boundingBox.getDepth());
-		////RenderMesh(meshList_hub[GEO_WALL], true);
-	}
-
-	{
-		PushPop foodstand(modelStack);
-		modelStack.Translate(worldObjects[11].position.x, worldObjects[11].position.y, worldObjects[11].position.z);
-		glm::mat4 rotation = glm::mat4_cast(worldObjects[11].orientation);
-		modelStack.MultMatrix(rotation);
-		modelStack.Scale(.12f, .12f, .12f);
-		RenderMesh(meshList[GEO_FOODSTAND], true);
-		//modelStack.Scale(debugScale, debugScale, debugScale);
-		//modelStack.Scale(worldObjects[7].boundingBox.getWidth(), worldObjects[7].boundingBox.getHeight(), worldObjects[7].boundingBox.getDepth());
-		//RenderMesh(meshList_hub[GEO_WALL], true);
 	}
 
 	{
 		PushPop ferriswheel(modelStack);
-		modelStack.Translate(worldObjects[10].position.x, worldObjects[10].position.y, worldObjects[10].position.z);
-		glm::mat4 rotation = glm::mat4_cast(worldObjects[10].orientation);
+		modelStack.Translate(worldObjects[22].position.x, worldObjects[22].position.y, worldObjects[22].position.z);
+		glm::mat4 rotation = glm::mat4_cast(worldObjects[22].orientation);
 		modelStack.MultMatrix(rotation);
 		modelStack.Scale(.2f, .2f, .2f);
 		RenderMesh(meshList[GEO_FERRISWHEEL], true);
+	}
+
+	{
+		PushPop foodstand(modelStack);
+		modelStack.Translate(worldObjects[23].position.x, worldObjects[23].position.y, worldObjects[23].position.z);
+		glm::mat4 rotation = glm::mat4_cast(worldObjects[23].orientation);
+		modelStack.MultMatrix(rotation);
+		modelStack.Scale(.12f, .12f, .12f);
+		RenderMesh(meshList[GEO_FOODSTAND], true);
+	}
+
+	{
+		PushPop fountain(modelStack);
+		modelStack.Translate(worldObjects[24].position.x, worldObjects[24].position.y, worldObjects[24].position.z);
+		modelStack.Scale(0.22f, 0.22f, 0.22f);
+		RenderMesh(meshList[GEO_FOUNTAIN], true);
 	}
 
 	for (int i = 1; i < 5; i++)
@@ -681,25 +692,53 @@ void SceneRiseTop::Render()
 		RenderMesh(meshList_riseTop[GEO_STALL], true);
 	}
 
+	// GRASS HANDLING
+	{
+		glm::vec3 localCamPos = camera.position;
+		glm::vec3 forward = glm::normalize(camera.target - camera.position);
+
+		glDepthMask(GL_FALSE);
+
+		// Only render active grass count
+		for (int i = 0; i < activeGrassCount; i++) {
+			glm::vec3 pos = grassClumps[i];
+			glm::vec3 toGrass = pos - localCamPos;
+			float dist = glm::length(toGrass);
+
+			if (dist > 15.f) continue;
+
+			if (dist > 0.001f) {
+				float dot = glm::dot(forward, toGrass / dist);
+				if (dot < 0.25f) continue;
+			}
+
+			glm::vec3 dir = localCamPos - pos;
+			dir.y = 0.f;
+			float yaw = glm::degrees(atan2(dir.x, dir.z));
+
+			PushPop grass(modelStack);
+			modelStack.Translate(pos.x, pos.y, pos.z);
+			modelStack.Rotate(yaw, 0, 1, 0);
+			modelStack.Scale(.4f, .6f, .4f);
+			RenderMesh(meshList[GEO_GRASS], false);
+		}
+
+		glDepthMask(GL_TRUE);
+	}
+
+	// LOCAL MODELS
 	{
 		PushPop plank(modelStack);
-		worldObjects[12].SetOrientation(plankOrientation, 90.f, 0.f);
-		modelStack.Translate(worldObjects[12].position.x, worldObjects[12].position.y, worldObjects[12].position.z);
-		glm::mat4 rotation = glm::mat4_cast(worldObjects[12].orientation);
+		worldObjects[25].SetOrientation(plankOrientation, 90.f, 0.f);
+		modelStack.Translate(worldObjects[25].position.x, worldObjects[25].position.y, worldObjects[25].position.z);
+		glm::mat4 rotation = glm::mat4_cast(worldObjects[25].orientation);
 		modelStack.MultMatrix(rotation);
 		modelStack.Scale(0.12f, 0.12f, 0.12f);
 		RenderMesh(meshList_riseTop[GEO_PLANK], true);
 	}
 
-	//{
-	//	PushPop fountain(modelStack);
-	//	modelStack.Translate(Fountain.position.x, Fountain.position.y, Fountain.position.z);
-	//	modelStack.Scale(1.5f, 1.5f, 1.5f);
-	//	RenderMesh(meshList[GEO_FOUNTAIN], true);
-	//}
-
 	{
-		if (temp) {
+		if (showBoundingBox) {
 			for (int i = 0; i < TOTAL_PICKABLES; i++) {
 				if (pickables[i] != nullptr) {
 					PushPop yes(modelStack);
@@ -724,7 +763,7 @@ void SceneRiseTop::Render()
 				glm::mat4 rotation = glm::mat4_cast(worldObjects[i].orientation);
 				modelStack.MultMatrix(rotation);
 				modelStack.Scale(worldObjects[i].boundingBox.getWidth(), worldObjects[i].boundingBox.getHeight(), worldObjects[i].boundingBox.getDepth());
-				if (i != 0) {
+				if (i != 0 && i > 4) {
 					RenderMesh(meshList_riseTop[GEO_WALL], true);
 				}
 			}
@@ -759,7 +798,7 @@ void SceneRiseTop::Render()
 		}
 
 
-		// Render pickable items
+		// PICKABLE ITEMS RENDERING
 		for (int i = 0; i < TOTAL_PICKABLES; i++) {
 			if (pickables[i] != nullptr) {
 				modelStack.PushMatrix();
@@ -814,8 +853,7 @@ void SceneRiseTop::Render()
 	}
 
 	{
-		// Render Dialogue
-		//std::cout << std::to_string(dialogueFadeHUD.getPosition().y) << std::endl;
+		// DIALOGUE RENDERING
 		RenderMeshOnScreen(meshList[GEO_DIALOGUEFADE_GUI], dialogueFadeHUD.getPosition().x, dialogueFadeHUD.getPosition().y, 1600, 900);
 
 		switch (part) {
@@ -904,9 +942,7 @@ void SceneRiseTop::Render()
 void SceneRiseTop::RenderUI()
 {
 	{
-		// Render GUI
-		//RenderMeshOnScreen(meshList[GEO_MENU_GUI], 0, 0, 1600, 900);
-		//RenderMeshOnScreen(meshList[GEO_SWITCHSCENE_GUI], 0, 0, 1600, 900);
+		// GUI RENDERING
 
 		glDisable(GL_DEPTH_TEST);
 		glEnable(GL_BLEND);
@@ -963,64 +999,66 @@ void SceneRiseTop::RenderUI()
 		RenderTextOnScreen(meshList[GEO_HOMEVIDEOBOLD_FONT], "FPS: " + std::to_string(currentFPS), glm::vec3(1, 1, 1), 15, 140, 435, 'R', .6f);
 	}
 
-	// Render EUI
-	glDisable(GL_DEPTH_TEST);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	{
+		// EUI RENDERING
+		glDisable(GL_DEPTH_TEST);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	glm::vec3 euiPos(0, 1000, 0);
+		glm::vec3 euiPos(0, 1000, 0);
 
-	for (int i = 0; i < noOfInteractives; i++) {
-		bool temp = interactivesType[i] == 'I';
-		if (!temp && pickables[interactivePickablesIndex[i]] != nullptr) {
-			temp = !pickables[interactivePickablesIndex[i]]->isHeld;
-		}
+		for (int i = 0; i < noOfInteractives; i++) {
+			bool temp = interactivesType[i] == 'I';
+			if (!temp && pickables[interactivePickablesIndex[i]] != nullptr) {
+				temp = !pickables[interactivePickablesIndex[i]]->isHeld;
+			}
 
-		if (temp) {
-			euiPos = interactivesPos[i] + glm::vec3(0, 0.25f, 0);
+			if (temp) {
+				euiPos = interactivesPos[i] + glm::vec3(0, 0.25f, 0);
 
-			glm::vec3 dir = camera.position - euiPos;
-			dir = glm::normalize(dir);
+				glm::vec3 dir = camera.position - euiPos;
+				dir = glm::normalize(dir);
 
-			float yaw = glm::degrees(atan2(dir.x, dir.z));
-			float pitch = glm::degrees(asin(dir.y));
+				float yaw = glm::degrees(atan2(dir.x, dir.z));
+				float pitch = glm::degrees(asin(dir.y));
 
-			if (interactedIndex == i) {
+				if (interactedIndex == i) {
+					modelStack.PushMatrix();
+					modelStack.Translate(euiPos.x, euiPos.y, euiPos.z);
+					modelStack.Rotate(yaw, 0.f, 1.f, 0.f);
+					modelStack.Rotate(-pitch, 1.f, 0.f, 0.f);
+					modelStack.Scale(interactEUI.getScale().x, interactEUI.getScale().x, interactEUI.getScale().x);
+
+					meshList[GEO_INTERACTED_EUI]->material.kAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
+					meshList[GEO_INTERACTED_EUI]->material.kDiffuse = glm::vec3(1.f, 1.f, 1.f);
+					meshList[GEO_INTERACTED_EUI]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+					meshList[GEO_INTERACTED_EUI]->material.kShininess = 1.0f;
+
+					RenderMesh(meshList[GEO_INTERACTED_EUI], false);
+
+					modelStack.PopMatrix();
+				}
+
 				modelStack.PushMatrix();
 				modelStack.Translate(euiPos.x, euiPos.y, euiPos.z);
 				modelStack.Rotate(yaw, 0.f, 1.f, 0.f);
 				modelStack.Rotate(-pitch, 1.f, 0.f, 0.f);
-				modelStack.Scale(interactEUI.getScale().x, interactEUI.getScale().x, interactEUI.getScale().x);
+				modelStack.Scale(.02f, .02f, .02f);
 
-				meshList[GEO_INTERACTED_EUI]->material.kAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
-				meshList[GEO_INTERACTED_EUI]->material.kDiffuse = glm::vec3(1.f, 1.f, 1.f);
-				meshList[GEO_INTERACTED_EUI]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
-				meshList[GEO_INTERACTED_EUI]->material.kShininess = 1.0f;
+				meshList[GEO_INTERACT_EUI]->material.kAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
+				meshList[GEO_INTERACT_EUI]->material.kDiffuse = glm::vec3(1.f, 1.f, 1.f);
+				meshList[GEO_INTERACT_EUI]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+				meshList[GEO_INTERACT_EUI]->material.kShininess = 1.0f;
 
-				RenderMesh(meshList[GEO_INTERACTED_EUI], false);
+				RenderMesh(meshList[GEO_INTERACT_EUI], false);
 
 				modelStack.PopMatrix();
 			}
-
-			modelStack.PushMatrix();
-			modelStack.Translate(euiPos.x, euiPos.y, euiPos.z);
-			modelStack.Rotate(yaw, 0.f, 1.f, 0.f);
-			modelStack.Rotate(-pitch, 1.f, 0.f, 0.f);
-			modelStack.Scale(.02f, .02f, .02f);
-
-			meshList[GEO_INTERACT_EUI]->material.kAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
-			meshList[GEO_INTERACT_EUI]->material.kDiffuse = glm::vec3(1.f, 1.f, 1.f);
-			meshList[GEO_INTERACT_EUI]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
-			meshList[GEO_INTERACT_EUI]->material.kShininess = 1.0f;
-
-			RenderMesh(meshList[GEO_INTERACT_EUI], false);
-
-			modelStack.PopMatrix();
 		}
 	}
 
 	{
-		// Render Switch Scene UI
+		// SWITCH SCENE UI
 		if (nextScene != 0) {
 			glDisable(GL_DEPTH_TEST);
 			glEnable(GL_BLEND);
