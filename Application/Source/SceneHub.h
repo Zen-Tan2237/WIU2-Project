@@ -6,7 +6,8 @@
 class SceneHub : public BaseScene
 {
 public:
-    static const int NUM_GRASSCLUMPS = 4500;
+    static const int NUM_GRASSCLUMPS = 1;
+	static const int NUM_PICKABLES = 5;
 
     enum GEOMETRY_TYPE_HUB
     {
@@ -26,6 +27,14 @@ public:
     void Exit() override;
 
     Mesh* meshList_hub[NUM_GEOMETRY];
+
+    //UI
+    AnimatedUIElement ShopGUI;
+    InteractPromptUI TextUI;
+	InteractPromptUI SelectionUI[NUM_PICKABLES];
+
+	bool inShop;
+    int shopSelection;
 
     // Grass density management
     int activeGrassCount;

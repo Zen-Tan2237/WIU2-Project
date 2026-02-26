@@ -5,6 +5,16 @@ void InteractPromptUI::Update(double dt)
 	AnimatedUIElement::Update(dt);
 }
 
+void InteractPromptUI::setText(const std::string& t)
+{
+    text = t;
+}
+
+void InteractPromptUI::setColor(const glm::vec3& c)
+{
+	color = c;
+}
+
 void InteractPromptUI::show(const std::string& t)
 {
     text = t;
@@ -21,4 +31,9 @@ void InteractPromptUI::hide()
 std::string InteractPromptUI::getText() const
 {
     return text;
+}
+
+glm::vec3 InteractPromptUI::getColor() const
+{
+    return color;
 }
