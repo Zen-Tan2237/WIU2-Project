@@ -233,18 +233,20 @@ void SceneKnockdown::Init()
 	meshList_hub[GEO_PEPSI] = MeshBuilder::GenerateOBJ("pepsi", "Models//cans_pepsi.obj");
 	meshList_hub[GEO_PEPSI]->textureID = LoadTGA("Textures//Cans_Pepsi.tga");
 
-	// setup initial item in hand
-	addPickables("Baseball", glm::vec3(0, 0, 0));
-	itemInHand = pickables[0];
-	amountOfItem = 10;
-	previousItemInHandName = "";
-	itemInUse = false;
+	meshList_hub[GEO_MAXWELL] = MeshBuilder::GenerateOBJ("basketball", "Models//Maxwell.obj");
+	meshList_hub[GEO_MAXWELL]->textureID = LoadTGA("Textures//Maxwell.tga");
 
-	// setup phase durations here ([first one is part][second one is phase]. phase means like u want a constant stream of dialgoues
-	// make sure whenver u do part++, u have like (if part == <the number they should be at>) then part++
-	phaseDurations[0][0] = 6.7f;
-	phaseDurations[0][1] = 6.7f;
-	phaseDurations[0][2] = 6.7f;
+	// setup initial item in hand
+	//addPickables("Baseball", glm::vec3(0, 0, 0));
+	//itemInHand = pickables[0];
+	//amountOfItem = 10;
+	//previousItemInHandName = "";
+	//itemInUse = false;
+
+	// Part 1 dialogue: Intro to the minigame
+	phaseDurations[1][0] = 6.7f;
+	phaseDurations[1][1] = 6.7f;
+	phaseDurations[1][2] = 6.7f;
 
 	// world objects
 	bool miscSettings[2] = { false, false }; // for gravity and drag. override in case of specific objects
@@ -267,15 +269,29 @@ void SceneKnockdown::Init()
 	//food stand
 	worldObjects[7].InitPhysicsObject(glm::vec3(-3.6, 0.5f, 5), 0.f, BoundingBox::Type::OBB, glm::vec3(2.2f, 1.f, 1.92f), -15, glm::vec3(0, 1, 0), miscSettings);
 
+	addPickables("Baseball", glm::vec3(-5.6f, 1.f, 0));
+	addPickables("Baseball", glm::vec3(-5.6f, 1.f, 0.15f));
+	addPickables("Baseball", glm::vec3(-5.6f, 1.f, 0.30f));
+	addPickables("Baseball", glm::vec3(-5.6f, 1.f, 0.45f));
+	addPickables("Baseball", glm::vec3(-5.6f, 1.f, 0.60f));
+	addPickables("Baseball", glm::vec3(-5.6f, 1.f, -0.15f));
+	addPickables("Baseball", glm::vec3(-5.6f, 1.f, -0.30f));
+	addPickables("Baseball", glm::vec3(-5.6f, 1.f, -0.45f));
+	addPickables("Baseball", glm::vec3(-5.6f, 1.f, -0.60f));
+
 	addPickables("Pepsi", glm::vec3(3, 1, 2));
+
 
 	// Stalls invis walls
 	worldObjects[8].InitPhysicsObject(glm::vec3(-5.6f, 0.2f, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(0.4f, 0.6f, 1.9f), 0, glm::vec3(0, 1, 0), miscSettings);
 	// Stall board for cans
-	worldObjects[9].InitPhysicsObject(glm::vec3(-6.6f, 0.7f, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(0.3f, 0.05f, 1.9f), 0, glm::vec3(0, 1, 0), miscSettings);
+	worldObjects[9].InitPhysicsObject(glm::vec3(-6.45f, 0.7f, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(0.3f, 0.05f, 1.9f), 0, glm::vec3(0, 1, 0), miscSettings);
+	// Stall invis walls behind
+	worldObjects[10].InitPhysicsObject(glm::vec3(-6.8f, 1.5, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(0.05f, 5.f, 1.9f), miscSettings);
 
 	// The cans for the can knockdown game 
-	generateCanPositions(1);
+	round = 1;
+	generateCanPositions(round);
 
 	camera.Init(glm::vec3(-4.49645f, 0.999999f, -0.0245583f), glm::vec3(-5.49018f, 0.911104f, 0.0336516));
 
@@ -311,6 +327,8 @@ void SceneKnockdown::Init()
 	meshList_hub[GEO_STALL]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
 	meshList_hub[GEO_STALL]->material.kShininess = 1.0f;
 
+	startPhysicsUpdateForCans = false;
+	win = false;
 }
 
 void SceneKnockdown::Update(double dt)
@@ -327,8 +345,8 @@ void SceneKnockdown::Update(double dt)
 	}
 
 	// name of interactive, I = interactive, coords
-	addInteractives("Enter Scene 2 (Tilting Table)", 'I', glm::vec3(1, 0, 0));
-	addInteractives("1", 'I', glm::vec3(-1, 0, 0));
+	if (win) addInteractives("Return to SceneHub", 'I', glm::vec3(-5.6f, 0.5f, 0.8f));
+	else addInteractives("Talk to monke", 'I', glm::vec3(-5.6f, 0.5f, 0.8f));
 	addInteractives("2", 'I', glm::vec3(0, 0, 1));
 	addInteractives("Enter SceneTester", 'I', glm::vec3(0, 0, -1));
 
@@ -343,17 +361,15 @@ void SceneKnockdown::Update(double dt)
 	if (interactedIndex != -1 && KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_F)) { // means got prompt, is close to and facing smth
 		if (interactivesType[interactedIndex] == 'I') { // its an interactive
 			// do it in actual scene instead
-			if (interactives[interactedIndex] == "Enter Scene 2 (Tilting Table)" && nextScene == 0) {
-				nextScene = 2;
+			if (interactives[interactedIndex] == "Return to SceneHub" && nextScene == 0 && win) {
+				nextScene = 1;
 				nextSceneDelay = 1.f;
 				sceneSwitchHUD.resetScale(glm::vec2(.25f));
 				sceneSwitchHUD.setTargetScale(glm::vec2(1.f));
 			}
-			else if (interactives[interactedIndex] == "1") {
-				if (part == 0)
-				{
-					addPickables("Pepsi", glm::vec3(0, 5, 0));
-				}
+			else if (interactives[interactedIndex] == "Talk to monke") {
+				part = 1;
+				phase = 0;
 			}
 			else if (interactives[interactedIndex] == "2") {
 				// do something
@@ -412,6 +428,36 @@ void SceneKnockdown::Update(double dt)
 	std::cout << camera.position.x << camera.position.y << camera.position.z << std::endl;
 	std::cout << camera.target.x << camera.target.y << camera.target.z << std::endl;
 
+	// Win condition
+	{
+		PhysicsObject winHitbox;
+		bool miscSettings[2] = { false, false };
+		winHitbox.InitPhysicsObject(glm::vec3(-6, 0.1f, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(1.5f, 1.1f, 1.7f), miscSettings);
+		int cansKnockedDown = 0;
+
+		for (int i = 0; i < numOfCansInPlay; i++) {
+			CollisionData cd;
+			if (CheckCollision(cans[i], winHitbox, cd) && this->winCondition[i] != true) {
+				winCondition[i] = true;
+			}
+			// Count number of cans knocked down
+			if (winCondition[i]) {
+				cansKnockedDown++;
+			}
+			if (cansKnockedDown >= numOfCansInPlay) {
+				// Player wins, do something
+				if (round == 3) {
+					win = true;
+				}
+				else {
+					round++;
+					generateCanPositions(round);
+				}
+				std::cout << "WIN CONDITION MET" << std::endl;
+			}
+		}
+	}
+
 	std::vector<CollisionData> contacts;
 	contacts.reserve(256);
 
@@ -463,6 +509,8 @@ void SceneKnockdown::Update(double dt)
 			cans[i].UpdatePhysics(dt);
 		}
 	}
+
+
 }
 
 void SceneKnockdown::Render()
@@ -654,6 +702,20 @@ void SceneKnockdown::Render()
 	}
 
 	{
+		PushPop winCondition(modelStack);
+		modelStack.Translate(-6, 0.1f, 0);
+		modelStack.Scale(1.5f, 1.1f, 1.7f);
+		meshList_hub[GEO_WALL]->material.kAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
+		meshList_hub[GEO_WALL]->material.kDiffuse = glm::vec3(1.0f, 1.0f, 1.0f);
+		meshList_hub[GEO_WALL]->material.kSpecular = glm::vec3(0.0f, 0.0f, 0.0f);
+		meshList_hub[GEO_WALL]->material.kShininess = 1.0f;
+		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_M)) {
+
+			RenderMesh(meshList_hub[GEO_WALL], true);
+		}
+	}
+
+	{
 		PushPop backgroundBuildings(modelStack);
 		modelStack.Translate(0.f, -15.f, 0.f);
 		modelStack.Scale(0.2f, 0.4f, 0.2f);
@@ -755,10 +817,16 @@ void SceneKnockdown::Render()
 
 	{
 		PushPop monkey(modelStack);
-		modelStack.Translate(-2.f, 0.24f, 0.f);
-		modelStack.Rotate(-90, 0.f, 1.f, 0.f);
+		modelStack.Translate(-5.6f, 0.5f, 0.8f);
+		modelStack.Rotate(90, 0.f, 1.f, 0.f);
 		modelStack.Scale(0.1f, 0.1f, 0.1f);
 		RenderMesh(meshList[GEO_MONKEY], true);
+	}
+	{
+		PushPop Maxwell(modelStack);
+		modelStack.Translate(-5.6f, 0.5f,-0.8f);
+		modelStack.Scale(1, 1, 1);
+		RenderMesh(meshList_hub[GEO_MAXWELL], false);
 	}
 
 
@@ -886,22 +954,23 @@ void SceneKnockdown::Render()
 		}
 	}
 
+
 	{
 		// Render Dialogue
 		//std::cout << std::to_string(dialogueFadeHUD.getPosition().y) << std::endl;
 		RenderMeshOnScreen(meshList[GEO_DIALOGUEFADE_GUI], dialogueFadeHUD.getPosition().x, dialogueFadeHUD.getPosition().y, 1600, 900);
 
 		switch (part) {
-		case 0: // part 1
+		case 1: // part 1
 			switch (phase) {
 			case 0:
-				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Welcome to our crooked carnival, today you will be earning points through our various minigames and challenges.", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
+				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Welcome to the can knocking challenge, here you will be knocking cans over with a baseball.", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
 				break;
 			case 1:
-				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "you can redeem your points for fantastic prizes such as, a anime figure or A GEFORCE RTX 5090!", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
+				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Knock down all the cans without picking up the baseballs", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
 				break;
 			case 2:
-				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "But be careful, if you lose all your points, you will be trapped here forever!", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
+				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Only then you can leave the game!!", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
 				break;
 			default:
 				break;
@@ -1111,28 +1180,44 @@ void SceneKnockdown::generateCanPositions(int pattern) {
 	bool settings[2] = { true , true };
 	switch (pattern) {
 	case 1:
-		cans[0].InitPhysicsObject(glm::vec3(-6.6, 0.8f, 0.1f), 5.f, BoundingBox::Type::OBB, canSize, settings);
-		cans[1].InitPhysicsObject(glm::vec3(-6.6, 0.8f, -0.1f), 5.f, BoundingBox::Type::OBB, canSize, settings);
-		cans[2].InitPhysicsObject(glm::vec3(-6.6, 0.8f, 0.f), 5.f, BoundingBox::Type::OBB, canSize, settings);
-		cans[3].InitPhysicsObject(glm::vec3(-6.6, 0.98f, 0.05f), 5.f, BoundingBox::Type::OBB, canSize, settings);
-		cans[4].InitPhysicsObject(glm::vec3(-6.6, 0.98f, -0.05f), 5.f, BoundingBox::Type::OBB, canSize, settings);
-		cans[5].InitPhysicsObject(glm::vec3(-6.6, 1.16f, 0.f), 5.f, BoundingBox::Type::OBB, canSize, settings);
+		cans[0].InitPhysicsObject(glm::vec3(-6.4, 0.8f, 0.1f), 5.f, BoundingBox::Type::OBB, canSize, settings);
+		cans[1].InitPhysicsObject(glm::vec3(-6.4, 0.8f, -0.1f), 5.f, BoundingBox::Type::OBB, canSize, settings);
+		cans[2].InitPhysicsObject(glm::vec3(-6.4, 0.8f, 0.f), 5.f, BoundingBox::Type::OBB, canSize, settings);
+		cans[3].InitPhysicsObject(glm::vec3(-6.4, 0.98f, 0.05f), 5.f, BoundingBox::Type::OBB, canSize, settings);
+		cans[4].InitPhysicsObject(glm::vec3(-6.4, 0.98f, -0.05f), 5.f, BoundingBox::Type::OBB, canSize, settings);
+		cans[5].InitPhysicsObject(glm::vec3(-6.4, 1.16f, 0.f), 5.f, BoundingBox::Type::OBB, canSize, settings);
 		numOfCansInPlay = 6;
 		break;
 	case 2:
+		// Square pattern (3x3)
+		cans[0].InitPhysicsObject(glm::vec3(-6.4, 0.8f, 0.1f), 5.f, BoundingBox::Type::OBB, canSize, settings);
+		cans[1].InitPhysicsObject(glm::vec3(-6.4, 0.8f, 0.f), 5.f, BoundingBox::Type::OBB, canSize, settings);
+		cans[2].InitPhysicsObject(glm::vec3(-6.4, 0.8f, -0.1f), 5.f, BoundingBox::Type::OBB, canSize, settings);
+		cans[3].InitPhysicsObject(glm::vec3(-6.4, 0.98f, 0.1f), 5.f, BoundingBox::Type::OBB, canSize, settings);
+		cans[4].InitPhysicsObject(glm::vec3(-6.4, 0.98f, 0.f), 5.f, BoundingBox::Type::OBB, canSize, settings);
+		cans[5].InitPhysicsObject(glm::vec3(-6.4, 0.98f, -0.1f), 5.f, BoundingBox::Type::OBB, canSize, settings);
+		cans[6].InitPhysicsObject(glm::vec3(-6.4, 1.16f, 0.1f), 5.f, BoundingBox::Type::OBB, canSize, settings);
+		cans[7].InitPhysicsObject(glm::vec3(-6.4, 1.16f, 0.f), 5.f, BoundingBox::Type::OBB, canSize, settings);
+		cans[8].InitPhysicsObject(glm::vec3(-6.4, 1.16f, -0.1f), 5.f, BoundingBox::Type::OBB, canSize, settings);
+		numOfCansInPlay = 9;
 		break;
 	case 3:
-		break;
-	default:
-		// Default to pattern 1
-		cans[0].InitPhysicsObject(glm::vec3(-6.6, 0.8f, 0.1f), 5.f, BoundingBox::Type::OBB, canSize, settings);
-		cans[1].InitPhysicsObject(glm::vec3(-6.6, 0.8f, -0.1f), 5.f, BoundingBox::Type::OBB, canSize, settings);
-		cans[2].InitPhysicsObject(glm::vec3(-6.6, 0.8f, 0.f), 5.f, BoundingBox::Type::OBB, canSize, settings);
-		cans[3].InitPhysicsObject(glm::vec3(-6.6, 0.98f, 0.05f), 5.f, BoundingBox::Type::OBB, canSize, settings);
-		cans[4].InitPhysicsObject(glm::vec3(-6.6, 0.98f, -0.05f), 5.f, BoundingBox::Type::OBB, canSize, settings);
-		cans[5].InitPhysicsObject(glm::vec3(-6.6, 1.16f, 0.f), 5.f, BoundingBox::Type::OBB, canSize, settings);
+		// 2 tower pattern, 2 columns of 3 with 1 can-spacing
+		cans[0].InitPhysicsObject(glm::vec3(-6.4, 0.8f, 0.2f), 5.f, BoundingBox::Type::OBB, canSize, settings);
+		cans[1].InitPhysicsObject(glm::vec3(-6.4, 0.98f, 0.2f), 5.f, BoundingBox::Type::OBB, canSize, settings);
+		cans[2].InitPhysicsObject(glm::vec3(-6.4, 1.16f, 0.2f), 5.f, BoundingBox::Type::OBB, canSize, settings);
+		cans[3].InitPhysicsObject(glm::vec3(-6.4, 0.8f, -0.2f), 5.f, BoundingBox::Type::OBB, canSize, settings);
+		cans[4].InitPhysicsObject(glm::vec3(-6.4, 0.98f, -0.2f), 5.f, BoundingBox::Type::OBB, canSize, settings);
+		cans[5].InitPhysicsObject(glm::vec3(-6.4, 1.16f, -0.2f), 5.f, BoundingBox::Type::OBB, canSize, settings);
 		numOfCansInPlay = 6;
 		break;
+	default:
+		break;
+	}
 
+	startPhysicsUpdateForCans = false;
+
+	for (int i = 0; i < numOfCansInPlay; i++) {
+		winCondition[i] = false;
 	}
 }

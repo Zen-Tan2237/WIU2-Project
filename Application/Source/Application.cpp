@@ -162,7 +162,7 @@ void Application::Run()
 	Scene* scene4 = new SceneKnockdown();
 	Scene* scene5 = new SceneTester();
 	
-	Scene* scene = scene2;
+	Scene* scene = scene4;
 	scene->Init();
 
 
