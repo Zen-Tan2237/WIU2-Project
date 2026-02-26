@@ -263,8 +263,8 @@ void BaseScene::Init()
 	meshList[GEO_PINGPONGBALL] = MeshBuilder::GenerateOBJ("Ping Pong Ball", "Models//PingPongBall.obj");
 	meshList[GEO_PINGPONGBALL]->textureID = LoadTGA("Textures//Table_Tennis.tga");
 
-	meshList[GEO_CONTROLLER] = MeshBuilder::GenerateOBJ("Controller", "Models//Controller.obj");
-	meshList[GEO_CONTROLLER]->textureID = LoadTGA("Textures//Controller.tga");
+	//meshList[GEO_CONTROLLER] = MeshBuilder::GenerateOBJ("Controller", "Models//Controller.obj");
+	//meshList[GEO_CONTROLLER]->textureID = LoadTGA("Textures//Controller.tga");
 
 	// SKYBOX
 	meshList[GEO_FRONT] = MeshBuilder::GenerateQuad("Front", glm::vec3(1.f, 1.f, 1.f), 100.f);
@@ -510,10 +510,10 @@ void BaseScene::Init()
 	meshList[GEO_STALL]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
 	meshList[GEO_STALL]->material.kShininess = 1.0f;
 
-	meshList[GEO_CONTROLLER]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
-	meshList[GEO_CONTROLLER]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
-	meshList[GEO_CONTROLLER]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
-	meshList[GEO_CONTROLLER]->material.kShininess = 1.0f;
+	//meshList[GEO_CONTROLLER]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	//meshList[GEO_CONTROLLER]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
+	//meshList[GEO_CONTROLLER]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+	//meshList[GEO_CONTROLLER]->material.kShininess = 1.0f;
 }
 
 void BaseScene::Update(double dt)
@@ -1543,13 +1543,13 @@ void BaseScene::useItemInHand()
 
 			if (amountOfItem > 0) {
 				addPickables(itemToDropName, placementPos);
-				pickables[newestPickableIndex]->body.AddImpulse(glm::normalize((camera.position + forward * 2.f + glm::vec3(0, 1.f, 0)) - placementPos) * strength);
+				pickables[newestPickableIndex]->body.AddImpulse(glm::normalize((camera.position + forward * 2.f + glm::vec3(0, .2f, 0)) - placementPos) * strength);
 			}
 			else {
 				itemInHand->body.ResetPhysicsProperties();
 				itemInHand->body.position = placementPos;
 				itemInHand->isHeld = false;
-				itemInHand->body.AddImpulse(glm::normalize((camera.position + forward * 2.f + glm::vec3(0, 1.f, 0)) - placementPos) * strength);
+				itemInHand->body.AddImpulse(glm::normalize((camera.position + forward * 2.f + glm::vec3(0, .2f, 0)) - placementPos) * strength);
 			}
 
 			if (amountOfItem == 0) {
