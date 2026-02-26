@@ -565,11 +565,56 @@ void BaseScene::Update(double dt)
 	cameraBody.velocity = glm::vec3(0);
 
 	// DO COLLISIONS
+	//int index = 0;
+	//for (auto& obj : worldObjects) {
+	//	CollisionData cd;
+	//	if (CheckCollision(cameraBody, obj, cd) && index != 0) {
+	//		ResolveCollision(cd);
+	//	}
+
+	//	for (int i = 0; i < TOTAL_PICKABLES; ++i) {	// Pickables - World Objects
+	//		if (pickables[i] != nullptr) {
+	//			if (!pickables[i]->isHeld && (index < 1 || index > 4)) {
+	//				CollisionData cd;
+	//				if (CheckCollision(pickables[i]->body, obj, cd)) {
+	//					ResolveCollision(cd);
+	//				}
+	//			}
+	//		}
+	//	}
+
+	//	index++;
+	//}
+
+	//for (int i = 0; i < TOTAL_PICKABLES; ++i) {	// Pickables - World Objects
+	//	for (auto& obj : worldObjects) {
+	//		
+	//	}
+	//}
+
+	//for (int i = 0; i < TOTAL_PICKABLES - 1; ++i) {
+	//	if (pickables[i] != nullptr) {
+	//		for (int o = i + 1; o < TOTAL_PICKABLES; ++o) {
+	//			if (pickables[o] != nullptr) {
+	//				if (!pickables[i]->isHeld && !pickables[o]->isHeld) {
+	//					CollisionData cd;
+	//					if (CheckCollision(pickables[i]->body, pickables[o]->body, cd)) {
+	//						ResolveCollision(cd);
+	//					}
+	//				}
+	//			}
+	//		}
+	//	}
+	//}
+
+	//NEW COLLISION DETECTION LOGIC
+	std::vector<CollisionData> contacts;
+	contacts.reserve(256);
 	int index = 0;
 	for (auto& obj : worldObjects) {
 		CollisionData cd;
 		if (CheckCollision(cameraBody, obj, cd) && index != 0) {
-			ResolveCollision(cd);
+			contacts.push_back(cd);
 		}
 
 		for (int i = 0; i < TOTAL_PICKABLES; ++i) {	// Pickables - World Objects
@@ -577,7 +622,7 @@ void BaseScene::Update(double dt)
 				if (!pickables[i]->isHeld && (index < 1 || index > 4)) {
 					CollisionData cd;
 					if (CheckCollision(pickables[i]->body, obj, cd)) {
-						ResolveCollision(cd);
+						contacts.push_back(cd);
 					}
 				}
 			}
@@ -588,7 +633,7 @@ void BaseScene::Update(double dt)
 
 	for (int i = 0; i < TOTAL_PICKABLES; ++i) {	// Pickables - World Objects
 		for (auto& obj : worldObjects) {
-			
+
 		}
 	}
 
@@ -599,13 +644,23 @@ void BaseScene::Update(double dt)
 					if (!pickables[i]->isHeld && !pickables[o]->isHeld) {
 						CollisionData cd;
 						if (CheckCollision(pickables[i]->body, pickables[o]->body, cd)) {
-							ResolveCollision(cd);
+							contacts.push_back(cd);
 						}
 					}
 				}
 			}
 		}
 	}
+
+	// RESOLVE COLLISIONS
+	const int MAX_ITER = 8;
+
+	for (int iter = 0; iter < MAX_ITER; ++iter) {
+		for (auto& cd : contacts) {
+			ResolveCollision(cd);
+		}
+	}
+
 
 	// SYNC CAMERA BACK
 	if (!glm::any(glm::isnan(cameraBody.position))) {
