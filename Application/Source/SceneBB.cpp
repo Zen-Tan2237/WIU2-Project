@@ -217,7 +217,7 @@ void SceneBB::Init()
 	meshList_hub[GEO_SPHERE] = MeshBuilder::GenerateSphere("sphere", glm::vec3(0.f, 1.f, 0.f), 1.f, 36, 18);
 
 	meshList_hub[GEO_BBALL] = MeshBuilder::GenerateOBJ("basketball", "Models//basketball.obj");
-	meshList_hub[GEO_BBALL]->textureID = LoadTGA("Textures//basketball.tga");
+	meshList_hub[GEO_BBALL]->textureID = LoadTGA("Textures//Basketball.tga");
 
 	meshList_hub[GEO_HOOP] = MeshBuilder::GenerateOBJ("bbhoop", "Models//BasketballHoop.obj");
 	meshList_hub[GEO_HOOP]->textureID = LoadTGA("Textures//BasketballHoop.tga");
