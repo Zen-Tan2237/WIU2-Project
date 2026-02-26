@@ -1,10 +1,12 @@
 #pragma once
 #include "AnimatedUIElement.h"
 
+
 class InteractPromptUI : public AnimatedUIElement
 {
 private:
     std::string text;
+    glm::vec3 color;
 
 public:
     InteractPromptUI()
@@ -13,7 +15,10 @@ public:
 
     void Update(double dt) override;
 
+    void setText(const std::string& t);
+    void setColor(const glm::vec3& c);
     void show(const std::string& t);
     void hide();
     std::string getText() const;
+	glm::vec3 getColor() const;
 };
