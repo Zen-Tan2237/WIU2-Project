@@ -217,7 +217,7 @@ void SceneKnockdown::Init()
 	//meshList[GEO_STALL] = MeshBuilder::GenerateOBJMTL("Stall", "OBJ//stall.obj", "OBJ//stall.mtl");
 
 	//debug
-	meshList_hub[GEO_WALL] = MeshBuilder::GenerateCube("wall", glm::vec3(1.f, 0.f, 0.f), 1.f);
+	meshList_hub[GEO_WALL] = MeshBuilder::GenerateCube("wall", glm::vec3(1.f, 1.f, 1.f), 1.f);
 	meshList_hub[GEO_SPHERE] = MeshBuilder::GenerateSphere("sphere", glm::vec3(0.f, 1.f, 0.f), 1.f, 36, 18);
 
 	meshList_hub[GEO_STALL] = MeshBuilder::GenerateOBJ("stall", "Models//minigame_Stall.obj");
@@ -241,6 +241,8 @@ void SceneKnockdown::Init()
 	// Sound init
 	AudioManager::Instance().LoadSound("Ball hitting can", "SFX/canhit.mp3");
 	AudioManager::Instance().LoadSound("Maxwell", "SFX/MaxwellTheCat.wav");
+	AudioManager::Instance().SetLooping("Maxwell", true);
+	AudioManager::Instance().SetSoundVolume("Ball hitting can", 0.5f);
 
 	// setup initial item in hand
 	//addPickables("Baseball", glm::vec3(0, 0, 0));
@@ -336,6 +338,9 @@ void SceneKnockdown::Init()
 
 	startPhysicsUpdateForCans = false;
 	win = false;
+	accumulatedCash = 0;
+
+	AudioManager::Instance().SetSoundPosition("Maxwell", maxwell.position.x, maxwell.position.y, maxwell.position.z);
 	AudioManager::Instance().SoundPlay("Maxwell");
 }
 
@@ -343,6 +348,10 @@ void SceneKnockdown::Update(double dt)
 {
 	BaseScene::Update(dt);
 
+	// Sound update
+	AudioManager::Instance().SetListenerPosition(camera.position.x,	camera.position.y, camera.position.z);
+	AudioManager::Instance().SetListenerDirection(camera.target.x, camera.target.y, camera.target.z);
+	AudioManager::Instance().SetListenerCone(1, 3, 0.5f);
 
 
 	if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_M)) {
@@ -462,6 +471,7 @@ void SceneKnockdown::Update(double dt)
 				else {
 					round++;
 					generateCanPositions(round);
+					accumulatedCash += round * 30; // reward player with cash based on round
 				}
 				std::cout << "WIN CONDITION MET" << std::endl;
 			}
@@ -528,13 +538,6 @@ void SceneKnockdown::Update(double dt)
 		glm::quat rotationDelta = glm::angleAxis(angleToUpdate, glm::vec3(0, 1, 0));
 		maxwell.orientation = rotationDelta * maxwell.orientation;
 
-		// Update maxwell sound counter
-		maxwellSoundCooldown -= dt;
-
-		if (maxwellSoundCooldown <= 0.f) {
-			AudioManager::Instance().SoundPlay("Maxwell");
-			maxwellSoundCooldown = 28.f; // play sound every 28 second
-		}
 	}
 }
 
@@ -721,6 +724,9 @@ void SceneKnockdown::Render()
 		glm::mat4 rotation = glm::mat4_cast(worldObjects[i].orientation);
 		modelStack.MultMatrix(rotation);
 		modelStack.Scale(worldObjects[i].boundingBox.getWidth(), worldObjects[i].boundingBox.getHeight(), worldObjects[i].boundingBox.getDepth());
+		meshList_hub[GEO_WALL]->material.kAmbient = glm::vec3(0.2f, 0.0f, 0.0f);
+		meshList_hub[GEO_WALL]->material.kDiffuse = glm::vec3(1.0f, 0.0f, 0.0f);
+		meshList_hub[GEO_WALL]->material.kSpecular = glm::vec3(0.0f, 0.0f, 0.0f);
 		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_M)) {
 			RenderMesh(meshList_hub[GEO_WALL], true);
 		}
@@ -1143,6 +1149,8 @@ void SceneKnockdown::RenderUI()
 void SceneKnockdown::Exit()
 {
 	BaseScene::Exit();
+
+	AudioManager::Instance().SoundStop("Maxwell");
 }
 
 void SceneKnockdown::RegenerateGrassPositions()
