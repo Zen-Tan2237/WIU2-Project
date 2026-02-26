@@ -1032,6 +1032,37 @@ void SceneRiseTop::RenderUI()
 			RenderMeshOnScreen(meshList[GEO_INTERACTFADE_GUI], interactPrompt.getPosition().x, interactPrompt.getPosition().y, 1600, 900);
 			RenderTextOnScreen(meshList[GEO_VCROSDMONO_FONT], interactives[interactedIndex], glm::vec3(1, 1, 1), 20, 410 + interactPrompt.getPosition().x * 1.5f, -10 + interactPrompt.getPosition().y, 'R', .6f);
 
+			if (itemInHand->name == "Baseball") {
+				RenderMeshOnScreen(meshList[GEO_BASEBALL_TGA], itemInHandImageHUD.getPosition().x - (itemInHandImageHUD.getScale().x / 2.f), itemInHandImageHUD.getPosition().y + (itemInHandImageHUD.getScale().y / 2.f), itemInHandImageHUD.getScale().x, itemInHandImageHUD.getScale().y);
+			}
+			else if (itemInHand->name == "Coke" || itemInHand->name == "Mountain Dew" || itemInHand->name == "Sprite" || itemInHand->name == "Pepsi") {
+				RenderMeshOnScreen(meshList[GEO_SODA_TGA], itemInHandImageHUD.getPosition().x - (itemInHandImageHUD.getScale().x / 2.f), itemInHandImageHUD.getPosition().y + (itemInHandImageHUD.getScale().y / 2.f), itemInHandImageHUD.getScale().x, itemInHandImageHUD.getScale().y);
+			}
+			else if (itemInHand->name == "Figurine") {
+				RenderMeshOnScreen(meshList[GEO_FIGURINE_TGA], itemInHandImageHUD.getPosition().x - (itemInHandImageHUD.getScale().x / 2.f), itemInHandImageHUD.getPosition().y + (itemInHandImageHUD.getScale().y / 2.f), itemInHandImageHUD.getScale().x, itemInHandImageHUD.getScale().y);
+			}
+			else if (itemInHand->name == "Pig") {
+				RenderMeshOnScreen(meshList[GEO_PIG_TGA], itemInHandImageHUD.getPosition().x - (itemInHandImageHUD.getScale().x / 2.f), itemInHandImageHUD.getPosition().y + (itemInHandImageHUD.getScale().y / 2.f), itemInHandImageHUD.getScale().x, itemInHandImageHUD.getScale().y);
+			}
+			else if (itemInHand->name == "Plushie") {
+				RenderMeshOnScreen(meshList[GEO_PLUSHIE_TGA], itemInHandImageHUD.getPosition().x - (itemInHandImageHUD.getScale().x / 2.f), itemInHandImageHUD.getPosition().y + (itemInHandImageHUD.getScale().y / 2.f), itemInHandImageHUD.getScale().x, itemInHandImageHUD.getScale().y);
+			}
+			else if (itemInHand->name == "RTX 5090") {
+				RenderMeshOnScreen(meshList[GEO_5090_TGA], itemInHandImageHUD.getPosition().x - (itemInHandImageHUD.getScale().x / 2.f), itemInHandImageHUD.getPosition().y + (itemInHandImageHUD.getScale().y / 2.f), itemInHandImageHUD.getScale().x, itemInHandImageHUD.getScale().y);
+
+			}
+			else if (itemInHand->name == "Baseball") {
+				RenderMeshOnScreen(meshList[GEO_BASEBALL_TGA], itemInHandImageHUD.getPosition().x - (itemInHandImageHUD.getScale().x / 2.f), itemInHandImageHUD.getPosition().y + (itemInHandImageHUD.getScale().y / 2.f), itemInHandImageHUD.getScale().x, itemInHandImageHUD.getScale().y);
+
+			}
+			else if (itemInHand->name == "Controller") {
+				RenderMeshOnScreen(meshList[GEO_CONTROLLER_TGA], itemInHandImageHUD.getPosition().x - (itemInHandImageHUD.getScale().x / 2.f), itemInHandImageHUD.getPosition().y + (itemInHandImageHUD.getScale().y / 2.f), itemInHandImageHUD.getScale().x, itemInHandImageHUD.getScale().y);
+
+			}
+			else if (itemInHand->name == "PingPong Ball") {
+				RenderMeshOnScreen(meshList[GEO_PINGPONGBALL_TGA], itemInHandImageHUD.getPosition().x - (itemInHandImageHUD.getScale().x / 2.f), itemInHandImageHUD.getPosition().y + (itemInHandImageHUD.getScale().y / 2.f), itemInHandImageHUD.getScale().x, itemInHandImageHUD.getScale().y);
+			}
+
 			//meshlist[font type], text, color, size, x, y, alignment, spacing percentage
 			if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_F))
 			{

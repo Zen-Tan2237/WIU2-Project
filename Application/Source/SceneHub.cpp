@@ -215,19 +215,9 @@ void SceneHub::Init()
 	//debug
 	meshList_hub[GEO_WALL] = MeshBuilder::GenerateCube("wall", glm::vec3(1.f, 0.f, 0.f), 1.f);
 	meshList_hub[GEO_SPHERE] = MeshBuilder::GenerateSphere("sphere", glm::vec3(0.f, 1.f, 0.f), 1.f, 36, 18);
-	meshList_hub[GEO_FIGURINE_TGA] = MeshBuilder::GenerateQuad("figurine", glm::vec3(1.f), 1.f);
-	meshList_hub[GEO_FIGURINE_TGA]->textureID = LoadTGA("Image//figurine.tga");
-	meshList_hub[GEO_PIG_TGA] = MeshBuilder::GenerateQuad("pig", glm::vec3(1.f), 1.f);
-	meshList_hub[GEO_PIG_TGA]->textureID = LoadTGA("Image//pig.tga");
-	meshList_hub[GEO_PLUSHIE_TGA] = MeshBuilder::GenerateQuad("plushie", glm::vec3(1.f), 1.f);
-	meshList_hub[GEO_PLUSHIE_TGA]->textureID = LoadTGA("Image//plushie.tga");
-	meshList_hub[GEO_5090_TGA] = MeshBuilder::GenerateQuad("5090", glm::vec3(1.f), 1.f);
-	meshList_hub[GEO_5090_TGA]->textureID = LoadTGA("Image//5090.tga");
-	meshList_hub[GEO_SODA_TGA] = MeshBuilder::GenerateQuad("soda", glm::vec3(1.f), 1.f);
-	meshList_hub[GEO_SODA_TGA]->textureID = LoadTGA("Image//soda.tga");
 
 	// setup initial item in hand
-	addPickables("Coke", glm::vec3(0, 0, 0));
+	addPickables("Baseball", glm::vec3(0, 0, 0));
 	itemInHand = pickables[0];
 	amountOfItem = 10;
 	previousItemInHandName = "";
@@ -1119,13 +1109,37 @@ void SceneHub::RenderUI()
 			RenderMeshOnScreen(meshList[GEO_ITEMINHANDFADEBACKGROUND_GUI], 603 - (itemInHandHUD.getScale().x * .5f), -343.2f + (itemInHandHUD.getScale().y * .5f), 214 + itemInHandHUD.getScale().x, 33.7f + itemInHandHUD.getScale().y);
 			RenderMeshOnScreen(meshList[GEO_ITEMINHANDFADE_GUI], 0, 0 + itemInHandHUD.getScale().y, 1600, 900);
 
-			Mesh* temp;
-
 			if (itemInHand->name == "Baseball") {
-				temp = meshList[GEO_BASEBALL_TGA];
+				RenderMeshOnScreen(meshList[GEO_BASEBALL_TGA], itemInHandImageHUD.getPosition().x - (itemInHandImageHUD.getScale().x / 2.f), itemInHandImageHUD.getPosition().y + (itemInHandImageHUD.getScale().y / 2.f), itemInHandImageHUD.getScale().x, itemInHandImageHUD.getScale().y);
 			}
+			else if (itemInHand->name == "Coke" || itemInHand->name == "Mountain Dew" || itemInHand->name == "Sprite" || itemInHand->name == "Pepsi") {
+				RenderMeshOnScreen(meshList[GEO_SODA_TGA], itemInHandImageHUD.getPosition().x - (itemInHandImageHUD.getScale().x / 2.f), itemInHandImageHUD.getPosition().y + (itemInHandImageHUD.getScale().y / 2.f), itemInHandImageHUD.getScale().x, itemInHandImageHUD.getScale().y);
+			}
+			else if (itemInHand->name == "Figurine") {
+				RenderMeshOnScreen(meshList[GEO_FIGURINE_TGA], itemInHandImageHUD.getPosition().x - (itemInHandImageHUD.getScale().x / 2.f), itemInHandImageHUD.getPosition().y + (itemInHandImageHUD.getScale().y / 2.f), itemInHandImageHUD.getScale().x, itemInHandImageHUD.getScale().y);
+			}
+			else if (itemInHand->name == "Pig") {
+				RenderMeshOnScreen(meshList[GEO_PIG_TGA], itemInHandImageHUD.getPosition().x - (itemInHandImageHUD.getScale().x / 2.f), itemInHandImageHUD.getPosition().y + (itemInHandImageHUD.getScale().y / 2.f), itemInHandImageHUD.getScale().x, itemInHandImageHUD.getScale().y);
+			}
+			else if (itemInHand->name == "Plushie") {
+				RenderMeshOnScreen(meshList[GEO_PLUSHIE_TGA], itemInHandImageHUD.getPosition().x - (itemInHandImageHUD.getScale().x / 2.f), itemInHandImageHUD.getPosition().y + (itemInHandImageHUD.getScale().y / 2.f), itemInHandImageHUD.getScale().x, itemInHandImageHUD.getScale().y);
+			}
+			else if (itemInHand->name == "RTX 5090") {
+				RenderMeshOnScreen(meshList[GEO_5090_TGA], itemInHandImageHUD.getPosition().x - (itemInHandImageHUD.getScale().x / 2.f), itemInHandImageHUD.getPosition().y + (itemInHandImageHUD.getScale().y / 2.f), itemInHandImageHUD.getScale().x, itemInHandImageHUD.getScale().y);
 
-			RenderMeshOnScreen(temp, itemInHandImageHUD.getPosition().x - (itemInHandImageHUD.getScale().x / 2.f), itemInHandImageHUD.getPosition().y - (itemInHandImageHUD.getScale().y / 2.f), itemInHandImageHUD.getScale().x, itemInHandImageHUD.getScale().y);
+			}
+			else if (itemInHand->name == "Baseball") {
+				RenderMeshOnScreen(meshList[GEO_BASEBALL_TGA], itemInHandImageHUD.getPosition().x - (itemInHandImageHUD.getScale().x / 2.f), itemInHandImageHUD.getPosition().y + (itemInHandImageHUD.getScale().y / 2.f), itemInHandImageHUD.getScale().x, itemInHandImageHUD.getScale().y);
+
+			}
+			else if (itemInHand->name == "Controller") {
+				RenderMeshOnScreen(meshList[GEO_CONTROLLER_TGA], itemInHandImageHUD.getPosition().x - (itemInHandImageHUD.getScale().x / 2.f), itemInHandImageHUD.getPosition().y + (itemInHandImageHUD.getScale().y / 2.f), itemInHandImageHUD.getScale().x, itemInHandImageHUD.getScale().y);
+
+			}
+			else if (itemInHand->name == "PingPong Ball") {
+				RenderMeshOnScreen(meshList[GEO_PINGPONGBALL_TGA], itemInHandImageHUD.getPosition().x - (itemInHandImageHUD.getScale().x / 2.f), itemInHandImageHUD.getPosition().y + (itemInHandImageHUD.getScale().y / 2.f), itemInHandImageHUD.getScale().x, itemInHandImageHUD.getScale().y);
+			}
+			
 
 			RenderTextOnScreen(meshList[GEO_VCROSDMONO_FONT], "(" + std::to_string(amountOfItem) + "x) " + itemInHand->name, glm::vec3(1, 1, 1), 20, 690, -355 + itemInHandHUD.getScale().y, 'R', .6f);
 
@@ -1229,19 +1243,19 @@ void SceneHub::RenderUI()
 	switch (shopSelection) 
 	{
 	case 0:
-		RenderMeshOnScreen(meshList_hub[GEO_5090_TGA], SelectionModel.getPosition().x,SelectionModel.getPosition().y, SelectionModel.getScale().x, SelectionModel.getScale().y);
+		RenderMeshOnScreen(meshList[GEO_5090_TGA], SelectionModel.getPosition().x,SelectionModel.getPosition().y, SelectionModel.getScale().x, SelectionModel.getScale().y);
 		break;
 	case 1:
-		RenderMeshOnScreen(meshList_hub[GEO_FIGURINE_TGA], SelectionModel.getPosition().x, SelectionModel.getPosition().y, SelectionModel.getScale().x, SelectionModel.getScale().y);
+		RenderMeshOnScreen(meshList[GEO_FIGURINE_TGA], SelectionModel.getPosition().x, SelectionModel.getPosition().y, SelectionModel.getScale().x, SelectionModel.getScale().y);
 		break;
 	case 2:
-		RenderMeshOnScreen(meshList_hub[GEO_PLUSHIE_TGA], SelectionModel.getPosition().x, SelectionModel.getPosition().y, SelectionModel.getScale().x, SelectionModel.getScale().y);
+		RenderMeshOnScreen(meshList[GEO_PLUSHIE_TGA], SelectionModel.getPosition().x, SelectionModel.getPosition().y, SelectionModel.getScale().x, SelectionModel.getScale().y);
 		break;
 	case 3:
-		RenderMeshOnScreen(meshList_hub[GEO_PIG_TGA], SelectionModel.getPosition().x, SelectionModel.getPosition().y, SelectionModel.getScale().x, SelectionModel.getScale().y);
+		RenderMeshOnScreen(meshList[GEO_PIG_TGA], SelectionModel.getPosition().x, SelectionModel.getPosition().y, SelectionModel.getScale().x, SelectionModel.getScale().y);
 		break;
 	case 4:
-		RenderMeshOnScreen(meshList_hub[GEO_SODA_TGA], SelectionModel.getPosition().x, SelectionModel.getPosition().y, SelectionModel.getScale().x, SelectionModel.getScale().y);
+		RenderMeshOnScreen(meshList[GEO_SODA_TGA], SelectionModel.getPosition().x, SelectionModel.getPosition().y, SelectionModel.getScale().x, SelectionModel.getScale().y);
 		break;
 	default:
 		break;

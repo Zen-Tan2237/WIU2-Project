@@ -231,8 +231,8 @@ void BaseScene::Init()
 	meshList[GEO_FERRISWHEEL]->textureID = LoadTGA("Textures//FerrisWheel.tga");
 
 	//
-	meshList[GEO_BBPOST] = MeshBuilder::GenerateOBJ("bbhoop", "Models//BasketballHoop.obj");
-	meshList[GEO_BBPOST]->textureID = LoadTGA("Textures//BasketballHoop.tga");
+	//meshList[GEO_BBPOST] = MeshBuilder::GenerateOBJ("bbhoop", "Models//BasketballHoop.obj");
+	//meshList[GEO_BBPOST]->textureID = LoadTGA("Textures//BasketballHoop.tga");
 
 
 	//pickables
@@ -269,8 +269,8 @@ void BaseScene::Init()
 	meshList[GEO_PINGPONGBALL] = MeshBuilder::GenerateOBJ("Ping Pong Ball", "Models//PingPongBall.obj");
 	meshList[GEO_PINGPONGBALL]->textureID = LoadTGA("Textures//Table_Tennis.tga");
 
-	meshList[GEO_BBALL] = MeshBuilder::GenerateOBJ("basketball", "Models//basketball.obj");
-	meshList[GEO_BBALL]->textureID = LoadTGA("Textures//basketball.tga");
+	//meshList[GEO_BBALL] = MeshBuilder::GenerateOBJ("basketball", "Models//basketball.obj");
+	//meshList[GEO_BBALL]->textureID = LoadTGA("Textures//basketball.tga");
 
 	meshList[GEO_CONTROLLER] = MeshBuilder::GenerateOBJ("Controller", "Models//Controller.obj");
 	meshList[GEO_CONTROLLER]->textureID = LoadTGA("Textures//Controller.tga");
@@ -315,6 +315,34 @@ void BaseScene::Init()
 
 	meshList[GEO_ITEMINHANDFADEBACKGROUND_GUI] = MeshBuilder::GenerateQuad("ItemInHand FadeBackground GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
 	meshList[GEO_ITEMINHANDFADEBACKGROUND_GUI]->textureID = LoadTGA("Image//ItemInHandFadeBackground_GUI.tga");
+
+	meshList[GEO_FIGURINE_TGA] = MeshBuilder::GenerateQuad("Figurine Preview GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
+	meshList[GEO_FIGURINE_TGA]->textureID = LoadTGA("Image//figurine.tga");
+
+	meshList[GEO_PIG_TGA] = MeshBuilder::GenerateQuad("Pig Preview GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
+	meshList[GEO_PIG_TGA]->textureID = LoadTGA("Image//pig.tga");
+
+	meshList[GEO_PLUSHIE_TGA] = MeshBuilder::GenerateQuad("Plushie Preview GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
+	meshList[GEO_PLUSHIE_TGA]->textureID = LoadTGA("Image//plushie.tga");
+
+	meshList[GEO_5090_TGA] = MeshBuilder::GenerateQuad("5090 Preview GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
+	meshList[GEO_5090_TGA]->textureID = LoadTGA("Image//5090.tga");
+
+	meshList[GEO_SODA_TGA] = MeshBuilder::GenerateQuad("Soda Preview GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
+	meshList[GEO_SODA_TGA]->textureID = LoadTGA("Image//soda.tga");
+
+	meshList[GEO_BASEBALL_TGA] = MeshBuilder::GenerateQuad("Baseball Preview GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
+	meshList[GEO_BASEBALL_TGA]->textureID = LoadTGA("Image//baseball.tga");
+
+	meshList[GEO_CONTROLLER_TGA] = MeshBuilder::GenerateQuad("Controller Preview GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
+	meshList[GEO_CONTROLLER_TGA]->textureID = LoadTGA("Image//controller.tga");
+
+	meshList[GEO_PINGPONGBALL_TGA] = MeshBuilder::GenerateQuad("PingPong Ball Preview GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
+	meshList[GEO_PINGPONGBALL_TGA]->textureID = LoadTGA("Image//Tennis_Ball.tga");
+
+	//meshList[GEO_BASEBALL_TGA] = MeshBuilder::GenerateQuad("Basketball Preview GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
+	//meshList[GEO_BASEBALL_TGA]->textureID = LoadTGA("Image//basketball.tga");
+
 
 	// EUI
 	meshList[GEO_INTERACT_EUI] = MeshBuilder::GenerateQuad("Interact EUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
@@ -366,7 +394,7 @@ void BaseScene::Init()
 
 	noOfPickables = 0;
 
-	accumulatedCash = 25; //$25 to start with but will be overriden when this is not the first scene to be started up (i.e. when coming from another scene)
+	accumulatedCash = 1125; //$25 to start with but will be overriden when this is not the first scene to be started up (i.e. when coming from another scene)
 
 	// ITEM IN HAND
 	itemInHand = nullptr;
@@ -393,8 +421,8 @@ void BaseScene::Init()
 	dialogueFadeHUD.resetPosition(glm::vec2(0, -414));
 	dialogueFadeHUD.setTargetPosition(glm::vec2(0, -414));
 
-	itemInHandImageHUD.resetPosition(glm::vec2(0, 0));
-	itemInHandImageHUD.setTargetPosition(glm::vec2(0,0));
+	itemInHandImageHUD.resetPosition(glm::vec2(665, -330));
+	itemInHandImageHUD.setTargetPosition(glm::vec2(665, -330));
 	itemInHandImageHUD.resetScale(glm::vec2(0));
 	itemInHandImageHUD.setTargetScale(glm::vec2(0));
 
@@ -742,7 +770,7 @@ void BaseScene::Update(double dt)
 
 	if (itemInHand != nullptr && itemInHandElapsed < 2.f) {
 		itemInHandHUD.setTargetScale(glm::vec2(20.f, 200.f));
-		itemInHandImageHUD.setTargetScale(glm::vec2(20.f, 20.f));
+		itemInHandImageHUD.setTargetScale(glm::vec2(150.f, 150.f));
 	}
 	else {
 		itemInHandHUD.setTargetScale(glm::vec2(0, 0));

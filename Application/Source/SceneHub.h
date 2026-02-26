@@ -16,11 +16,11 @@ public:
         GEO_SPHERE,
 
         //shop images
-        GEO_FIGURINE_TGA,
-		GEO_PLUSHIE_TGA,
-		GEO_PIG_TGA,
-		GEO_5090_TGA,
-		GEO_SODA_TGA,
+  //      GEO_FIGURINE_TGA,
+		//GEO_PLUSHIE_TGA,
+		//GEO_PIG_TGA,
+		//GEO_5090_TGA,
+		//GEO_SODA_TGA,
 
         NUM_GEOMETRY,
     };
