@@ -10,12 +10,13 @@ public:
 
     enum GEOMETRY_TYPE_RISE_TOP
     {
-        //debug
+        // DEBUG
         GEO_WALL,
         GEO_SPHERE,
 
-        //scene models
+        // LOCAL SCENE MODELS
         GEO_STALL,
+        GEO_RISETOP,
 
         NUM_GEOMETRY,
     };
@@ -28,7 +29,7 @@ public:
     void RenderUI();
     void Exit() override;
 
-    Mesh* meshList_hub[NUM_GEOMETRY];
+    Mesh* meshList_riseTop[NUM_GEOMETRY];
 
     // Grass density management
     int activeGrassCount;

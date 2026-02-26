@@ -209,43 +209,66 @@ void SceneRiseTop::Init()
 		glUniform1f(m_parameters[U_LIGHT7_EXPONENT], light[7].exponent);
 	}
 
-	//models
-	//meshList[GEO_STALL] = MeshBuilder::GenerateOBJMTL("Stall", "OBJ//stall.obj", "OBJ//stall.mtl");
+	// DEBUG
+	meshList_riseTop[GEO_WALL] = MeshBuilder::GenerateCube("wall", glm::vec3(1.f, 0.f, 0.f), 1.f);
+	meshList_riseTop[GEO_SPHERE] = MeshBuilder::GenerateSphere("sphere", glm::vec3(0.f, 1.f, 0.f), 1.f, 36, 18);
 
-	//debug
-	meshList_hub[GEO_WALL] = MeshBuilder::GenerateCube("wall", glm::vec3(1.f, 0.f, 0.f), 1.f);
-	meshList_hub[GEO_SPHERE] = MeshBuilder::GenerateSphere("sphere", glm::vec3(0.f, 1.f, 0.f), 1.f, 36, 18);
 
-	meshList_hub[GEO_STALL] = MeshBuilder::GenerateOBJ("stall", "Models//minigame_Stall.obj");
-	meshList_hub[GEO_STALL]->textureID = LoadTGA("Textures//minigameStall.tga");
+	// MODELS
+	meshList_riseTop[GEO_STALL] = MeshBuilder::GenerateOBJ("stall", "Models//minigame_Stall.obj");
+	meshList_riseTop[GEO_STALL]->textureID = LoadTGA("Textures//minigameStall.tga");
 
-	// setup initial item in hand
-	addPickables("Baseball", glm::vec3(0, 0, 0));
+	meshList_riseTop[GEO_RISETOP] = MeshBuilder::GenerateOBJ("Rise Top", "Models//RiseTop.obj");
+	meshList_riseTop[GEO_RISETOP]->textureID = LoadTGA("Textures//RiseTop.tga");
+
+	// INITIAL ITEM IN HAND
+	addPickables("Coke", glm::vec3(0, 0, 0));
 	itemInHand = pickables[0];
-	amountOfItem = 10;
+	amountOfItem = 5;
 	previousItemInHandName = "";
 	itemInUse = false;
 
+	// Grass density initialization
+	targetFPS = 60.0f;
+	fpsSmoothed = 60.0f;
+	grassDensityMultiplier = 1.0f;
+	activeGrassCount = NUM_GRASSCLUMPS;
+
 	// setup phase durations here ([first one is part][second one is phase]. phase means like u want a constant stream of dialgoues
 	// make sure whenver u do part++, u have like (if part == <the number they should be at>) then part++
-	phaseDurations[0][0] = 6.7f;
+	phaseDurations[0][0] = 3.f;
 	phaseDurations[0][1] = 6.7f;
 	phaseDurations[0][2] = 6.7f;
 
-	// world objects
+	// CAMERA INIT
+	camera.Init(glm::vec3(0, 0.9f, 4.f), glm::vec3(0, 0.9f, 5.f), glm::vec3(0, 1.9f, 4.f));
+
+	// WORLD OBJECTS
 	bool miscSettings[2] = { false, false }; // for gravity and drag. override in case of specific objects
 
 	// Floor
-	//worldObjects[0].InitPhysicsObject(glm::vec3(0, 0, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(999, 1, 999), 0, glm::vec3(1, 0, 0), miscSettings);
+	worldObjects[0].InitPhysicsObject(glm::vec3(0, -0.5f, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(200, 1, 200), 0, glm::vec3(1, 0, 0), miscSettings);
 
-	//stalls
-	worldObjects[1].InitPhysicsObject(glm::vec3(-30, 4.5f, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(8.f, 9.f, 8.5f), miscSettings);
+	// Stall
+	worldObjects[1].InitPhysicsObject(glm::vec3(0, 0.9f, 6), 0.f, BoundingBox::Type::OBB, glm::vec3(1.5f, 1.4f, 1.7f), 90, glm::vec3(0, 1, 0), miscSettings);
 
+	// Rise Top
+	worldObjects[2].InitPhysicsObject(glm::vec3(0, 0.f, 6.5f), 0.f, BoundingBox::Type::OBB, glm::vec3(0.f, 0.f, 0.f), 180, glm::vec3(0, 1, 0), miscSettings);
 
-	addPickables("Pepsi", glm::vec3(3, 1, 2));
+	// Tables
+	worldObjects[5].InitPhysicsObject(glm::vec3(-3, 0, 3.6f), 0.f, BoundingBox::Type::OBB, glm::vec3(1.8f, 1.f, 1.8f), 50, glm::vec3(0, 1, 0), miscSettings);
+
+	// Ferris Wheel
+	worldObjects[6].InitPhysicsObject(glm::vec3(-10, 0, -7), 0.f, BoundingBox::Type::OBB, glm::vec3(10.f, 5.f, 5.f), 45, glm::vec3(0, 1, 0), miscSettings);
+
+	// Food Stand
+	worldObjects[7].InitPhysicsObject(glm::vec3(-3.6, 0.5f, 5), 0.f, BoundingBox::Type::OBB, glm::vec3(1.5f, 0.5f, 1.3f), -15, glm::vec3(0, 1, 0), miscSettings);
 
 
 	int index = 0;
+
+	//
+	phase = 0;
 
 	// Grass density initialization
 	targetFPS = 60.0f;
@@ -257,10 +280,15 @@ void SceneRiseTop::Init()
 	RegenerateGrassPositions();
 
 	//
-	meshList_hub[GEO_STALL]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
-	meshList_hub[GEO_STALL]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
-	meshList_hub[GEO_STALL]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
-	meshList_hub[GEO_STALL]->material.kShininess = 1.0f;
+	meshList_riseTop[GEO_STALL]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	meshList_riseTop[GEO_STALL]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
+	meshList_riseTop[GEO_STALL]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+	meshList_riseTop[GEO_STALL]->material.kShininess = 1.0f;
+
+	meshList_riseTop[GEO_RISETOP]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	meshList_riseTop[GEO_RISETOP]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
+	meshList_riseTop[GEO_RISETOP]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+	meshList_riseTop[GEO_RISETOP]->material.kShininess = 1.0f;
 
 }
 
@@ -278,7 +306,7 @@ void SceneRiseTop::Update(double dt)
 	}
 
 	// name of interactive, I = interactive, coords
-	addInteractives("Enter Scene 1 (SceneHub)", 'I', glm::vec3(1, 0, 0));
+	addInteractives("Return to Hub", 'I', glm::vec3(1, 0, 0));
 	addInteractives("1", 'I', glm::vec3(-1, 0, 0));
 	addInteractives("2", 'I', glm::vec3(0, 0, 1));
 	addInteractives("3", 'I', glm::vec3(0, 0, -1));
@@ -293,17 +321,13 @@ void SceneRiseTop::Update(double dt)
 	if (interactedIndex != -1 && KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_F)) { // means got prompt, is close to and facing smth
 		if (interactivesType[interactedIndex] == 'I') { // its an interactive
 			// do it in actual scene instead
-			if (interactives[interactedIndex] == "Enter Scene 1 (SceneHub)" && nextScene == 0) {
+			if (interactives[interactedIndex] == "Return to Hub" && nextScene == 0) {
 				nextScene = 1;
 				nextSceneDelay = 1.f;
 				sceneSwitchHUD.resetScale(glm::vec2(.25f));
 				sceneSwitchHUD.setTargetScale(glm::vec2(1.f));
 			}
-			else if (interactives[interactedIndex] == "1") {
-				if (part == 0)
-				{
-					addPickables("Pepsi", glm::vec3(0, 5, 0));
-				}
+			else if (interactives[interactedIndex] == "Start") {
 			}
 			else if (interactives[interactedIndex] == "2") {
 				// do something
@@ -360,8 +384,8 @@ void SceneRiseTop::Render()
 	// Load view matrix stack and set it with camera position, target position and up direction
 	viewStack.LoadIdentity();
 	viewStack.LookAt(
-		camera.position.x, camera.position.y, camera.position.z,
-		camera.target.x, camera.target.y, camera.target.z,
+		camera.position.x + m_viewBobOffset.x, camera.position.y + m_viewBobOffset.y, camera.position.z + m_viewBobOffset.z,
+		camera.target.x + m_viewBobOffset.x, camera.target.y + m_viewBobOffset.y, camera.target.z + m_viewBobOffset.z,
 		camera.up.x, camera.up.y, camera.up.z
 	);
 
@@ -527,81 +551,131 @@ void SceneRiseTop::Render()
 		RenderSkybox();
 	}
 
+	for (int i = 0; i < TOTAL_PHYSICSOBJECT; i++) {
+		PushPop debug(modelStack);
+		modelStack.Translate(worldObjects[i].position.x, worldObjects[i].position.y, worldObjects[i].position.z);
+		glm::mat4 rotation = glm::mat4_cast(worldObjects[i].orientation);
+		modelStack.MultMatrix(rotation);
+		modelStack.Scale(worldObjects[i].boundingBox.getWidth(), worldObjects[i].boundingBox.getHeight(), worldObjects[i].boundingBox.getDepth());
+		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_M)) {
+			RenderMesh(meshList_riseTop[GEO_WALL], true);
+		}
+	}
+
 	{
-		PushPop multi(modelStack);
+		PushPop backgroundBuildings(modelStack);
+		modelStack.Translate(0.f, -15.f, 0.f);
+		modelStack.Scale(0.2f, 0.4f, 0.2f);
+		RenderMesh(meshList[GEO_BACKGROUND_BUILDINGS1], true);
+		RenderMesh(meshList[GEO_BACKGROUND_BUILDINGS2], true);
+	}
+
+	{
+		PushPop floor(modelStack);
 		modelStack.Scale(0.2f, 0.2f, 0.2f);
+		RenderMesh(meshList[GEO_FLOOR], true);
+	}
 
-		{
-			PushPop backgroundBuildings(modelStack);
-			modelStack.Translate(0.f, -15.f, 0.f);
-			modelStack.Scale(1.f, 2.f, 1.f);
-			RenderMesh(meshList[GEO_BACKGROUND_BUILDINGS1], true);
-			RenderMesh(meshList[GEO_BACKGROUND_BUILDINGS2], true);
+	{
+		PushPop fence(modelStack);
+		modelStack.Scale(0.2f, 0.2f, 0.2f);
+		RenderMesh(meshList[GEO_FENCE], true);
+	}
+
+	glm::vec3 localCamPos = camera.position;
+	glm::vec3 forward = glm::normalize(camera.target - camera.position);
+
+	glDepthMask(GL_FALSE);
+
+	// Only render active grass count
+	for (int i = 0; i < activeGrassCount; i++) {
+		glm::vec3 pos = grassClumps[i];
+		glm::vec3 toGrass = pos - localCamPos;
+		float dist = glm::length(toGrass);
+
+		if (dist > 15.f) continue;
+
+		if (dist > 0.001f) {
+			float dot = glm::dot(forward, toGrass / dist);
+			if (dot < 0.25f) continue;
 		}
 
-		{
-			PushPop floor(modelStack);
-			modelStack.Scale(1, 1, 1);
-			RenderMesh(meshList[GEO_FLOOR], true);
-		}
+		glm::vec3 dir = localCamPos - pos;
+		dir.y = 0.f;
+		float yaw = glm::degrees(atan2(dir.x, dir.z));
 
-		{
-			PushPop fence(modelStack);
-			RenderMesh(meshList[GEO_FENCE], true);
-		}
+		PushPop grass(modelStack);
+		modelStack.Translate(pos.x, pos.y, pos.z);
+		modelStack.Rotate(yaw, 0, 1, 0);
+		modelStack.Scale(.4f, .6f, .4f);
+		RenderMesh(meshList[GEO_GRASS], false);
+	}
 
-		glm::vec3 localCamPos = camera.position / 0.2f;
-		glm::vec3 forward = glm::normalize(camera.target - camera.position);
+	glDepthMask(GL_TRUE);
 
-		glDepthMask(GL_FALSE);
+	{
+		PushPop table(modelStack);
+		modelStack.Translate(worldObjects[5].position.x, worldObjects[5].position.y, worldObjects[5].position.z);
+		glm::mat4 rotation = glm::mat4_cast(worldObjects[5].orientation);
+		modelStack.MultMatrix(rotation);
+		modelStack.Scale(.13f, .13f, .13f);
+		RenderMesh(meshList[GEO_TABLE], true);
+		modelStack.Scale(worldObjects[5].boundingBox.getWidth(), worldObjects[5].boundingBox.getHeight(), worldObjects[5].boundingBox.getDepth());
+		//RenderMesh(meshList_hub[GEO_WALL], true);
+	}
 
-		// Only render active grass count
-		for (int i = 0; i < activeGrassCount; i++) {
-			glm::vec3 pos = grassClumps[i];
-			glm::vec3 toGrass = pos - localCamPos;
-			float dist = glm::length(toGrass);
+	{
+		PushPop foodstand(modelStack);
+		modelStack.Translate(worldObjects[7].position.x, worldObjects[7].position.y, worldObjects[7].position.z);
+		glm::mat4 rotation = glm::mat4_cast(worldObjects[7].orientation);
+		modelStack.MultMatrix(rotation);
+		modelStack.Scale(.12f, .12f, .12f);
+		RenderMesh(meshList[GEO_FOODSTAND], true);
+		//modelStack.Scale(debugScale, debugScale, debugScale);
+		//modelStack.Scale(worldObjects[7].boundingBox.getWidth(), worldObjects[7].boundingBox.getHeight(), worldObjects[7].boundingBox.getDepth());
+		//RenderMesh(meshList_hub[GEO_WALL], true);
+	}
 
-			if (dist > 40.f) continue;
+	{
+		PushPop ferriswheel(modelStack);
+		modelStack.Translate(worldObjects[6].position.x, worldObjects[6].position.y, worldObjects[6].position.z);
+		glm::mat4 rotation = glm::mat4_cast(worldObjects[6].orientation);
+		modelStack.MultMatrix(rotation);
+		modelStack.Scale(.2f, .2f, .2f);
+		RenderMesh(meshList[GEO_FERRISWHEEL], true);
+	}
 
-			if (dist > 0.001f) {
-				float dot = glm::dot(forward, toGrass / dist);
-				if (dot < 0.25f) continue;
-			}
+	{
+		PushPop stall(modelStack);
+		modelStack.Translate(worldObjects[1].position.x, worldObjects[1].position.y, worldObjects[1].position.z);
+		glm::mat4 rotation = glm::mat4_cast(worldObjects[1].orientation);
+		modelStack.MultMatrix(rotation);
+		modelStack.Scale(0.2f, 0.2f, 0.2f);
+		RenderMesh(meshList_riseTop[GEO_STALL], true);
+	}
 
-			glm::vec3 dir = localCamPos - pos;
-			dir.y = 0.f;
-			float yaw = glm::degrees(atan2(dir.x, dir.z));
+	{
+		PushPop riseTop(modelStack);
+		modelStack.Translate(worldObjects[2].position.x, worldObjects[2].position.y, worldObjects[2].position.z);
+		glm::mat4 rotation = glm::mat4_cast(worldObjects[2].orientation);
+		modelStack.MultMatrix(rotation);
+		modelStack.Scale(0.65f, 0.65f, 0.65f);
+		RenderMesh(meshList_riseTop[GEO_RISETOP], true);
+	}
 
-			PushPop grass(modelStack);
-			modelStack.Translate(pos.x, pos.y, pos.z);
-			modelStack.Rotate(yaw, 0, 1, 0);
-			modelStack.Scale(3.f, 2.f, 3.f);
-			RenderMesh(meshList[GEO_GRASS], false);
-		}
+	//{
+	//	PushPop fountain(modelStack);
+	//	modelStack.Translate(Fountain.position.x, Fountain.position.y, Fountain.position.z);
+	//	modelStack.Scale(1.5f, 1.5f, 1.5f);
+	//	RenderMesh(meshList[GEO_FOUNTAIN], true);
+	//}
 
-		glDepthMask(GL_TRUE);
-
-		{
-			PushPop stall(modelStack);
-			modelStack.Translate(worldObjects[1].position.x, worldObjects[1].position.y, worldObjects[1].position.z);
-			glm::mat4 rotation = glm::mat4_cast(worldObjects[1].orientation);
-			modelStack.MultMatrix(rotation);
-			RenderMesh(meshList_hub[GEO_STALL], true);
-		}
-
-		//{
-		//	PushPop fountain(modelStack);
-		//	modelStack.Translate(Fountain.position.x, Fountain.position.y, Fountain.position.z);
-		//	modelStack.Scale(1.5f, 1.5f, 1.5f);
-		//	RenderMesh(meshList[GEO_FOUNTAIN], true);
-		//}
-
-		{
-			PushPop monkey(modelStack);
-			modelStack.Translate(-6.f, 1.2f, 0.f);
-			modelStack.Rotate(-90, 0.f, 1.f, 0.f);
-			RenderMesh(meshList[GEO_MONKEY], true);
-		}
+	{
+		PushPop monkey(modelStack);
+		modelStack.Translate(-2.f, 0.24f, 0.f);
+		modelStack.Rotate(-90, 0.f, 1.f, 0.f);
+		modelStack.Scale(0.1f, 0.1f, 0.1f);
+		RenderMesh(meshList[GEO_MONKEY], true);
 	}
 
 
@@ -613,12 +687,12 @@ void SceneRiseTop::Render()
 		modelStack.Scale(worldObjects[0].boundingBox.getWidth(), worldObjects[0].boundingBox.getHeight(), worldObjects[0].boundingBox.getDepth());
 		//modelStack.Scale(5.f, 0.1f, 5.f);
 
-		meshList_hub[GEO_WALL]->material.kAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
-		meshList_hub[GEO_WALL]->material.kDiffuse = glm::vec3(1.0f, 1.0f, 1.0f);
-		meshList_hub[GEO_WALL]->material.kSpecular = glm::vec3(0.0f, 0.0f, 0.0f);
-		meshList_hub[GEO_WALL]->material.kShininess = 1.0f;
+		meshList_riseTop[GEO_WALL]->material.kAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
+		meshList_riseTop[GEO_WALL]->material.kDiffuse = glm::vec3(1.0f, 1.0f, 1.0f);
+		meshList_riseTop[GEO_WALL]->material.kSpecular = glm::vec3(0.0f, 0.0f, 0.0f);
+		meshList_riseTop[GEO_WALL]->material.kShininess = 1.0f;
 
-		RenderMesh(meshList_hub[GEO_WALL], true);
+		//RenderMesh(meshList_hub[GEO_WALL], true);
 	}
 
 	{
@@ -632,12 +706,12 @@ void SceneRiseTop::Render()
 					modelStack.Scale(pickables[i]->body.boundingBox.getWidth(), pickables[i]->body.boundingBox.getHeight(), pickables[i]->body.boundingBox.getDepth());
 					//modelStack.Scale(5.f, 0.1f, 5.f);
 
-					meshList_hub[GEO_WALL]->material.kAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
-					meshList_hub[GEO_WALL]->material.kDiffuse = glm::vec3(1.0f, 1.0f, 1.0f);
-					meshList_hub[GEO_WALL]->material.kSpecular = glm::vec3(0.0f, 0.0f, 0.0f);
-					meshList_hub[GEO_WALL]->material.kShininess = 1.0f;
+					meshList_riseTop[GEO_WALL]->material.kAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
+					meshList_riseTop[GEO_WALL]->material.kDiffuse = glm::vec3(1.0f, 1.0f, 1.0f);
+					meshList_riseTop[GEO_WALL]->material.kSpecular = glm::vec3(0.0f, 0.0f, 0.0f);
+					meshList_riseTop[GEO_WALL]->material.kShininess = 1.0f;
 
-					RenderMesh(meshList_hub[GEO_WALL], true);
+					RenderMesh(meshList_riseTop[GEO_WALL], true);
 				}
 			}
 		}
@@ -714,13 +788,13 @@ void SceneRiseTop::Render()
 		case 0: // part 1
 			switch (phase) {
 			case 0:
-				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Welcome to our crooked carnival, today you will be earning points through our various minigames and challenges.", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
+				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Oh hey there.", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
 				break;
 			case 1:
-				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "you can redeem your points for fantastic prizes such as, a anime figure or A GEFORCE RTX 5090!", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
+				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Game's caught your attention?", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
 				break;
 			case 2:
-				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "But be careful, if you lose all your points, you will be trapped here forever!", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
+				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Here's a quick guide", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
 				break;
 			default:
 				break;
@@ -881,12 +955,12 @@ void SceneRiseTop::RegenerateGrassPositions()
 		for (int z = -1; z < 2; z++) {
 			for (int i = 0; i < grassPerSection && index < NUM_GRASSCLUMPS; i++) {
 				glm::vec3 pos(
-					((rand() % 40000) - 20000) / 500.f,
+					((rand() % 7000) - 3500) / 500.f,
 					0.f,
-					((rand() % 40000) - 20000) / 500.f
+					((rand() % 7000) - 3500) / 500.f
 				);
 
-				pos += glm::vec3(x * 40.f, 0.f, z * 40.f);
+				pos += glm::vec3(x * 7.f, 0.f, z * 7.f);
 				grassClumps[index++] = pos;
 			}
 		}
@@ -897,14 +971,14 @@ void SceneRiseTop::RegenerateGrassPositions()
 
 void SceneRiseTop::UpdateGrassDensity(double dt)
 {
-	float smoothingFactor = 0.7f;
+	float smoothingFactor = 0.9f;
 	fpsSmoothed = fpsSmoothed * (1.0f - smoothingFactor) + currentFPS * smoothingFactor;
 
 	// fps ratio
 	float fpsRatio = fpsSmoothed / targetFPS;
 
 	if (fpsRatio < 0.8f) {
-		grassDensityMultiplier -= 0.05f * static_cast<float>(dt);
+		grassDensityMultiplier -= 0.1f * static_cast<float>(dt);
 	}
 	// increase if ratio is good
 	else if (fpsRatio > 1.05f && grassDensityMultiplier < 1.0f) {
@@ -912,11 +986,11 @@ void SceneRiseTop::UpdateGrassDensity(double dt)
 	}
 
 	// clamp density multiplier
-	grassDensityMultiplier = glm::clamp(grassDensityMultiplier, 0.2f, 1.0f);
+	grassDensityMultiplier = glm::clamp(grassDensityMultiplier, 0.1f, 1.0f);
 
 	// regenerate grass positions if density changed significantly
 	int targetCount = static_cast<int>(NUM_GRASSCLUMPS * grassDensityMultiplier);
-	if (abs(targetCount - activeGrassCount) > NUM_GRASSCLUMPS * 0.05f) {
+	if (abs(targetCount - activeGrassCount) > NUM_GRASSCLUMPS * 0.1f) {
 		RegenerateGrassPositions();
 	}
 }

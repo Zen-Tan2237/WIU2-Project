@@ -194,9 +194,11 @@ void Application::Run()
 
 			if (newScene)
 			{
+				int accumulatedCash = scene->accumulatedCash; //all scenes share cash $$$monners
 				scene->Exit();
 				newScene->Init();
 				scene = newScene;
+				scene->accumulatedCash = accumulatedCash;
 			}
 
 			scene->nextScene = 0; // reset trigger

@@ -174,7 +174,7 @@ void BaseScene::Init()
 		camera.position,
 		1.0f,
 		BoundingBox::Type::OBB,
-		glm::vec3(.5f, 5.f, .5f),
+		glm::vec3(.25f, 5.f, .25f),
 		settings
 	);
 
@@ -348,12 +348,15 @@ void BaseScene::Init()
 
 	noOfPickables = 0;
 
+	accumulatedCash = 25; //$25 to start with but will be overriden when this is not the first scene to be started up (i.e. when coming from another scene)
+
 	// ITEM IN HAND
 	itemInHand = nullptr;
 	amountOfItem = 0;
 	previousItemInHandName = "";
 	itemInHandElapsed = 0.f;
 	itemInUse = false;
+	itemUseHeldElapsed = 0.f;
 
 	dropKeybindHeldElapsed = 0.f;
 	droppedFirst = false;
@@ -364,6 +367,7 @@ void BaseScene::Init()
 	for (int i = 0; i < TOTAL_PICKABLES; i++) {
 		pickables[i] = nullptr;
 	}
+	newestPickableIndex = 0;
 
 	// UI
 	interactPrompt.setTargetPosition(glm::vec2(0, 0));
@@ -512,58 +516,23 @@ void BaseScene::Update(double dt)
 
 	HandleKeyPress(dt);
 
-	if (nextScene == 0) {
-		camera.Update(dt);
-	}
+	//if (nextScene == 0) {
+	//	camera.Update(dt);
+	//}
 
-	//if (KeyboardController::GetInstance()->IsKeyDown('I'))
-	//	light[0].position.z -= static_cast<float>(dt) * 5.f;
-	//if (KeyboardController::GetInstance()->IsKeyDown('K'))
-	//	light[0].position.z += static_cast<float>(dt) * 5.f;
-	//if (KeyboardController::GetInstance()->IsKeyDown('J'))
-	//	light[0].position.x -= static_cast<float>(dt) * 5.f;
-	//if (KeyboardController::GetInstance()->IsKeyDown('L'))
-	//	light[0].position.x += static_cast<float>(dt) * 5.f;
-	//if (KeyboardController::GetInstance()->IsKeyDown('O'))
-	//	light[0].position.y -= static_cast<float>(dt) * 5.f;
-	//if (KeyboardController::GetInstance()->IsKeyDown('P'))
-	//	light[0].position.y += static_cast<float>(dt) * 5.f;
+	////if (KeyboardController::GetInstance()->IsKeyDown('I'))
+	////	light[0].position.z -= static_cast<float>(dt) * 5.f;
+	////if (KeyboardController::GetInstance()->IsKeyDown('K'))
+	////	light[0].position.z += static_cast<float>(dt) * 5.f;
+	////if (KeyboardController::GetInstance()->IsKeyDown('J'))
+	////	light[0].position.x -= static_cast<float>(dt) * 5.f;
+	////if (KeyboardController::GetInstance()->IsKeyDown('L'))
+	////	light[0].position.x += static_cast<float>(dt) * 5.f;
+	////if (KeyboardController::GetInstance()->IsKeyDown('O'))
+	////	light[0].position.y -= static_cast<float>(dt) * 5.f;
+	////if (KeyboardController::GetInstance()->IsKeyDown('P'))
+	////	light[0].position.y += static_cast<float>(dt) * 5.f;
 
-	// CAMERA BOBBING
-	camera.position -= previousBobOffset;
-	camera.target -= previousBobOffset;
-
-	glm::vec3 currentPlayerPosition = camera.position;
-	glm::vec3 delta = currentPlayerPosition - previousPlayerPosition;
-	delta.y = 0.0f;
-
-	previousPlayerPosition = currentPlayerPosition;
-
-	float distanceMoved = glm::length(delta);
-	bobDistanceAccumulated += distanceMoved;
-
-	bool isMoving = (distanceMoved > 0.0001f);
-
-	float targetWeight = isMoving ? 1.0f : 0.0f;
-	currentBobWeight += (targetWeight - currentBobWeight) * (1.0f - exp(-10.0f * dt));
-
-	float wave = bobDistanceAccumulated * bobFrequency;
-
-	float verticalOffset = sinf(wave) * bobAmplitudeVertical;
-	float horizontalOffset = sinf(wave * 0.5f) * bobAmplitudeHorizontal;
-
-	verticalOffset *= currentBobWeight;
-	horizontalOffset *= currentBobWeight;
-
-	glm::vec3 forward = glm::normalize(camera.target - camera.position);
-	glm::vec3 right = glm::normalize(glm::cross(forward, camera.up));
-
-	glm::vec3 currentBobOffset = camera.up * verticalOffset + right * horizontalOffset;
-
-	camera.position += currentBobOffset;
-	camera.target += currentBobOffset;
-
-	previousBobOffset = currentBobOffset;
 
 	// SET ISHELD WHEN PICKABLE IS ITEM IN HAND
 	for (int i = 0; i < TOTAL_PICKABLES; i++) {
@@ -577,63 +546,77 @@ void BaseScene::Update(double dt)
 		}
 	}
 
-	// COLLISIONS
+	// UPDATE CAMERA INPUT
+	camera.Update(dt);
+
+	// SYNC PHYSICS BODY
 	cameraBody.position = camera.position;
 	cameraBody.velocity = glm::vec3(0);
 
-	const int COLLISION_ITERATIONS = 1;
-
-	for (int iter = 0; iter < COLLISION_ITERATIONS; iter++) {
-		// Camera - World Objects
-		int index = 0;
-		for (auto& obj : worldObjects) {
-			CollisionData cd;
-			if (CheckCollision(cameraBody, obj, cd) && index != 0) {
-				ResolveCollision(cd);
-			}
-			index++;
+	// DO COLLISIONS
+	int index = 0;
+	for (auto& obj : worldObjects) {
+		CollisionData cd;
+		if (CheckCollision(cameraBody, obj, cd) && index != 0) {
+			ResolveCollision(cd);
 		}
+		index++;
+	}
 
-		for (int i = 0; i < TOTAL_PICKABLES; ++i) {	// Pickables - World Objects
-			for (auto& obj : worldObjects) {
-				if (pickables[i] != nullptr) {
-					if (!pickables[i]->isHeld) {
+	for (int i = 0; i < TOTAL_PICKABLES; ++i) {	// Pickables - World Objects
+		for (auto& obj : worldObjects) {
+			if (pickables[i] != nullptr) {
+				if (!pickables[i]->isHeld) {
+					CollisionData cd;
+					if (CheckCollision(pickables[i]->body, obj, cd)) {
+						ResolveCollision(cd);
+					}
+				}
+			}
+		}
+	}
+
+	for (int i = 0; i < TOTAL_PICKABLES - 1; ++i) {
+		if (pickables[i] != nullptr) {
+			for (int o = i + 1; o < TOTAL_PICKABLES; ++o) {
+				if (pickables[o] != nullptr) {
+					if (!pickables[i]->isHeld && !pickables[o]->isHeld) {
 						CollisionData cd;
-						if (CheckCollision(pickables[i]->body, obj, cd)) {
+						if (CheckCollision(pickables[i]->body, pickables[o]->body, cd)) {
 							ResolveCollision(cd);
 						}
 					}
 				}
 			}
 		}
-
-		for (int i = 0; i < TOTAL_PICKABLES - 1; ++i) {
-			if (pickables[i] != nullptr) {
-				for (int o = i + 1; o < TOTAL_PICKABLES; ++o) {
-					if (pickables[o] != nullptr) {
-						if (!pickables[i]->isHeld && !pickables[o]->isHeld) {
-							CollisionData cd;
-							if (CheckCollision(pickables[i]->body, pickables[o]->body, cd)) {
-								ResolveCollision(cd);
-							}
-						}
-					}
-				}
-			}
-		}
-
-		// Pickables - Camera
-		//for (int i = 0; i < TOTAL_PICKABLES; ++i) {
-		//	if (!pickables[i].isHeld) {
-		//		if (CheckCollision(cameraBody, pickables[i].body, cd)) {
-		//			ResolveCollision(cd);
-		//		}
-		//	}
-		//}
 	}
 
-	// UPDATE PHYSICS
-	//cameraBody.UpdatePhysics(dt);
+	// SYNC CAMERA BACK
+	if (!glm::any(glm::isnan(cameraBody.position))) {
+		camera.position = cameraBody.position;
+	}
+
+	// CALCULATE VISUAL BOBBING 
+	glm::vec3 currentPlayerPosition = camera.position;
+	glm::vec3 delta = currentPlayerPosition - previousPlayerPosition;
+	delta.y = 0.0f;
+	previousPlayerPosition = currentPlayerPosition;
+
+	float distanceMoved = glm::length(delta);
+	bobDistanceAccumulated += distanceMoved;
+
+	float targetWeight = (distanceMoved > 0.0001f) ? 1.0f : 0.0f;
+	currentBobWeight += (targetWeight - currentBobWeight) * (1.0f - exp(-10.0f * dt));
+
+	float wave = bobDistanceAccumulated * bobFrequency;
+	float vOffset = sinf(wave) * bobAmplitudeVertical * currentBobWeight;
+	float hOffset = sinf(wave * 0.5f) * bobAmplitudeHorizontal * currentBobWeight;
+
+	glm::vec3 forward = glm::normalize(camera.target - camera.position);
+	glm::vec3 right = glm::normalize(glm::cross(forward, camera.up));
+
+	// STORE GLOBABLY
+	m_viewBobOffset = (camera.up * vOffset) + (right * hOffset);
 
 	for (int i = 0; i < TOTAL_PICKABLES; ++i) {
 		if (pickables[i] != nullptr) {
@@ -646,9 +629,6 @@ void BaseScene::Update(double dt)
 	/*for (auto& obj : worldObjects) {
 		obj.UpdatePhysics(dt);
 	}*/
-
-
-	camera.position = cameraBody.position;
 
 	// OTHER HANDLING
 	if (itemInHand != nullptr)
@@ -785,10 +765,19 @@ void BaseScene::HandleKeyPress(double dt)
 
 	// HOLD ITEM HANDLER
 	if (itemInHand != nullptr) {
-		if (MouseController::GetInstance()->IsButtonPressed(0) && !itemInUse)
+		if (MouseController::GetInstance()->IsButtonDown(0) && !itemInUse)
 		{
 			itemInUse = true;
-			useItemInHand();
+			itemUseHeldElapsed = 0.f;
+		}
+		else if (itemInUse) {
+			if (!MouseController::GetInstance()->IsButtonDown(0)) {
+				useItemInHand();
+				itemInUse = false;
+			}
+			else {
+				itemUseHeldElapsed += dt;
+			}
 		}
 
 		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_X))
@@ -1250,7 +1239,7 @@ void BaseScene::addPickables(std::string name, glm::vec3 position)
 					position,
 					5.0f,
 					BoundingBox::Type::SPHERE,
-					glm::vec3(.07f, .07f, .07f),
+					glm::vec3(.05f, .05f, .05f),
 					settings
 				);
 			}
@@ -1303,6 +1292,7 @@ void BaseScene::addPickables(std::string name, glm::vec3 position)
 
 			temp = i;
 			noOfPickables++;
+			newestPickableIndex = i;
 			break;
 		}
 	}
@@ -1436,12 +1426,30 @@ void BaseScene::useItemInHand()
 {
 	if (itemInHand != nullptr) {
 		if (itemInHand->name == "Baseball") {
-			itemInHand->isHeld = false;
+			std::string itemToDropName = itemInHand->name;
+			glm::vec3 placementPos = itemInHand->body.position;
 
+			amountOfItem--;
 
 			glm::vec3 forward = glm::normalize(camera.target - camera.position);
+			float strength = 10.f + glm::clamp(static_cast<float>(itemUseHeldElapsed / 1.f), 0.f, 1.f) * 40.f;
 
-			itemInHand->body.AddImpulse(glm::vec3((forward * 25.f) - itemInHand->body.position));
+			if (amountOfItem > 0) {
+				addPickables(itemToDropName, placementPos);
+				pickables[newestPickableIndex]->body.AddImpulse(glm::normalize((camera.position + forward * 5.f + glm::vec3(0, 1.f, 0)) - placementPos) * strength);
+			}
+			else {
+				itemInHand->body.ResetPhysicsProperties();
+				itemInHand->body.position = placementPos;
+				itemInHand->isHeld = false;
+				itemInHand->body.AddImpulse(glm::normalize((camera.position + forward * 5.f + glm::vec3(0, 1.f, 0)) - placementPos) * strength);
+			}
+
+			if (amountOfItem == 0) {
+				itemInHand = nullptr;
+			}
+		}
+		else if (itemInHand->name == "Coke" || itemInHand->name == "Mountain Dew" || itemInHand->name == "Sprite" || itemInHand->name == "Pepsi") {
 		}
 	}
 }

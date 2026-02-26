@@ -274,6 +274,8 @@ public:
 	glm::vec3 currentPlayerPosition, previousPlayerPosition;
 	glm::vec3 previousBobOffset = glm::vec3(0.0f);
 
+	glm::vec3 m_viewBobOffset;
+
 	// INTERACTIVES
 	int noOfInteractives;
 
@@ -287,6 +289,7 @@ public:
 	int previousInteractedIndex;
 
 	int noOfPickables;
+	int newestPickableIndex;
 
 	// ITEM IN HAND
 	Pickable* itemInHand;
@@ -294,6 +297,7 @@ public:
 	std::string previousItemInHandName;
 	double itemInHandElapsed;
 	bool itemInUse;
+	double itemUseHeldElapsed;
 
 	double dropKeybindHeldElapsed;
 	bool droppedFirst;
