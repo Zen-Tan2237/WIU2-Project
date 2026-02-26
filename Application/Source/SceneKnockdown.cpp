@@ -363,7 +363,7 @@ void SceneKnockdown::Update(double dt)
 
 	addInteractives("Enter Can Knockdown Game", 'I', glm::vec3(0.f, 1.f, 0.f));
 
-	//addPickables("Halal Pork", glm::vec3(0, 0, 0));
+
 	initializePickablesInteractives();
 	getClosestInteractive();
 

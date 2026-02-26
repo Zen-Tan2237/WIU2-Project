@@ -225,6 +225,8 @@
     <Media Include="..\..\..\..\Downloads\maxwell-the-cat-theme (online-audio-converter.com).wav" />
     <Media Include="SFX\384908__ali_6868__arrow-whoosh-1.wav" />
     <Media Include="SFX\708223__mythmazter__arrow_hit_1.wav" />
+    <Media Include="SFX\bb_bounce.wav" />
+    <Media Include="SFX\bb_swish.wav" />
     <Media Include="SFX\truth-detector-bassboosted.mp3" />
     <Media Include="SFX\wrong-lie-incorrect-buzzer.mp3" />
   </ItemGroup>

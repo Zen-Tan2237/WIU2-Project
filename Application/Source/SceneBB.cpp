@@ -16,6 +16,7 @@
 #include "KeyboardController.h"
 #include "MouseController.h"
 #include "CollisionDetection.h"
+#include "audio.h"
 
 SceneBB::SceneBB()
 {
@@ -214,7 +215,7 @@ void SceneBB::Init()
 
 	//debug
 	meshList_hub[GEO_WALL] = MeshBuilder::GenerateCube("wall", glm::vec3(1.f, 0.f, 0.f), 1.f);
-	meshList_hub[GEO_SPHERE] = MeshBuilder::GenerateSphere("sphere", glm::vec3(0.f, 1.f, 0.f), 1.f, 36, 18);
+	meshList_hub[GEO_SPHERE] = MeshBuilder::GenerateSphere("sphere", glm::vec3(0.f, 1.f, 0.f), 1.f, 36, 36);
 
 	//meshList[GEO_BBALL] = MeshBuilder::GenerateOBJ("basketball", "Models//basketball.obj");
 	//meshList[GEO_BBALL]->textureID = LoadTGA("Textures//Basketball.tga");
@@ -253,9 +254,22 @@ void SceneBB::Init()
 	// Floor
 	worldObjects[0].InitPhysicsObject(glm::vec3(0, -0.5f, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(200, 1, 200), 0, glm::vec3(1, 0, 0), miscSettings);
 
-	worldObjects[1].InitPhysicsObject(glm::vec3(0.f, 5.f, 5.f), 0.f, BoundingBox::Type::SPHERE, glm::vec3(1.f, 1.f, 1.f), miscSettings);
+	// Basketball post
+	worldObjects[5].InitPhysicsObject(glm::vec3(0.f, 1.1f, 2.f), 0.f, BoundingBox::Type::OBB, glm::vec3(0.1f, 2.f, 0.1f), miscSettings);
+	worldObjects[6].InitPhysicsObject(glm::vec3(0.f, 2.5f, 1.71f), 0.f, BoundingBox::Type::OBB, glm::vec3(1.2f, 0.9f, 0.03f), miscSettings);
+
+	// Rim
+	worldObjects[7].InitPhysicsObject(glm::vec3(0.f, 2.2f, 1.46f), 0.f, BoundingBox::Type::SPHERE, glm::vec3(0.02f, 0.02f, 0.02f), miscSettings);
+
+	//worldObjects[8].InitPhysicsObject(glm::vec3(0.f, 2.2f, 1.46f), 0.f, BoundingBox::Type::OBB, glm::vec3(0.2f, 0.05f, 0.2f), miscSettings);
+	//worldObjects[9].InitPhysicsObject(glm::vec3(0.f, 2.05f, 1.46f), 0.f, BoundingBox::Type::OBB, glm::vec3(0.1f, 0.1f, 0.1f), miscSettings);
 
 	//addPickables("Pepsi", glm::vec3(3, 1, 2));
+
+	//CollisionData cd;
+	//PhysicsObject enterBox;
+	//enterBox.InitPhysicsObject(glm::vec3(0.f, 0.f, 0.f), 0.f, BoundingBox::Type::OBB, glm::vec3(1.f, 1.f, 1.f), miscSettings);
+	//CheckCollision(enterBox, pickables[0]->body, cd);
 
 
 	int index = 0;
@@ -299,13 +313,17 @@ void SceneBB::Update(double dt)
 {
 	BaseScene::Update(dt);
 
+	// Update rim hitbox
+	//	Rim's hitbox is simulated with a moving sphere (instead of torus)
+	glm::vec3 rimNear = pickables[0]->body.position - glm::vec3(0.f, 2.2f, 1.46f);
+	rimNear = glm::normalize(glm::vec3(rimNear.x, 0.f, rimNear.z)) * 0.19f;
+	worldObjects[7].position = glm::vec3(0.f, 2.2f, 1.46f) + glm::vec3(rimNear.x, 0.f, rimNear.z);
+
 	if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_M)) {
-		if (temp) {
-			temp = false;
-		}
-		else {
-			temp = true;
-		}
+		temp = true;
+	}
+	if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_N)) {
+		temp = false;
 	}
 
 	// name of interactive, I = interactive, coords
@@ -316,7 +334,6 @@ void SceneBB::Update(double dt)
 
 	//addInteractives("Enter Can Knockdown Game", 'I', glm::vec3(0.f, 1.f, 0.f));
 
-	//addPickables("Halal Pork", glm::vec3(0, 0, 0));
 	initializePickablesInteractives();
 	getClosestInteractive();
 
@@ -572,7 +589,7 @@ void SceneBB::Render()
 		glm::mat4 rotation = glm::mat4_cast(worldObjects[i].orientation);
 		modelStack.MultMatrix(rotation);
 		modelStack.Scale(worldObjects[i].boundingBox.getWidth(), worldObjects[i].boundingBox.getHeight(), worldObjects[i].boundingBox.getDepth());
-		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_M)) {
+		if (temp) {
 			RenderMesh(meshList_hub[GEO_WALL], true);
 		}
 	}
@@ -713,12 +730,23 @@ void SceneBB::Render()
 					modelStack.Scale(pickables[i]->body.boundingBox.getWidth(), pickables[i]->body.boundingBox.getHeight(), pickables[i]->body.boundingBox.getDepth());
 					//modelStack.Scale(5.f, 0.1f, 5.f);
 
-					meshList_hub[GEO_WALL]->material.kAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
-					meshList_hub[GEO_WALL]->material.kDiffuse = glm::vec3(1.0f, 1.0f, 1.0f);
-					meshList_hub[GEO_WALL]->material.kSpecular = glm::vec3(0.0f, 0.0f, 0.0f);
-					meshList_hub[GEO_WALL]->material.kShininess = 1.0f;
+					meshList[GEO_WALL]->material.kAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
+					meshList[GEO_WALL]->material.kDiffuse = glm::vec3(1.0f, 1.0f, 1.0f);
+					meshList[GEO_WALL]->material.kSpecular = glm::vec3(0.0f, 0.0f, 0.0f);
+					meshList[GEO_WALL]->material.kShininess = 1.0f;
 
-					RenderMesh(meshList_hub[GEO_WALL], true);
+					RenderMesh(meshList[GEO_WALL], true);
+				}
+			}
+
+			for (int i = 0; i < TOTAL_PHYSICSOBJECT; i++) {
+				PushPop debug(modelStack);
+				modelStack.Translate(worldObjects[i].position.x, worldObjects[i].position.y, worldObjects[i].position.z);
+				glm::mat4 rotation = glm::mat4_cast(worldObjects[i].orientation);
+				modelStack.MultMatrix(rotation);
+				modelStack.Scale(worldObjects[i].boundingBox.getWidth(), worldObjects[i].boundingBox.getHeight(), worldObjects[i].boundingBox.getDepth());
+				if (i != 0 && i > 4) {
+					RenderMesh(meshList[GEO_WALL], true);
 				}
 			}
 		}
@@ -761,7 +789,7 @@ void SceneBB::Render()
 				modelStack.MultMatrix(rotation);
 
 				if (pickables[i]->name == "Basketball") {
-					modelStack.Scale(0.15f, 0.15f, 0.15f);
+					modelStack.Scale(0.08f, 0.08f, 0.08f);
 					RenderMesh(meshList[GEO_BBALL], enableLight);
 				}
 				//else if (pickables[i]->name == "Coke") {
@@ -797,10 +825,27 @@ void SceneBB::Render()
 		meshList[GEO_BBPOST]->material.kSpecular = glm::vec3(0.0f, 0.0f, 0.0f);
 		meshList[GEO_BBPOST]->material.kShininess = 1.0f;
 
+		modelStack.Translate(-0.008f, 0.f, 2.f);
+		modelStack.Rotate(90.f, 0, 1, 0);
 		modelStack.Scale(0.5f, 0.5f, 0.5f);
 
 		RenderMesh(meshList[GEO_BBPOST], true);
 	}
+
+	// Rim hitbox
+	if (temp) {
+		PushPop bbrim(modelStack);
+	
+		glm::vec3 rimNear = pickables[0]->body.position - glm::vec3(0.f, 2.2f, 1.46f);
+		rimNear = glm::normalize(glm::vec3(rimNear.x, 0.f, rimNear.z)) * 0.19f;
+	
+		modelStack.Translate(0.f, 2.2f, 1.46f);
+		modelStack.Translate(rimNear.x, 0.f, rimNear.z);
+		modelStack.Scale(0.02f, 0.02f, 0.02f);
+		RenderMesh(meshList_hub[GEO_SPHERE], false);
+	}
+
+	
 
 	{
 		// Render Dialogue

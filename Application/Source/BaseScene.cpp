@@ -1434,11 +1434,13 @@ void BaseScene::addPickables(std::string name, glm::vec3 position)
 			else if (pickables[i]->name == "Basketball") {
 				pickables[i]->body.InitPhysicsObject(
 					position,
-					3.0f,
+					5.0f,
 					BoundingBox::Type::SPHERE,
-					glm::vec3(1.f, 1.f, 1.f),
+					glm::vec3(0.1f, 0.1f, 0.1f),
 					settings
 				);
+				pickables[i]->body.bounciness = 2.5f;
+				pickables[i]->body.friction = 50.f;
 			}
 			else if (pickables[i]->name == "Controller") {
 				pickables[i]->body.InitPhysicsObject(
