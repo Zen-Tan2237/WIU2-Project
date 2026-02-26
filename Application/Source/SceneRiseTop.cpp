@@ -218,40 +218,47 @@ void SceneRiseTop::Init()
 	meshList_riseTop[GEO_STALL] = MeshBuilder::GenerateOBJ("stall", "Models//minigame_Stall.obj");
 	meshList_riseTop[GEO_STALL]->textureID = LoadTGA("Textures//minigameStall.tga");
 
-	meshList_riseTop[GEO_RISETOP] = MeshBuilder::GenerateOBJ("Rise Top", "Models//RiseTop.obj");
-	meshList_riseTop[GEO_RISETOP]->textureID = LoadTGA("Textures//RiseTop.tga");
+	meshList_riseTop[GEO_PLANK] = MeshBuilder::GenerateOBJ("Plank", "Models//WoodPlank.obj");
+	meshList_riseTop[GEO_PLANK]->textureID = LoadTGA("Textures//WoodPlanks.tga");
 
 	// INITIAL ITEM IN HAND
-	addPickables("Coke", glm::vec3(0, 0, 0));
+	addPickables("Mountain Dew", glm::vec3(0, 0, 0));
 	itemInHand = pickables[0];
 	amountOfItem = 5;
 	previousItemInHandName = "";
 	itemInUse = false;
 
-	// Grass density initialization
-	targetFPS = 60.0f;
-	fpsSmoothed = 60.0f;
-	grassDensityMultiplier = 1.0f;
-	activeGrassCount = NUM_GRASSCLUMPS;
+
+	//
+	plankTargetOrientation = 0.f;
+	plankOrientation = 0.f;
+
+	//
+	for (int i = 0; i < 5; i++) {
+		addPickables("PingPong Ball", glm::vec3(.5f + (rand() % 11 + 5) / 100.f, 1.f, 5.55f + (rand() % 11 + 5) / 100.f));
+	}
 
 	// setup phase durations here ([first one is part][second one is phase]. phase means like u want a constant stream of dialgoues
 	// make sure whenver u do part++, u have like (if part == <the number they should be at>) then part++
-	phaseDurations[0][0] = 2.f;
-	phaseDurations[0][1] = 2.3f;
-	phaseDurations[0][2] = 2.f;
-	phaseDurations[0][3] = 2.2f;
-	phaseDurations[0][4] = 3.f;
-	phaseDurations[0][5] = 3.f;
-	phaseDurations[0][6] = 2.5f;
-	phaseDurations[0][7] = 2.5f;
-	phaseDurations[0][8] = 2.8f;
-	phaseDurations[0][9] = 3.f;
-	phaseDurations[0][10] = 3.f;
-	phaseDurations[0][11] = 2.5f;
-	phaseDurations[0][12] = 2.f;
-	phaseDurations[0][13] = 3.f;
 
-	phaseDurations[2][0] = 5.f;
+	phaseDurations[0][0] = 1.8f;  // "Woah there!"
+	phaseDurations[0][1] = 2.5f;  // "This plank has a mind of its own."
+	phaseDurations[0][2] = 2.3f;  // "It won't stay balanced for long."
+	phaseDurations[0][3] = 2.2f;  // "Press A to push it left."
+	phaseDurations[0][4] = 2.2f;  // "Press D to push it right."
+	phaseDurations[0][5] = 2.6f;  // "Counter its movement to stay balanced."
+	phaseDurations[0][6] = 2.0f;  // "Keep the plank steady..."
+	phaseDurations[0][7] = 2.3f;  // "Or the ball will roll off!"
+	phaseDurations[0][8] = 2.4f;  // "Small corrections work best."
+	phaseDurations[0][9] = 2.2f;  // "Ready to test your reflexes?"
+	phaseDurations[0][10] = 3.f;  // "
+
+	phaseDurations[2][0] = 3.f;  //
+	phaseDurations[2][1] = 1.f;  //
+	phaseDurations[2][2] = 1.f;  //
+	phaseDurations[2][3] = 1.f;  //
+	phaseDurations[2][4] = 1.f;  //
+
 
 	// CAMERA INIT
 	camera.Init(glm::vec3(0, 0.9f, 4.f), glm::vec3(0, 0.9f, 5.f), glm::vec3(0, 1.9f, 4.f));
@@ -283,18 +290,17 @@ void SceneRiseTop::Init()
 	// Food Stand
 	worldObjects[11].InitPhysicsObject(glm::vec3(-3.6, 0.5f, 5), 0.f, BoundingBox::Type::OBB, glm::vec3(1.5f, 0.5f, 1.3f), -15, glm::vec3(0, 1, 0), miscSettings);
 
-	// Rise Top
-	worldObjects[12].InitPhysicsObject(glm::vec3(0, 0.f, 6.5f), 0.f, BoundingBox::Type::OBB, glm::vec3(0.f, 0.f, 0.f), 180, glm::vec3(0, 1, 0), miscSettings);
-
-	int index = 0;
+	// Plank
+	worldObjects[12].InitPhysicsObject(glm::vec3(1, 0.5f, 6.6f), 0.f, BoundingBox::Type::OBB, glm::vec3(.15f, 0.03f, 1.1f), 90.f, glm::vec3(0, 1, 0), miscSettings);
 
 	//
 	phase = 0;
+	gameTimeElapsed = 0.f;
 
 	// Grass density initialization
 	targetFPS = 60.0f;
-	fpsSmoothed = 60.0f;
-	grassDensityMultiplier = 1.0f;
+	fpsSmoothed = 0.0f;
+	grassDensityMultiplier = 0.0f;
 	activeGrassCount = NUM_GRASSCLUMPS;
 
 	// Initial grass generation
@@ -306,12 +312,10 @@ void SceneRiseTop::Init()
 	meshList_riseTop[GEO_STALL]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
 	meshList_riseTop[GEO_STALL]->material.kShininess = 1.0f;
 
-	meshList_riseTop[GEO_RISETOP]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
-	meshList_riseTop[GEO_RISETOP]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
-	meshList_riseTop[GEO_RISETOP]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
-	meshList_riseTop[GEO_RISETOP]->material.kShininess = 1.0f;
-
-	addPickables("PingPong Ball", glm::vec3(0, 0, 0));
+	meshList_riseTop[GEO_PLANK]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	meshList_riseTop[GEO_PLANK]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
+	meshList_riseTop[GEO_PLANK]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+	meshList_riseTop[GEO_PLANK]->material.kShininess = 1.0f;
 }
 
 void SceneRiseTop::Update(double dt)
@@ -333,20 +337,43 @@ void SceneRiseTop::Update(double dt)
 
 	switch (part) {
 	case 0:
-		if (phase > 14) {
+		if (phase > 10) {	
 			part++;
 		}
 		break;
 
 	case 1:
-		addInteractives("Place PingPong Ball (Start)", 'I', glm::vec3(2.5f, 0.f, 6.1));
-		worldObjects[12].position = glm::vec3(2.5f, 0.f, 6.5f);
-		//worldObjects[12].SetOrientation(0, 190)
+		addInteractives("Place PingPong Ball (Start)", 'I', worldObjects[7].position + glm::vec3(0.f, .5f, -.5f));
 		break;
-
+		
 	case 2:
-		addInteractives("Place PingPong Ball (Start)", 'I', glm::vec3(2.5f, 0.f, 6.1));
-		worldObjects[12].position = glm::vec3(2.5f, 0.f, 6.5f);
+		if (phase > 4) {
+			part++;
+			gameTimeElapsed = 0.f;
+			changeOrientationElapsed = 10.f;
+			direction = 1;
+		}
+		break;
+		
+	case 3:
+		gameTimeElapsed += dt;
+		changeOrientationElapsed += dt;
+
+		if (changeOrientationElapsed >= changeOrientation) {
+			plankTargetOrientation = 10.f + (rand() % 200) / 10.f;
+			plankTargetOrientation *= direction;
+			lerpOrientationSpeed = 0.5f + (rand() % 20) / 10.f;
+			changeOrientationElapsed = 0.f;
+			changeOrientation = 11.f - rand() % static_cast<int>(glm::clamp(static_cast<float>(gameTimeElapsed) / 4.f, 1.f, 7.f));
+
+			if (direction == 1) {
+				direction = -1;
+			}
+			else {
+				direction = 1;
+			}
+		}
+
 		break;
 
 	default:
@@ -357,11 +384,9 @@ void SceneRiseTop::Update(double dt)
 	getClosestInteractive();
 
 
-
 	// handle what type of interactive, what type of event
 	if (interactedIndex != -1 && KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_F)) { // means got prompt, is close to and facing smth
 		if (interactivesType[interactedIndex] == 'I') { // its an interactive
-			// do it in actual scene instead
 			if (interactives[interactedIndex] == "Return to Hub" && nextScene == 0) {
 				nextScene = 1;
 				nextSceneDelay = 1.f;
@@ -369,51 +394,18 @@ void SceneRiseTop::Update(double dt)
 				sceneSwitchHUD.setTargetScale(glm::vec2(1.f));
 			}
 			else if (interactives[interactedIndex] == "Place PingPong Ball (Start)") {
-				if (part == 1) {
-					addPickables("PingPong Ball", glm::vec3(0.f, 1.f, 5.7f));
-					part++;
+				if (part == 1 && itemInHand != nullptr) {
+					if (itemInHand->name == "PingPong Ball") {
+						dropItemInHand(1);
+						part++;
+					}
 				}
-			}
-			else if (interactives[interactedIndex] == "2") {
-				// do something
-			}
-			else if (interactives[interactedIndex] == "3") {
-				// do something
-			}
-			else if (interactives[interactedIndex] == "4") {
-				// do something
 			}
 		}
 	}
 
-	//debug
-	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_I)) {
-		debugPos.x += 5.f * dt;
-	}
-	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_J)) {
-		debugPos.z += 5.f * dt;
-	}
-	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_K)) {
-		debugPos.x -= 5.f * dt;
-	}
-	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_L)) {
-		debugPos.z -= 5.f * dt;
-	}
-	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_O)) {
-		debugPos.y += 5.f * dt;
-	}
-	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_U)) {
-		debugPos.y -= 5.f * dt;
-	}
-	//std::cout << "Debug Pos: " << debugPos.x << ", " << debugPos.y << ", " << debugPos.z << std::endl;
-
-	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_M)) {
-		debugScale += 2.0f * dt;
-	}
-	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_N)) {
-		debugScale -= 2.0f * dt;
-	}
-	//std::cout << "Debug Scale: " << debugScale << std::endl;
+	float t = 1.f - std::exp(-lerpOrientationSpeed * (float)dt);
+	plankOrientation += (plankTargetOrientation - plankOrientation) * t;
 
 	// Update grass density based on FPS
 	UpdateGrassDensity(dt);
@@ -596,17 +588,6 @@ void SceneRiseTop::Render()
 		RenderSkybox();
 	}
 
-	for (int i = 0; i < TOTAL_PHYSICSOBJECT; i++) {
-		PushPop debug(modelStack);
-		modelStack.Translate(worldObjects[i].position.x, worldObjects[i].position.y, worldObjects[i].position.z);
-		glm::mat4 rotation = glm::mat4_cast(worldObjects[i].orientation);
-		modelStack.MultMatrix(rotation);
-		modelStack.Scale(worldObjects[i].boundingBox.getWidth(), worldObjects[i].boundingBox.getHeight(), worldObjects[i].boundingBox.getDepth());
-		if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_M)) {
-			RenderMesh(meshList_riseTop[GEO_WALL], true);
-		}
-	}
-
 	{
 		PushPop backgroundBuildings(modelStack);
 		modelStack.Translate(0.f, -15.f, 0.f);
@@ -701,12 +682,13 @@ void SceneRiseTop::Render()
 	}
 
 	{
-		PushPop riseTop(modelStack);
+		PushPop plank(modelStack);
+		worldObjects[12].SetOrientation(plankOrientation, 90.f, 0.f);
 		modelStack.Translate(worldObjects[12].position.x, worldObjects[12].position.y, worldObjects[12].position.z);
 		glm::mat4 rotation = glm::mat4_cast(worldObjects[12].orientation);
 		modelStack.MultMatrix(rotation);
-		modelStack.Scale(0.65f, 0.65f, 0.65f);
-		RenderMesh(meshList_riseTop[GEO_RISETOP], true);
+		modelStack.Scale(0.12f, 0.12f, 0.12f);
+		RenderMesh(meshList_riseTop[GEO_PLANK], true);
 	}
 
 	//{
@@ -715,31 +697,6 @@ void SceneRiseTop::Render()
 	//	modelStack.Scale(1.5f, 1.5f, 1.5f);
 	//	RenderMesh(meshList[GEO_FOUNTAIN], true);
 	//}
-
-	{
-		PushPop monkey(modelStack);
-		modelStack.Translate(-2.f, 0.24f, 0.f);
-		modelStack.Rotate(-90, 0.f, 1.f, 0.f);
-		modelStack.Scale(0.1f, 0.1f, 0.1f);
-		RenderMesh(meshList[GEO_MONKEY], true);
-	}
-
-
-	{
-		PushPop wallGuard(modelStack);
-		modelStack.Translate(worldObjects[0].position.x, worldObjects[0].position.y, worldObjects[0].position.z);
-		glm::mat4 rotation = glm::mat4_cast(worldObjects[0].orientation);
-		modelStack.MultMatrix(rotation);
-		modelStack.Scale(worldObjects[0].boundingBox.getWidth(), worldObjects[0].boundingBox.getHeight(), worldObjects[0].boundingBox.getDepth());
-		//modelStack.Scale(5.f, 0.1f, 5.f);
-
-		meshList_riseTop[GEO_WALL]->material.kAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
-		meshList_riseTop[GEO_WALL]->material.kDiffuse = glm::vec3(1.0f, 1.0f, 1.0f);
-		meshList_riseTop[GEO_WALL]->material.kSpecular = glm::vec3(0.0f, 0.0f, 0.0f);
-		meshList_riseTop[GEO_WALL]->material.kShininess = 1.0f;
-
-		//RenderMesh(meshList_hub[GEO_WALL], true);
-	}
 
 	{
 		if (temp) {
@@ -757,6 +714,17 @@ void SceneRiseTop::Render()
 					meshList_riseTop[GEO_WALL]->material.kSpecular = glm::vec3(0.0f, 0.0f, 0.0f);
 					meshList_riseTop[GEO_WALL]->material.kShininess = 1.0f;
 
+					RenderMesh(meshList_riseTop[GEO_WALL], true);
+				}
+			}
+
+			for (int i = 0; i < TOTAL_PHYSICSOBJECT; i++) {
+				PushPop debug(modelStack);
+				modelStack.Translate(worldObjects[i].position.x, worldObjects[i].position.y, worldObjects[i].position.z);
+				glm::mat4 rotation = glm::mat4_cast(worldObjects[i].orientation);
+				modelStack.MultMatrix(rotation);
+				modelStack.Scale(worldObjects[i].boundingBox.getWidth(), worldObjects[i].boundingBox.getHeight(), worldObjects[i].boundingBox.getDepth());
+				if (i != 0) {
 					RenderMesh(meshList_riseTop[GEO_WALL], true);
 				}
 			}
@@ -854,60 +822,49 @@ void SceneRiseTop::Render()
 		case 0: // part 1
 			switch (phase) {
 			case 0:
-				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Oh hey there.", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
+				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Woah there!", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
 				break;
 
 			case 1:
-				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Game's caught your attention?", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
+				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "This plank has a mind of its own.", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
 				break;
 
 			case 2:
-				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Here's a quick guide", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
+				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "It won't stay balanced for long.", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
 				break;
 
 			case 3:
-				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "See that ball at the bottom?", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
+				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Press A to push it left.", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
 				break;
 
 			case 4:
-				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Your goal is to guide it along the path.", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
+				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Press D to push it right.", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
 				break;
 
 			case 5:
-				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Pull both ropes to lift the plank.", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
+				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Counter its movement to stay balanced.", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
 				break;
 
 			case 6:
-				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Pull left more to tilt left.", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
+				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Keep the plank steady...", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
 				break;
 
 			case 7:
-				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Pull right more to tilt right.", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
+				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Or the ball will roll off!", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
 				break;
 
 			case 8:
-				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "The ball rolls where the plank leans.", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
+				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Small corrections work best.", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
 				break;
 
 			case 9:
-				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Small adjustments make big differences.", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
+				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Ready to test your reflexes?", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
 				break;
-
+				
 			case 10:
-				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Too much tilt and you'll lose control!", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
+				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Oh yea my bad mister, I'm speaking to you through a speaker, can't place the PingPong ball for you", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
 				break;
 
-			case 11:
-				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Guide it carefully to the top.", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
-				break;
-
-			case 12:
-				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Think you’ve got steady hands?", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
-				break;
-
-			case 13:
-				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Let me bring this gameboard out for you, I'm hella cramped", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
-				break;
 			default:
 				break;
 			}
@@ -917,13 +874,24 @@ void SceneRiseTop::Render()
 		case 2:
 			switch (phase) {
 			case 0:
-				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Oops I left the PingPong Balls, its over at the booth's table", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
+				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Aight let's go!", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
 				break;
-
+			case 1:
+				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "3", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
+				break;
+			case 2:
+				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "2", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
+				break;
+			case 3:
+				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "1", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
+				break;
+			case 4:
+				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Start!", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
+				break;
 			default:
 				break;
+
 			}
-			break;
 
 		default:
 			break;

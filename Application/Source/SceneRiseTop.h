@@ -16,7 +16,7 @@ public:
 
         // LOCAL SCENE MODELS
         GEO_STALL,
-        GEO_RISETOP,
+        GEO_PLANK,
        
         NUM_GEOMETRY,
     };
@@ -41,10 +41,17 @@ public:
     void RegenerateGrassPositions();
     glm::vec3 grassClumps[NUM_GRASSCLUMPS];
 
-    //debug
-    glm::vec3 debugPos;
-    float debugScale;
+    //
+    float plankTargetOrientation;
+    float plankOrientation;
 
+    double gameTimeElapsed;
+    double changeOrientationElapsed;
+    float changeOrientation;
+    float lerpOrientationSpeed;
+    int direction;
+
+    //debug
     bool temp = false;
 
 };
