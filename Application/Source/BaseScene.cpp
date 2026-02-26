@@ -1314,6 +1314,15 @@ void BaseScene::addPickables(std::string name, glm::vec3 position)
 					settings
 				);
 			}
+			else if (pickables[i]->name == "Basketball") {
+				pickables[i]->body.InitPhysicsObject(
+					position,
+					5.0f,
+					BoundingBox::Type::SPHERE,
+					glm::vec3(.15f, .15f, .15f),
+					settings
+				);
+			}
 			
 
 			temp = i;
@@ -1476,6 +1485,30 @@ void BaseScene::useItemInHand()
 			}
 		}
 		else if (itemInHand->name == "Coke" || itemInHand->name == "Mountain Dew" || itemInHand->name == "Sprite" || itemInHand->name == "Pepsi") {
+		}
+		else if (itemInHand->name == "Basketball") {
+			std::string itemToDropName = itemInHand->name;
+			glm::vec3 placementPos = itemInHand->body.position;
+
+			amountOfItem--;
+
+			glm::vec3 forward = glm::normalize(camera.target - camera.position);
+			float strength = 10.f + glm::clamp(static_cast<float>(itemUseHeldElapsed / 1.f), 0.f, 1.f) * 40.f;
+
+			if (amountOfItem > 0) {
+				addPickables(itemToDropName, placementPos);
+				pickables[newestPickableIndex]->body.AddImpulse(glm::normalize((camera.position + forward * 2.f + glm::vec3(0, 1.f, 0)) - placementPos) * strength);
+			}
+			else {
+				itemInHand->body.ResetPhysicsProperties();
+				itemInHand->body.position = placementPos;
+				itemInHand->isHeld = false;
+				itemInHand->body.AddImpulse(glm::normalize((camera.position + forward * 2.f + glm::vec3(0, 1.f, 0)) - placementPos) * strength);
+			}
+
+			if (amountOfItem == 0) {
+				itemInHand = nullptr;
+			}
 		}
 	}
 }

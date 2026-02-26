@@ -216,6 +216,13 @@ void SceneBB::Init()
 	meshList_hub[GEO_WALL] = MeshBuilder::GenerateCube("wall", glm::vec3(1.f, 0.f, 0.f), 1.f);
 	meshList_hub[GEO_SPHERE] = MeshBuilder::GenerateSphere("sphere", glm::vec3(0.f, 1.f, 0.f), 1.f, 36, 18);
 
+	meshList_hub[GEO_BBALL] = MeshBuilder::GenerateOBJ("basketball", "Models//basketball.obj");
+	meshList_hub[GEO_BBALL]->textureID = LoadTGA("Textures//basketball.tga");
+
+	meshList_hub[GEO_HOOP] = MeshBuilder::GenerateOBJ("bbhoop", "Models//BasketballHoop.obj");
+	meshList_hub[GEO_HOOP]->textureID = LoadTGA("Textures//BasketballHoop.tga");
+	//meshList_hub[GEO_HOOP]->textureID = LoadTGA("Textures//Basketball_Post_d.tga");
+
 	//meshList_hub[GEO_STALL] = MeshBuilder::GenerateOBJ("stall", "Models//minigame_Stall.obj");
 	//meshList_hub[GEO_STALL]->textureID = LoadTGA("Textures//minigameStall.tga");
 
@@ -229,9 +236,9 @@ void SceneBB::Init()
 	//meshList_hub[GEO_FERRISWHEEL]->textureID = LoadTGA("Textures//FerrisWheel.tga");
 
 	// setup initial item in hand
-	addPickables("Baseball", glm::vec3(0, 0, 0));
+	addPickables("Basketball", glm::vec3(0, 0, 0));
 	itemInHand = pickables[0];
-	amountOfItem = 10;
+	amountOfItem = 1;
 	previousItemInHandName = "";
 	itemInUse = false;
 
@@ -740,6 +747,17 @@ void SceneBB::Render()
 
 			itemInHand->body.position = itemInHandPos;
 			itemInHand->body.SetOrientation(-pitch, yaw, 0);
+
+			PushPop bball(modelStack);
+
+			meshList_hub[GEO_BBALL]->material.kAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
+			meshList_hub[GEO_BBALL]->material.kDiffuse = glm::vec3(1.0f, 1.0f, 1.0f);
+			meshList_hub[GEO_BBALL]->material.kSpecular = glm::vec3(0.0f, 0.0f, 0.0f);
+			meshList_hub[GEO_BBALL]->material.kShininess = 1.0f;
+
+			modelStack.Translate(0.f, 1.f, 0.f);
+			modelStack.Scale(0.1f, 0.1f, 0.1f);
+			RenderMesh(meshList_hub[GEO_BBALL], true);
 		}
 
 
@@ -775,6 +793,32 @@ void SceneBB::Render()
 				modelStack.PopMatrix();
 			}
 		}
+	}
+
+	//{
+	//	PushPop bball(modelStack);
+	//
+	//	meshList_hub[GEO_BBALL]->material.kAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
+	//	meshList_hub[GEO_BBALL]->material.kDiffuse = glm::vec3(1.0f, 1.0f, 1.0f);
+	//	meshList_hub[GEO_BBALL]->material.kSpecular = glm::vec3(0.0f, 0.0f, 0.0f);
+	//	meshList_hub[GEO_BBALL]->material.kShininess = 1.0f;
+	//	
+	//	modelStack.Translate(0.f, 1.f, 0.f);
+	//	modelStack.Scale(0.1f, 0.1f, 0.1f);
+	//	RenderMesh(meshList_hub[GEO_BBALL], true);
+	//}
+
+	{
+		PushPop bbhoop(modelStack);
+
+		meshList_hub[GEO_HOOP]->material.kAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
+		meshList_hub[GEO_HOOP]->material.kDiffuse = glm::vec3(1.0f, 1.0f, 1.0f);
+		meshList_hub[GEO_HOOP]->material.kSpecular = glm::vec3(0.0f, 0.0f, 0.0f);
+		meshList_hub[GEO_HOOP]->material.kShininess = 1.0f;
+
+		modelStack.Scale(0.5f, 0.5f, 0.5f);
+
+		RenderMesh(meshList_hub[GEO_HOOP], true);
 	}
 
 	{
