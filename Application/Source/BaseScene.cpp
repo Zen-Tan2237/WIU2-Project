@@ -708,12 +708,16 @@ void BaseScene::Update(double dt)
 	}
 
 	// RESOLVE COLLISIONS
-	const int MAX_ITER = 1;
+	const int MAX_ITER = 8;
 
 	for (int iter = 0; iter < MAX_ITER; ++iter) {
 		for (auto& cd : contacts) {
-			ResolveCollision(cd);
+			ResolveCollision(cd, (float)dt);
 		}
+	}
+
+	for (auto& cd : contacts) {
+		ApplyPositionCorrection(cd);
 	}
 
 

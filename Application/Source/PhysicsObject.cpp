@@ -82,8 +82,8 @@ void PhysicsObject::UpdatePhysics(double dt) {
 	// Sleep thresholds (consider lowering)
 	const float SpeedThreshold = 0.01f;
 	const float AngularSpeedThreshold = 0.01f;
-	if (glm::length(velocity) < SpeedThreshold) velocity = glm::vec3(0.f);
-	if (glm::length(angularVelocity) < AngularSpeedThreshold) angularVelocity = glm::vec3(0.f);
+	if (glm::length(velocity) < SpeedThreshold) velocity *= 0.5f;
+	if (glm::length(angularVelocity) < AngularSpeedThreshold) angularVelocity *= 0.5f;
 
 	ForcesSetZero();
 }

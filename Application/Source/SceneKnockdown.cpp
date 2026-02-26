@@ -514,8 +514,12 @@ void SceneKnockdown::Update(double dt)
 
 		for (int iter = 0; iter < SOLVER_ITERS; ++iter) {
 			for (auto& cd : contacts) {
-				ResolveCollision(cd);
+				ResolveCollision(cd, (float)dt);
 			}
+		}
+
+		for (auto& cd : contacts) {
+			ApplyPositionCorrection(cd);
 		}
 
 		for (int i = 0; i < numOfCansInPlay; i++) {
@@ -525,7 +529,7 @@ void SceneKnockdown::Update(double dt)
 
 	// Rotate maxwell
 	{
-		float angleToUpdate = 1.f;
+		float angleToUpdate = -1.f;
 		angleToUpdate = glm::radians<float>(angleToUpdate);
 		glm::quat rotationDelta = glm::angleAxis(angleToUpdate, glm::vec3(0, 1, 0));
 		maxwell.orientation = rotationDelta * maxwell.orientation;

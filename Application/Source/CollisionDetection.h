@@ -49,4 +49,12 @@ bool OverlapAABBSphere(PhysicsObject& AABB, PhysicsObject& Sphere, CollisionData
 bool OverlapOBBSphere(PhysicsObject& OBB, PhysicsObject& Sphere, CollisionData& collisionData);
 
 void ResolveCollision(CollisionData& collisionData);
+void ResolveCollision(CollisionData& collisionData, float dt);
 
+// Helpers
+static float ProjectOBBRadiusOnAxis(const glm::vec3 axes[3], const glm::vec3& halfExtents, const glm::vec3& axis);
+glm::vec3 SafeNormalize(const glm::vec3& vec, const glm::vec3& fallback = glm::vec3(0.f, 1.f, 0.f));
+void GenerateTangentBitangent(const glm::vec3& normal, glm::vec3& outTangent, glm::vec3& outBitangent);
+glm::vec3 GetSupportPoint(const glm::vec3& center, const glm::vec3 axes[3], const glm::vec3& halfExtents, const glm::vec3& direction);
+static float ClampFloat(float v, float lo, float hi);
+void ApplyPositionCorrection(CollisionData& cd);
