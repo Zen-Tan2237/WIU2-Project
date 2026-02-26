@@ -421,8 +421,8 @@ void BaseScene::Init()
 	dialogueFadeHUD.resetPosition(glm::vec2(0, -414));
 	dialogueFadeHUD.setTargetPosition(glm::vec2(0, -414));
 
-	itemInHandImageHUD.resetPosition(glm::vec2(665, -360));
-	itemInHandImageHUD.setTargetPosition(glm::vec2(665, -360));
+	itemInHandImageHUD.resetPosition(glm::vec2(665, -340));
+	itemInHandImageHUD.setTargetPosition(glm::vec2(665, -340));
 	itemInHandImageHUD.resetScale(glm::vec2(0));
 	itemInHandImageHUD.setTargetScale(glm::vec2(0));
 
