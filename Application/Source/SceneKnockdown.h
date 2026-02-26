@@ -64,6 +64,10 @@ public:
 
     bool temp = false;
 
+
+    //Maxwell the cat
+	PhysicsObject maxwell;
+	float maxwellSoundCooldown = 28.f;
 };
 #endif
 

@@ -18,6 +18,8 @@
 #include "CollisionDetection.h"
 #include <vector>
 
+#include "audio.h"
+
 SceneKnockdown::SceneKnockdown()
 {
 }
@@ -236,6 +238,10 @@ void SceneKnockdown::Init()
 	meshList_hub[GEO_MAXWELL] = MeshBuilder::GenerateOBJ("basketball", "Models//Maxwell.obj");
 	meshList_hub[GEO_MAXWELL]->textureID = LoadTGA("Textures//Maxwell.tga");
 
+	// Sound init
+	AudioManager::Instance().LoadSound("Ball hitting can", "SFX/canhit.mp3");
+	AudioManager::Instance().LoadSound("Maxwell", "SFX/MaxwellTheCat.wav");
+
 	// setup initial item in hand
 	//addPickables("Baseball", glm::vec3(0, 0, 0));
 	//itemInHand = pickables[0];
@@ -295,6 +301,7 @@ void SceneKnockdown::Init()
 
 	camera.Init(glm::vec3(-4.49645f, 0.999999f, -0.0245583f), glm::vec3(-5.49018f, 0.911104f, 0.0336516));
 
+	maxwell.InitPhysicsObject(glm::vec3(-5.6f, 0.5f, -0.8f), 0.f, BoundingBox::Type::OBB, glm::vec3(0.5f), 0, glm::vec3(0, 1, 0), miscSettings);
 	int index = 0;
 
 	// Grass density initialization
@@ -329,11 +336,14 @@ void SceneKnockdown::Init()
 
 	startPhysicsUpdateForCans = false;
 	win = false;
+	AudioManager::Instance().SoundPlay("Maxwell");
 }
 
 void SceneKnockdown::Update(double dt)
 {
 	BaseScene::Update(dt);
+
+
 
 	if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_M)) {
 		if (temp) {
@@ -470,6 +480,7 @@ void SceneKnockdown::Update(double dt)
 			if (CheckCollision(pickables[i]->body, cans[j], cd)) {
 				startPhysicsUpdateForCans = true;
 				contacts.push_back(cd);
+				AudioManager::Instance().SoundPlay("Ball hitting can");
 			}
 		}
 	}
@@ -510,7 +521,21 @@ void SceneKnockdown::Update(double dt)
 		}
 	}
 
+	// Rotate maxwell
+	{
+		float angleToUpdate = 1.f;
+		angleToUpdate = glm::radians<float>(angleToUpdate);
+		glm::quat rotationDelta = glm::angleAxis(angleToUpdate, glm::vec3(0, 1, 0));
+		maxwell.orientation = rotationDelta * maxwell.orientation;
 
+		// Update maxwell sound counter
+		maxwellSoundCooldown -= dt;
+
+		if (maxwellSoundCooldown <= 0.f) {
+			AudioManager::Instance().SoundPlay("Maxwell");
+			maxwellSoundCooldown = 28.f; // play sound every 28 second
+		}
+	}
 }
 
 void SceneKnockdown::Render()
@@ -824,7 +849,8 @@ void SceneKnockdown::Render()
 	}
 	{
 		PushPop Maxwell(modelStack);
-		modelStack.Translate(-5.6f, 0.5f,-0.8f);
+		modelStack.Translate(maxwell.position.x, maxwell.position.y, maxwell.position.z);
+		modelStack.MultMatrix(glm::mat4_cast(maxwell.orientation));
 		modelStack.Scale(1, 1, 1);
 		RenderMesh(meshList_hub[GEO_MAXWELL], false);
 	}
