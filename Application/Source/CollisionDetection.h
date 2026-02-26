@@ -38,6 +38,7 @@ public:
 // Collision detection functions
 
 bool CheckCollision(PhysicsObject& objA, PhysicsObject& objB, CollisionData& collisionData);
+void ClearCollisionData(CollisionData& cd);
 bool OverlapAABBAABB(PhysicsObject& objA, PhysicsObject& objB, CollisionData& collisionData);
 bool OverlapOBBOBB(PhysicsObject& objA, PhysicsObject& objB, CollisionData& collisionData);
 bool OverlapOBBAABB(PhysicsObject& OBB, PhysicsObject& AABB, CollisionData& collisionData);
