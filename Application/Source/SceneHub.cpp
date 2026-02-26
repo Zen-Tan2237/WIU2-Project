@@ -426,7 +426,7 @@ void SceneHub::Update(double dt)
 		ShopGUI.setTargetScale(glm::vec2(1200.f, 675.f));
 		TextUI.setTargetPosition(glm::vec2(0, 290.f));
 		TextUI.setTargetScale(glm::vec2(23.f));
-		TextUI2.setTargetPosition(glm::vec2(290.f, -315.f));
+		TextUI2.setTargetPosition(glm::vec2(560.f, -315.f));
 		TextUI2.setTargetScale(glm::vec2(19.f));
 		CashUI.setTargetPosition(glm::vec2(-500.f, 285.f));
 		CashUI.setTargetScale(glm::vec2(27));
