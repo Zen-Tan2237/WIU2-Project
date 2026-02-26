@@ -239,7 +239,7 @@ void SceneKnockdown::Init()
 	meshList_hub[GEO_MAXWELL]->textureID = LoadTGA("Textures//Maxwell.tga");
 
 	meshList_hub[GEO_BOARD] = MeshBuilder::GenerateOBJ("Woodplank", "Models//WoodPlank.obj");
-	meshList_hub[GEO_BOARD]->textureID = LoadTGA("Textures//WoodPlank.tga");
+	meshList_hub[GEO_BOARD]->textureID = LoadTGA("Textures//WoodPlanks.tga");
 
 	// Sound init
 	AudioManager::Instance().LoadSound("Ball hitting can", "SFX/canhit.mp3");
@@ -955,6 +955,10 @@ void SceneKnockdown::Render()
 			glm::mat4 rotation = glm::mat4_cast(worldObjects[9].orientation);
 			modelStack.MultMatrix(rotation);
 			modelStack.Scale(0.2f, 0.2f, 0.2f);
+			meshList_hub[GEO_BOARD]->material.kAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
+			meshList_hub[GEO_BOARD]->material.kDiffuse = glm::vec3(1.0f, 1.0f, 1.0f);
+			meshList_hub[GEO_BOARD]->material.kSpecular = glm::vec3(0.0f, 0.0f, 0.0f);
+			meshList_hub[GEO_BOARD]->material.kShininess = 1.0f;
 			RenderMesh(meshList_hub[GEO_BOARD], true);
 		}
 
