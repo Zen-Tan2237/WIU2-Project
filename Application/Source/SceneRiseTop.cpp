@@ -222,7 +222,6 @@ void SceneRiseTop::Init()
 
 
 
-
 	// INITIAL ITEM IN HAND
 	addPickables("Controller", glm::vec3(0, 0, 0));
 	itemInHand = pickables[0];
@@ -244,6 +243,11 @@ void SceneRiseTop::Init()
 	lerpOrientationSpeed = 0.f;
 	direction = 1;
 
+	itemOnPlank = nullptr;
+	notTouchingPlankElapsed = 0.f;
+
+	timer.resetPosition(glm::vec2(0, -1000));
+	timer.setTargetPosition(glm::vec2(0, -1000));
 
 	// PHASE DURATIONS
 	part = 0;
@@ -257,7 +261,7 @@ void SceneRiseTop::Init()
 	phaseDurations[0][5] = 2.6f;  // "Counter its movement to stay balanced."
 	phaseDurations[0][6] = 2.0f;  // "Keep the plank steady..."
 	phaseDurations[0][7] = 2.3f;  // "Or the ball will roll off!"
-	phaseDurations[0][8] = 2.4f;  // "Small corrections work best."
+	phaseDurations[0][8] = 4.4f;  // "Small corrections work best."
 	phaseDurations[0][9] = 2.2f;  // "Ready to test your reflexes?"
 
 	phaseDurations[1][0] = 100.f;  // "
@@ -269,6 +273,13 @@ void SceneRiseTop::Init()
 	phaseDurations[3][2] = 1.f;  //
 	phaseDurations[3][3] = 1.f;  //
 	phaseDurations[3][4] = 1.f;  //
+
+	phaseDurations[5][0] = 1.8f;
+	phaseDurations[5][1] = 2.2f;
+	phaseDurations[5][2] = 2.3f;
+	phaseDurations[5][3] = 2.4f;
+	phaseDurations[5][4] = 4.f;
+	phaseDurations[5][5] = 2.f;
 
 
 	// GRASS DENSITY
@@ -361,9 +372,11 @@ void SceneRiseTop::Update(double dt)
 	}
 
 	// INITIAL INTERACTIVES
-	addInteractives("Return to Hub", 'I', glm::vec3(1, 0, 0));
+	addInteractives("Return to Hub", 'I', glm::vec3(2, 0, 0));
 
 	// PHASE HANDLING
+	timer.setTargetPosition(glm::vec2(0, -1000));
+
 	switch (part) {
 	case 0:
 		if (phase > 9) {	
@@ -397,6 +410,7 @@ void SceneRiseTop::Update(double dt)
 		break;
 		
 	case 4:
+		timer.setTargetPosition(glm::vec2(0, -300));
 		gameTimeElapsed += dt;
 		changeOrientationElapsed += dt;
 
@@ -445,6 +459,25 @@ void SceneRiseTop::Update(double dt)
 			}
 		}
 
+		if (notTouchingPlankElapsed > 2.f) {
+			part++;
+		}
+
+		break;
+
+	case 5:
+		timer.setTargetPosition(glm::vec2(0, 0));
+		if (phase > 5) {
+			nextScene = 1;
+			nextSceneDelay = 1.f;
+			sceneSwitchHUD.resetScale(glm::vec2(.25f));
+			sceneSwitchHUD.setTargetScale(glm::vec2(1.f));
+			accumulatedCash += static_cast<int>(std::round(static_cast<float>(gameTimeElapsed) * .5f));
+			part++;
+		}
+		break;
+
+	case 6:
 		break;
 
 	default:
@@ -470,11 +503,12 @@ void SceneRiseTop::Update(double dt)
 						if (amountOfItem > 1) {
 							dropItemInHand(1);
 							pickables[newestPickableIndex]->body.position = glm::vec3(0, 0.8f, 6.6f);
+							itemOnPlank = pickables[newestPickableIndex];
 						}
 						else {
-							Pickable* temp = itemInHand;
+							itemOnPlank = itemInHand;
 							dropItemInHand(1);
-							temp->body.position = glm::vec3(0, 0.8f, 6.6f);
+							itemOnPlank->body.position = glm::vec3(0, 0.8f, 6.6f);
 						}
 						
 						part++;
@@ -482,6 +516,14 @@ void SceneRiseTop::Update(double dt)
 				}
 			}
 		}
+	}
+	
+	CollisionData cd;
+	if (part == 4 && !CheckCollision(itemOnPlank->body, worldObjects[25], cd)) {
+		notTouchingPlankElapsed += dt;
+	}
+	else {
+		notTouchingPlankElapsed = 0.f;
 	}
 
 	//
@@ -491,6 +533,9 @@ void SceneRiseTop::Update(double dt)
 
 	// UPDATE GRASS DENSITY
 	UpdateGrassDensity(dt);
+
+	// UPDATE UI
+	timer.Update(dt);
 }
 
 void SceneRiseTop::Render()
@@ -953,7 +998,7 @@ void SceneRiseTop::Render()
 				break;
 
 			case 8:
-				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Small corrections work best.", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
+				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Small corrections work best. Let's see how far you can get!", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
 				break;
 
 			case 9:
@@ -1008,6 +1053,43 @@ void SceneRiseTop::Render()
 				break;
 
 			}
+			break;
+
+		case 4:
+			RenderTextOnScreen(meshList[GEO_HOMEVIDEOBOLD_FONT], std::to_string(gameTimeElapsed), glm::vec3(255 / 255.f, 255 / 255.f, 255 / 255.f), 26, timer.getPosition().x, timer.getPosition().y, 'C', .6f);
+			break;
+
+		case 5:
+			switch (phase) {
+			case 0:
+				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Oof! There it goes!", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
+				break;
+
+			case 1:
+				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "The ball couldn't hold on.", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
+				break;
+
+			case 2:
+				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "That plank has a strong will!", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
+				break;
+
+			case 3:
+				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Let's see how much you earned... Lasted for " + std::to_string(static_cast<float>(gameTimeElapsed)) + "s...", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
+				break;
+
+			case 4:
+				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "so... $" + std::to_string(static_cast<int>(std::round(static_cast<float>(gameTimeElapsed) * .5f))) + "!", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
+				break;
+
+			case 5:
+				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Aight cya!", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
+				break;
+				
+			default:
+				break;
+
+			}
+			break;
 
 		default:
 			break;

@@ -394,7 +394,7 @@ void BaseScene::Init()
 
 	noOfPickables = 0;
 
-	accumulatedCash = 1125; //$25 to start with but will be overriden when this is not the first scene to be started up (i.e. when coming from another scene)
+	accumulatedCash = 25; //$25 to start with but will be overriden when this is not the first scene to be started up (i.e. when coming from another scene)
 
 	// ITEM IN HAND
 	itemInHand = nullptr;
