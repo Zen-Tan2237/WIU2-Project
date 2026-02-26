@@ -251,6 +251,10 @@ public:
 	void addItemInHand(int index);
 	void useItemInHand();
 
+	void resetItemInHandAnimation();
+
+	float itemInHandAnimationTimer;
+
 	unsigned m_vertexArrayID;
 	Mesh* meshList[NUM_GEOMETRY];
 

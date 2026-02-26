@@ -18,6 +18,7 @@
 #include "MouseController.h"
 #include "LoadTGA.h"
 #include "CollisionDetection.h"
+#include "audio.h"
 
 BaseScene::BaseScene()
 {
@@ -514,6 +515,8 @@ void BaseScene::Init()
 	//meshList[GEO_CONTROLLER]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
 	//meshList[GEO_CONTROLLER]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
 	//meshList[GEO_CONTROLLER]->material.kShininess = 1.0f;
+
+	AudioManager::Instance().LoadSound("Drink", "SFX/Drink.mp3");
 }
 
 void BaseScene::Update(double dt)
@@ -1557,6 +1560,7 @@ void BaseScene::useItemInHand()
 			}
 		}
 		else if (itemInHand->name == "Coke" || itemInHand->name == "Mountain Dew" || itemInHand->name == "Sprite" || itemInHand->name == "Pepsi") {
+			AudioManager::Instance().SoundPlay("Drink");
 		}
 		else if (itemInHand->name == "Basketball") {
 			std::string itemToDropName = itemInHand->name;
