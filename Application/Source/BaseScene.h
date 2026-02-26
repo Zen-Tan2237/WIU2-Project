@@ -81,6 +81,14 @@ public:
 		GEO_ITEMINHANDBORDER_GUI,
 		GEO_ITEMINHANDFADEBACKGROUND_GUI,
 
+		GEO_FIGURINE_TGA,
+		GEO_PLUSHIE_TGA,
+		GEO_PIG_TGA,
+		GEO_5090_TGA,
+		GEO_SODA_TGA,
+		GEO_BASEBALL_TGA,
+		GEO_CONTROLLER_TGA,
+
 		// EUI
 		GEO_INTERACT_EUI,
 		GEO_INTERACTED_EUI,
@@ -316,6 +324,7 @@ public:
 	AnimatedUIElement sceneSwitchHUD;
 	AnimatedUIElement interactEUI;
 	AnimatedUIElement dialogueFadeHUD;
+	AnimatedUIElement itemInHandImageHUD;
 	UIElement crosshair;
 
 	// DIALOGUE HANDLING

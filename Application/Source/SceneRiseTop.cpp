@@ -226,15 +226,12 @@ void SceneRiseTop::Init()
 	// INITIAL ITEM IN HAND
 	addPickables("Controller", glm::vec3(0, 0, 0));
 	itemInHand = pickables[0];
-	amountOfItem = 5;
+	amountOfItem = 2;
 	previousItemInHandName = "";
 	itemInUse = false;
 
 
 	// INITIAL PICKABLES
-	for (int i = 0; i < 5; i++) {
-		addPickables("PingPong Ball", glm::vec3(.5f + (rand() % 11 + 5) / 100.f, 1.f, 5.55f + (rand() % 11 + 5) / 100.f));
-	}
 
 
 	// VARIABLE INITIALIZATIONS
@@ -249,7 +246,7 @@ void SceneRiseTop::Init()
 
 
 	// PHASE DURATIONS
-	part = 1;
+	part = 0;
 	phase = 0;
 
 	phaseDurations[0][0] = 3.8f;  // "Woah there!"
@@ -371,6 +368,9 @@ void SceneRiseTop::Update(double dt)
 	case 0:
 		if (phase > 9) {	
 			part++;
+			for (int i = 0; i < 5; i++) {
+				addPickables("PingPong Ball", glm::vec3(.5f + (rand() % 11 + 5) / 100.f, 1.f, 5.55f + (rand() % 11 + 5) / 100.f));
+			}
 		}
 		break;
 

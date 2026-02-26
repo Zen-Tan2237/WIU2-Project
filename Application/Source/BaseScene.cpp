@@ -391,6 +391,11 @@ void BaseScene::Init()
 	dialogueFadeHUD.resetPosition(glm::vec2(0, -414));
 	dialogueFadeHUD.setTargetPosition(glm::vec2(0, -414));
 
+	itemInHandImageHUD.resetPosition(glm::vec2(0, 0));
+	itemInHandImageHUD.setTargetPosition(glm::vec2(0,0));
+	itemInHandImageHUD.resetScale(glm::vec2(0));
+	itemInHandImageHUD.setTargetScale(glm::vec2(0));
+
 	// DIALGOUE
 	oldPart = 0;
 	part = 0;
@@ -735,9 +740,11 @@ void BaseScene::Update(double dt)
 
 	if (itemInHand != nullptr && itemInHandElapsed < 2.f) {
 		itemInHandHUD.setTargetScale(glm::vec2(20.f, 200.f));
+		itemInHandImageHUD.setTargetScale(glm::vec2(20.f, 20.f));
 	}
 	else {
 		itemInHandHUD.setTargetScale(glm::vec2(0, 0));
+		itemInHandImageHUD.setTargetScale(glm::vec2(0, 0));
 	}
 
 	// UI UPDATING
@@ -746,6 +753,7 @@ void BaseScene::Update(double dt)
 	itemInHandHUD.Update(dt);
 	sceneSwitchHUD.Update(dt);
 	dialogueFadeHUD.Update(dt);
+	itemInHandImageHUD.Update(dt);
 
 	//
 	resetInteractives();
