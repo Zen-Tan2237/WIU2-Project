@@ -402,11 +402,11 @@ void SceneRiseTop::Update(double dt)
 
 		if (changeOrientationElapsed >= changeOrientation) {
 			plankTargetOrientation = 10.f + (rand() % 200) / 10.f;
-			playerPlankTargetOrientation = plankTargetOrientation + ((rand() % 100) / 10.f) * direction;
 			plankTargetOrientation *= direction;
+			playerPlankTargetOrientation = plankTargetOrientation + ((rand() % 100) / 10.f) * direction;
 			lerpOrientationSpeed = 0.5f + (rand() % 20) / 10.f;
 			changeOrientationElapsed = 0.f;
-			changeOrientation = 11.f - rand() % static_cast<int>(glm::clamp(static_cast<float>(gameTimeElapsed) / 4.f, 1.f, 7.f));
+			changeOrientation = 6.f - rand() % static_cast<int>(glm::clamp(static_cast<float>(gameTimeElapsed) / 4.f, 1.f, 5.f));
 
 			if (direction == 1) {
 				direction = -1;
@@ -419,23 +419,23 @@ void SceneRiseTop::Update(double dt)
 		if (itemInHand != nullptr) {
 			if (itemInHand->name == "Controller") {
 				int extraInstableStrength = 0.f;
-				if (direction = 1) {
+				if (direction == -1) {
 					if (playerPlankTargetOrientation < plankTargetOrientation) {
-						extraInstableStrength = glm::clamp((plankTargetOrientation - playerPlankTargetOrientation) * 4.f, 0.f, 100.f);
+						extraInstableStrength = glm::clamp((plankTargetOrientation - playerPlankTargetOrientation) * 4.f, 0.f, 150.f);
 					}
 				}
 				else {
 					if (playerPlankTargetOrientation > plankTargetOrientation) {
-						extraInstableStrength = glm::clamp((playerPlankTargetOrientation - plankTargetOrientation) * 4.f, 0.f, 100.f);
+						extraInstableStrength = glm::clamp((playerPlankTargetOrientation - plankTargetOrientation) * 4.f, 0.f, 150.f);
 					}
 				}
 
 
 				if (MouseController::GetInstance()->IsButtonDown(0)) {
-					playerPlankTargetOrientation += (20 + extraInstableStrength) * dt;
+					playerPlankTargetOrientation += (10 + extraInstableStrength) * dt;
 				}
 				if (MouseController::GetInstance()->IsButtonDown(1)) {
-					playerPlankTargetOrientation -= (20 + extraInstableStrength) * dt;
+					playerPlankTargetOrientation -= (10 + extraInstableStrength) * dt;
 				}
 
 				if (MouseController::GetInstance()->IsButtonUp(0) && MouseController::GetInstance()->IsButtonUp(1)) {
