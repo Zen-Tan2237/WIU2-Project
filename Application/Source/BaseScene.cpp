@@ -230,8 +230,10 @@ void BaseScene::Init()
 	meshList[GEO_FERRISWHEEL] = MeshBuilder::GenerateOBJ("ferriswheel", "Models//FerrisWheel.obj");
 	meshList[GEO_FERRISWHEEL]->textureID = LoadTGA("Textures//FerrisWheel.tga");
 
-	//meshList[GEO_BBPOST] = MeshBuilder::GenerateOBJ("bbhoop", "Models//BasketballHoop.obj");
-	//meshList[GEO_BBPOST]->textureID = LoadTGA("Textures//BasketballHoop.tga");
+	//
+	meshList[GEO_BBPOST] = MeshBuilder::GenerateOBJ("bbhoop", "Models//BasketballHoop.obj");
+	meshList[GEO_BBPOST]->textureID = LoadTGA("Textures//BasketballHoop.tga");
+
 
 	//pickables
 	meshList[GEO_BASEBALL] = MeshBuilder::GenerateOBJ("Baseball", "Models//baseball.obj");
@@ -267,8 +269,8 @@ void BaseScene::Init()
 	meshList[GEO_PINGPONGBALL] = MeshBuilder::GenerateOBJ("Ping Pong Ball", "Models//PingPongBall.obj");
 	meshList[GEO_PINGPONGBALL]->textureID = LoadTGA("Textures//Table_Tennis.tga");
 
-	//meshList[GEO_BBALL] = MeshBuilder::GenerateOBJ("basketball", "Models//basketball.obj");
-	//meshList[GEO_BBALL]->textureID = LoadTGA("Textures//Basketball.tga");
+	meshList[GEO_BBALL] = MeshBuilder::GenerateOBJ("basketball", "Models//basketball.obj");
+	meshList[GEO_BBALL]->textureID = LoadTGA("Textures//basketball.tga");
 
 	meshList[GEO_CONTROLLER] = MeshBuilder::GenerateOBJ("Controller", "Models//Controller.obj");
 	meshList[GEO_CONTROLLER]->textureID = LoadTGA("Textures//Controller.tga");
