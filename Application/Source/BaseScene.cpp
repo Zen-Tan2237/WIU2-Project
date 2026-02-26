@@ -1620,7 +1620,7 @@ void BaseScene::useItemInHand()
 			amountOfItem--;
 
 			glm::vec3 forward = glm::normalize(camera.target - camera.position);
-			float strength = 10.f + glm::clamp(static_cast<float>(itemUseHeldElapsed / 1.f), 0.f, 1.f) * 40.f;
+			float strength = 30.f + glm::clamp(static_cast<float>(itemUseHeldElapsed / 1.f), 0.f, 1.f) * 40.f;
 
 			if (amountOfItem > 0) {
 				addPickables(itemToDropName, placementPos);
