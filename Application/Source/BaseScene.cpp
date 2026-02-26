@@ -689,6 +689,7 @@ void BaseScene::Update(double dt)
 	// DIALOGUE HANDLING
 	if (oldPart != part) {
 		oldPart = part;
+		phase = 0;
 	}
 	if (oldPhase != phase) {
 		oldPhase = phase;

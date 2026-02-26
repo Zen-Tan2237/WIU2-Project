@@ -249,6 +249,9 @@ void SceneRiseTop::Init()
 	phaseDurations[0][10] = 3.f;
 	phaseDurations[0][11] = 2.5f;
 	phaseDurations[0][12] = 2.f;
+	phaseDurations[0][13] = 3.f;
+
+	phaseDurations[2][0] = 5.f;
 
 	// CAMERA INIT
 	camera.Init(glm::vec3(0, 0.9f, 4.f), glm::vec3(0, 0.9f, 5.f), glm::vec3(0, 1.9f, 4.f));
@@ -282,8 +285,6 @@ void SceneRiseTop::Init()
 
 	// Rise Top
 	worldObjects[12].InitPhysicsObject(glm::vec3(0, 0.f, 6.5f), 0.f, BoundingBox::Type::OBB, glm::vec3(0.f, 0.f, 0.f), 180, glm::vec3(0, 1, 0), miscSettings);
-
-	// Ping Pong Ball
 
 	int index = 0;
 
@@ -328,14 +329,33 @@ void SceneRiseTop::Update(double dt)
 
 	// name of interactive, I = interactive, coords
 	addInteractives("Return to Hub", 'I', glm::vec3(1, 0, 0));
-	addInteractives("1", 'I', glm::vec3(-1, 0, 0));
-	addInteractives("2", 'I', glm::vec3(0, 0, 1));
-	addInteractives("3", 'I', glm::vec3(0, 0, -1));
 
-	addInteractives("4", 'I', glm::vec3(0.f, 1.f, 0.f));
+
+	switch (part) {
+	case 0:
+		if (phase > 14) {
+			part++;
+		}
+		break;
+
+	case 1:
+		addInteractives("Place PingPong Ball (Start)", 'I', glm::vec3(2.5f, 0.f, 6.1));
+		worldObjects[12].position = glm::vec3(2.5f, 0.f, 6.5f);
+		//worldObjects[12].SetOrientation(0, 190)
+		break;
+
+	case 2:
+		addInteractives("Place PingPong Ball (Start)", 'I', glm::vec3(2.5f, 0.f, 6.1));
+		worldObjects[12].position = glm::vec3(2.5f, 0.f, 6.5f);
+		break;
+
+	default:
+		break;
+	}
 
 	initializePickablesInteractives();
 	getClosestInteractive();
+
 
 
 	// handle what type of interactive, what type of event
@@ -348,7 +368,11 @@ void SceneRiseTop::Update(double dt)
 				sceneSwitchHUD.resetScale(glm::vec2(.25f));
 				sceneSwitchHUD.setTargetScale(glm::vec2(1.f));
 			}
-			else if (interactives[interactedIndex] == "Start") {
+			else if (interactives[interactedIndex] == "Place PingPong Ball (Start)") {
+				if (part == 1) {
+					addPickables("PingPong Ball", glm::vec3(0.f, 1.f, 5.7f));
+					part++;
+				}
 			}
 			else if (interactives[interactedIndex] == "2") {
 				// do something
@@ -832,15 +856,19 @@ void SceneRiseTop::Render()
 			case 0:
 				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Oh hey there.", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
 				break;
+
 			case 1:
 				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Game's caught your attention?", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
 				break;
+
 			case 2:
 				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Here's a quick guide", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
 				break;
+
 			case 3:
 				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "See that ball at the bottom?", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
 				break;
+
 			case 4:
 				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Your goal is to guide it along the path.", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
 				break;
@@ -876,9 +904,26 @@ void SceneRiseTop::Render()
 			case 12:
 				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Think you’ve got steady hands?", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
 				break;
+
+			case 13:
+				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Let me bring this gameboard out for you, I'm hella cramped", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
+				break;
 			default:
 				break;
 			}
+
+			break;
+
+		case 2:
+			switch (phase) {
+			case 0:
+				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Oops I left the PingPong Balls, its over at the booth's table", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
+				break;
+
+			default:
+				break;
+			}
+			break;
 
 		default:
 			break;
