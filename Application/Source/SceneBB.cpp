@@ -216,12 +216,11 @@ void SceneBB::Init()
 	meshList_hub[GEO_WALL] = MeshBuilder::GenerateCube("wall", glm::vec3(1.f, 0.f, 0.f), 1.f);
 	meshList_hub[GEO_SPHERE] = MeshBuilder::GenerateSphere("sphere", glm::vec3(0.f, 1.f, 0.f), 1.f, 36, 18);
 
-	meshList_hub[GEO_BBALL] = MeshBuilder::GenerateOBJ("basketball", "Models//basketball.obj");
-	meshList_hub[GEO_BBALL]->textureID = LoadTGA("Textures//Basketball.tga");
+	meshList[GEO_BBALL] = MeshBuilder::GenerateOBJ("basketball", "Models//basketball.obj");
+	meshList[GEO_BBALL]->textureID = LoadTGA("Textures//Basketball.tga");
 
-	meshList_hub[GEO_HOOP] = MeshBuilder::GenerateOBJ("bbhoop", "Models//BasketballHoop.obj");
-	meshList_hub[GEO_HOOP]->textureID = LoadTGA("Textures//BasketballHoop.tga");
-	//meshList_hub[GEO_HOOP]->textureID = LoadTGA("Textures//Basketball_Post_d.tga");
+	meshList[GEO_BBPOST] = MeshBuilder::GenerateOBJ("bbhoop", "Models//BasketballHoop.obj");
+	meshList[GEO_BBPOST]->textureID = LoadTGA("Textures//BasketballHoop.tga");
 
 	//meshList_hub[GEO_STALL] = MeshBuilder::GenerateOBJ("stall", "Models//minigame_Stall.obj");
 	//meshList_hub[GEO_STALL]->textureID = LoadTGA("Textures//minigameStall.tga");
@@ -261,13 +260,12 @@ void SceneBB::Init()
 
 	int index = 0;
 
-	// Grass density initialization
+	// GRASS DENSITY
 	targetFPS = 60.0f;
-	fpsSmoothed = 60.0f;
-	grassDensityMultiplier = 1.0f;
-	activeGrassCount = NUM_GRASSCLUMPS;
+	fpsSmoothed = 0.0f;
+	grassDensityMultiplier = 0.0f;
+	activeGrassCount = 0;
 
-	// Initial grass generation
 	RegenerateGrassPositions();
 
 	//
@@ -748,16 +746,16 @@ void SceneBB::Render()
 			itemInHand->body.position = itemInHandPos;
 			itemInHand->body.SetOrientation(-pitch, yaw, 0);
 
-			PushPop bball(modelStack);
+			//PushPop bball(modelStack);
 
-			meshList_hub[GEO_BBALL]->material.kAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
-			meshList_hub[GEO_BBALL]->material.kDiffuse = glm::vec3(1.0f, 1.0f, 1.0f);
-			meshList_hub[GEO_BBALL]->material.kSpecular = glm::vec3(0.0f, 0.0f, 0.0f);
-			meshList_hub[GEO_BBALL]->material.kShininess = 1.0f;
+			//meshList[GEO_BBALL]->material.kAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
+			//meshList[GEO_BBALL]->material.kDiffuse = glm::vec3(1.0f, 1.0f, 1.0f);
+			//meshList[GEO_BBALL]->material.kSpecular = glm::vec3(0.0f, 0.0f, 0.0f);
+			//meshList[GEO_BBALL]->material.kShininess = 1.0f;
 
-			modelStack.Translate(0.f, 1.f, 0.f);
-			modelStack.Scale(0.1f, 0.1f, 0.1f);
-			RenderMesh(meshList_hub[GEO_BBALL], true);
+			//modelStack.Translate(0.f, 1.f, 0.f);
+			//modelStack.Scale(0.1f, 0.1f, 0.1f);
+			//RenderMesh(meshList[GEO_BBALL], true);
 		}
 
 
@@ -798,27 +796,27 @@ void SceneBB::Render()
 	//{
 	//	PushPop bball(modelStack);
 	//
-	//	meshList_hub[GEO_BBALL]->material.kAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
-	//	meshList_hub[GEO_BBALL]->material.kDiffuse = glm::vec3(1.0f, 1.0f, 1.0f);
-	//	meshList_hub[GEO_BBALL]->material.kSpecular = glm::vec3(0.0f, 0.0f, 0.0f);
-	//	meshList_hub[GEO_BBALL]->material.kShininess = 1.0f;
+	//	meshList[GEO_BBALL]->material.kAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
+	//	meshList[GEO_BBALL]->material.kDiffuse = glm::vec3(1.0f, 1.0f, 1.0f);
+	//	meshList[GEO_BBALL]->material.kSpecular = glm::vec3(0.0f, 0.0f, 0.0f);
+	//	meshList[GEO_BBALL]->material.kShininess = 1.0f;
 	//	
 	//	modelStack.Translate(0.f, 1.f, 0.f);
 	//	modelStack.Scale(0.1f, 0.1f, 0.1f);
-	//	RenderMesh(meshList_hub[GEO_BBALL], true);
+	//	RenderMesh(meshList[GEO_BBALL], true);
 	//}
 
 	{
 		PushPop bbhoop(modelStack);
 
-		meshList_hub[GEO_HOOP]->material.kAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
-		meshList_hub[GEO_HOOP]->material.kDiffuse = glm::vec3(1.0f, 1.0f, 1.0f);
-		meshList_hub[GEO_HOOP]->material.kSpecular = glm::vec3(0.0f, 0.0f, 0.0f);
-		meshList_hub[GEO_HOOP]->material.kShininess = 1.0f;
+		meshList[GEO_BBPOST]->material.kAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
+		meshList[GEO_BBPOST]->material.kDiffuse = glm::vec3(1.0f, 1.0f, 1.0f);
+		meshList[GEO_BBPOST]->material.kSpecular = glm::vec3(0.0f, 0.0f, 0.0f);
+		meshList[GEO_BBPOST]->material.kShininess = 1.0f;
 
 		modelStack.Scale(0.5f, 0.5f, 0.5f);
 
-		RenderMesh(meshList_hub[GEO_HOOP], true);
+		RenderMesh(meshList[GEO_BBPOST], true);
 	}
 
 	{
@@ -1019,8 +1017,8 @@ void SceneBB::UpdateGrassDensity(double dt)
 	// fps ratio
 	float fpsRatio = fpsSmoothed / targetFPS;
 
-	if (fpsRatio < 0.9f) {
-		grassDensityMultiplier -= 0.2f * static_cast<float>(dt);
+	if (fpsRatio < 0.8f) {
+		grassDensityMultiplier -= 0.1f * static_cast<float>(dt);
 	}
 	// increase if ratio is good
 	else if (fpsRatio > 1.05f && grassDensityMultiplier < 1.0f) {
@@ -1028,11 +1026,11 @@ void SceneBB::UpdateGrassDensity(double dt)
 	}
 
 	// clamp density multiplier
-	grassDensityMultiplier = glm::clamp(grassDensityMultiplier, 0.2f, 1.0f);
+	grassDensityMultiplier = glm::clamp(grassDensityMultiplier, 0.1f, 1.0f);
 
 	// regenerate grass positions if density changed significantly
 	int targetCount = static_cast<int>(NUM_GRASSCLUMPS * grassDensityMultiplier);
-	if (abs(targetCount - activeGrassCount) > NUM_GRASSCLUMPS * 0.05f) {
+	if (abs(targetCount - activeGrassCount) > NUM_GRASSCLUMPS * 0.1f) {
 		RegenerateGrassPositions();
 	}
 }

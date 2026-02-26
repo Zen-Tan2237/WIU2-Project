@@ -45,6 +45,8 @@ public:
 		GEO_TABLE,
 		GEO_FOODSTAND,
 		GEO_FERRISWHEEL,
+		GEO_BBALL,
+		GEO_BBPOST,
 
 		//pickables
 		GEO_BASEBALL,

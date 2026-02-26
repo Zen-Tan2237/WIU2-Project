@@ -238,6 +238,9 @@ void SceneKnockdown::Init()
 	meshList_hub[GEO_MAXWELL] = MeshBuilder::GenerateOBJ("basketball", "Models//Maxwell.obj");
 	meshList_hub[GEO_MAXWELL]->textureID = LoadTGA("Textures//Maxwell.tga");
 
+	meshList_hub[GEO_BOARD] = MeshBuilder::GenerateOBJ("Woodplank", "Models//WoodPlank.obj");
+	meshList_hub[GEO_BOARD]->textureID = LoadTGA("Textures//WoodPlank.tga");
+
 	// Sound init
 	AudioManager::Instance().LoadSound("Ball hitting can", "SFX/canhit.mp3");
 	AudioManager::Instance().LoadSound("Maxwell", "SFX/MaxwellTheCat.wav");
@@ -245,11 +248,11 @@ void SceneKnockdown::Init()
 	AudioManager::Instance().SetSoundVolume("Ball hitting can", 0.5f);
 
 	// setup initial item in hand
-	//addPickables("Baseball", glm::vec3(0, 0, 0));
-	//itemInHand = pickables[0];
-	//amountOfItem = 10;
-	//previousItemInHandName = "";
-	//itemInUse = false;
+	addPickables("Baseball", glm::vec3(0, 0, 0));
+	itemInHand = pickables[0];
+	amountOfItem = 10;
+	previousItemInHandName = "";
+	itemInUse = false;
 
 	// Part 1 dialogue: Intro to the minigame
 	phaseDurations[1][0] = 6.7f;
@@ -277,15 +280,6 @@ void SceneKnockdown::Init()
 	//food stand
 	worldObjects[7].InitPhysicsObject(glm::vec3(-3.6, 0.5f, 5), 0.f, BoundingBox::Type::OBB, glm::vec3(2.2f, 1.f, 1.92f), -15, glm::vec3(0, 1, 0), miscSettings);
 
-	addPickables("Baseball", glm::vec3(-5.6f, 1.f, 0));
-	addPickables("Baseball", glm::vec3(-5.6f, 1.f, 0.15f));
-	addPickables("Baseball", glm::vec3(-5.6f, 1.f, 0.30f));
-	addPickables("Baseball", glm::vec3(-5.6f, 1.f, 0.45f));
-	addPickables("Baseball", glm::vec3(-5.6f, 1.f, 0.60f));
-	addPickables("Baseball", glm::vec3(-5.6f, 1.f, -0.15f));
-	addPickables("Baseball", glm::vec3(-5.6f, 1.f, -0.30f));
-	addPickables("Baseball", glm::vec3(-5.6f, 1.f, -0.45f));
-	addPickables("Baseball", glm::vec3(-5.6f, 1.f, -0.60f));
 
 	addPickables("Pepsi", glm::vec3(3, 1, 2));
 
@@ -306,13 +300,12 @@ void SceneKnockdown::Init()
 	maxwell.InitPhysicsObject(glm::vec3(-5.6f, 0.5f, -0.8f), 0.f, BoundingBox::Type::OBB, glm::vec3(0.5f), 0, glm::vec3(0, 1, 0), miscSettings);
 	int index = 0;
 
-	// Grass density initialization
+	// GRASS DENSITY
 	targetFPS = 60.0f;
-	fpsSmoothed = 60.0f;
-	grassDensityMultiplier = 1.0f;
-	activeGrassCount = NUM_GRASSCLUMPS;
+	fpsSmoothed = 0.0f;
+	grassDensityMultiplier = 0.0f;
+	activeGrassCount = 0;
 
-	// Initial grass generation
 	RegenerateGrassPositions();
 
 	//
@@ -951,6 +944,16 @@ void SceneKnockdown::Render()
 			RenderMesh(meshList_hub[GEO_PEPSI], true);
 		}
 
+		{
+			// Render board
+			PushPop board(modelStack);
+			modelStack.Translate(worldObjects[9].position.x, worldObjects[9].position.y, worldObjects[9].position.z);
+			glm::mat4 rotation = glm::mat4_cast(worldObjects[9].orientation);
+			modelStack.MultMatrix(rotation);
+			modelStack.Scale(0.2f, 0.2f, 0.2f);
+			RenderMesh(meshList_hub[GEO_BOARD], true);
+		}
+
 		// Render pickable items
 		for (int i = 0; i < TOTAL_PICKABLES; i++) {
 			if (pickables[i] != nullptr) {
@@ -1186,7 +1189,7 @@ void SceneKnockdown::UpdateGrassDensity(double dt)
 	// fps ratio
 	float fpsRatio = fpsSmoothed / targetFPS;
 
-	if (fpsRatio < 0.9f) {
+	if (fpsRatio < 0.8f) {
 		grassDensityMultiplier -= 0.1f * static_cast<float>(dt);
 	}
 	// increase if ratio is good
@@ -1199,10 +1202,11 @@ void SceneKnockdown::UpdateGrassDensity(double dt)
 
 	// regenerate grass positions if density changed significantly
 	int targetCount = static_cast<int>(NUM_GRASSCLUMPS * grassDensityMultiplier);
-	if (abs(targetCount - activeGrassCount) > NUM_GRASSCLUMPS * 0.025f) {
+	if (abs(targetCount - activeGrassCount) > NUM_GRASSCLUMPS * 0.1f) {
 		RegenerateGrassPositions();
 	}
 }
+
 
 void SceneKnockdown::generateCanPositions(int pattern) {
 	// Pattern 1 - 2 tier Pyramid
