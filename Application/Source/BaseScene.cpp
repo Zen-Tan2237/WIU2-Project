@@ -343,6 +343,9 @@ void BaseScene::Init()
 	meshList[GEO_BASEBALL_TGA] = MeshBuilder::GenerateQuad("Basketball Preview GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
 	meshList[GEO_BASEBALL_TGA]->textureID = LoadTGA("Image//basketball.tga");
 
+	meshList[GEO_BASKETBALL_TGA] = MeshBuilder::GenerateQuad("Basketball Preview GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
+	meshList[GEO_BASKETBALL_TGA]->textureID = LoadTGA("Image//basketball_tga.tga");
+
 
 	// EUI
 	meshList[GEO_INTERACT_EUI] = MeshBuilder::GenerateQuad("Interact EUI", glm::vec3(1.f, 1.f, 1.f), 1.f);

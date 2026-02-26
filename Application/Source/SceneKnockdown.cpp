@@ -1089,19 +1089,23 @@ void SceneKnockdown::RenderUI()
 			else if (itemInHand->name == "PingPong Ball") {
 				RenderMeshOnScreen(meshList[GEO_PINGPONGBALL_TGA], itemInHandImageHUD.getPosition().x - (itemInHandImageHUD.getScale().x / 2.f), itemInHandImageHUD.getPosition().y + (itemInHandImageHUD.getScale().y / 2.f), itemInHandImageHUD.getScale().x, itemInHandImageHUD.getScale().y);
 			}
+			else if (itemInHand->name == "Basketball") {
+				RenderMeshOnScreen(meshList[GEO_BASKETBALL_TGA], itemInHandImageHUD.getPosition().x - (itemInHandImageHUD.getScale().x / 2.f), itemInHandImageHUD.getPosition().y + (itemInHandImageHUD.getScale().y / 2.f), itemInHandImageHUD.getScale().x, itemInHandImageHUD.getScale().y);
+			}
+
 
 			RenderTextOnScreen(meshList[GEO_VCROSDMONO_FONT], "(" + std::to_string(amountOfItem) + "x) " + itemInHand->name, glm::vec3(1, 1, 1), 20, 690, -355 + itemInHandHUD.getScale().y, 'R', .6f);
 
 			if (itemInUse) {
-				RenderTextOnScreen(meshList[GEO_HOMEVIDEOBOLD_FONT], "[E]", glm::vec3(1, 1, 1), 15, 700, -300 + itemInHandHUD.getScale().y, 'R', .6f);
+				RenderTextOnScreen(meshList[GEO_HOMEVIDEOBOLD_FONT], "[LMB]", glm::vec3(1, 1, 1), 15, 700, -300 + itemInHandHUD.getScale().y, 'R', .6f);
 			}
 			else {
-				RenderTextOnScreen(meshList[GEO_HOMEVIDEO_FONT], "[E]", glm::vec3(1, 1, 1), 15, 700, -300 + itemInHandHUD.getScale().y, 'R', .6f);
+				RenderTextOnScreen(meshList[GEO_HOMEVIDEO_FONT], "[LMB]", glm::vec3(1, 1, 1), 15, 700, -300 + itemInHandHUD.getScale().y, 'R', .6f);
 			}
-			RenderTextOnScreen(meshList[GEO_VCROSDMONO_FONT], "Use", glm::vec3(1, 1, 1), 15, 660, -300 + itemInHandHUD.getScale().y, 'R', .6f);
+			RenderTextOnScreen(meshList[GEO_VCROSDMONO_FONT], "Use", glm::vec3(1, 1, 1), 15, 655 - 10, -300 + itemInHandHUD.getScale().y, 'R', .6f);
 
 			RenderTextOnScreen(meshList[GEO_HOMEVIDEO_FONT], "[X]", glm::vec3(1, 1, 1), 15, 700, -320 + itemInHandHUD.getScale().y, 'R', .6f);
-			RenderTextOnScreen(meshList[GEO_VCROSDMONO_FONT], "Drop", glm::vec3(1, 1, 1), 15, 660, -320 + itemInHandHUD.getScale().y, 'R', .6f);
+			RenderTextOnScreen(meshList[GEO_VCROSDMONO_FONT], "Drop", glm::vec3(1, 1, 1), 15, 673 - 10, -320 + itemInHandHUD.getScale().y, 'R', .6f);
 		}
 
 		// DEBUG

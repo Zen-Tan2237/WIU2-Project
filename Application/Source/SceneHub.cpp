@@ -1130,14 +1130,15 @@ void SceneHub::RenderUI()
 			}
 			else if (itemInHand->name == "Baseball") {
 				RenderMeshOnScreen(meshList[GEO_BASEBALL_TGA], itemInHandImageHUD.getPosition().x - (itemInHandImageHUD.getScale().x / 2.f), itemInHandImageHUD.getPosition().y + (itemInHandImageHUD.getScale().y / 2.f), itemInHandImageHUD.getScale().x, itemInHandImageHUD.getScale().y);
-
 			}
 			else if (itemInHand->name == "Controller") {
 				RenderMeshOnScreen(meshList[GEO_CONTROLLER_TGA], itemInHandImageHUD.getPosition().x - (itemInHandImageHUD.getScale().x / 2.f), itemInHandImageHUD.getPosition().y + (itemInHandImageHUD.getScale().y / 2.f), itemInHandImageHUD.getScale().x, itemInHandImageHUD.getScale().y);
-
 			}
 			else if (itemInHand->name == "PingPong Ball") {
 				RenderMeshOnScreen(meshList[GEO_PINGPONGBALL_TGA], itemInHandImageHUD.getPosition().x - (itemInHandImageHUD.getScale().x / 2.f), itemInHandImageHUD.getPosition().y + (itemInHandImageHUD.getScale().y / 2.f), itemInHandImageHUD.getScale().x, itemInHandImageHUD.getScale().y);
+			}
+			else if (itemInHand->name == "Basketball") {
+				RenderMeshOnScreen(meshList[GEO_BASKETBALL_TGA], itemInHandImageHUD.getPosition().x - (itemInHandImageHUD.getScale().x / 2.f), itemInHandImageHUD.getPosition().y + (itemInHandImageHUD.getScale().y / 2.f), itemInHandImageHUD.getScale().x, itemInHandImageHUD.getScale().y);
 			}
 			
 

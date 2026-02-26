@@ -1168,6 +1168,9 @@ void SceneRiseTop::RenderUI()
 			else if (itemInHand->name == "PingPong Ball") {
 				RenderMeshOnScreen(meshList[GEO_PINGPONGBALL_TGA], itemInHandImageHUD.getPosition().x - (itemInHandImageHUD.getScale().x / 2.f), itemInHandImageHUD.getPosition().y + (itemInHandImageHUD.getScale().y / 2.f), itemInHandImageHUD.getScale().x, itemInHandImageHUD.getScale().y);
 			}
+			else if (itemInHand->name == "Basketball") {
+				RenderMeshOnScreen(meshList[GEO_BASKETBALL_TGA], itemInHandImageHUD.getPosition().x - (itemInHandImageHUD.getScale().x / 2.f), itemInHandImageHUD.getPosition().y + (itemInHandImageHUD.getScale().y / 2.f), itemInHandImageHUD.getScale().x, itemInHandImageHUD.getScale().y);
+			}
 
 			RenderTextOnScreen(meshList[GEO_VCROSDMONO_FONT], "(" + std::to_string(amountOfItem) + "x) " + itemInHand->name, glm::vec3(1, 1, 1), 20, 690, -355 + itemInHandHUD.getScale().y, 'R', .6f);
 
