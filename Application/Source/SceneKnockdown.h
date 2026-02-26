@@ -23,6 +23,7 @@ public:
         GEO_FOODSTAND,
         GEO_FERRISWHEEL,
         GEO_PEPSI,
+        GEO_MAXWELL,
 
         NUM_GEOMETRY,
     };
@@ -41,8 +42,11 @@ public:
 
     //Cans
     PhysicsObject cans[10];
-    bool startPhysicsUpdateForCans = false;
+    bool startPhysicsUpdateForCans;
     int numOfCansInPlay = 0;
+    bool winCondition[10];
+    int round;
+    bool win;
 
     // Grass density management
     int activeGrassCount;
@@ -60,6 +64,10 @@ public:
 
     bool temp = false;
 
+
+    //Maxwell the cat
+	PhysicsObject maxwell;
+	float maxwellSoundCooldown = 28.f;
 };
 #endif
 

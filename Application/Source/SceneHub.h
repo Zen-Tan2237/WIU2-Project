@@ -6,7 +6,7 @@
 class SceneHub : public BaseScene
 {
 public:
-    static const int NUM_GRASSCLUMPS = 1;
+    static const int NUM_GRASSCLUMPS = 4500;
 	static const int NUM_PICKABLES = 5;
 
     enum GEOMETRY_TYPE_HUB
@@ -14,6 +14,13 @@ public:
         //debug
         GEO_WALL,
         GEO_SPHERE,
+
+        //shop images
+        GEO_FIGURINE_TGA,
+		GEO_PLUSHIE_TGA,
+		GEO_PIG_TGA,
+		GEO_5090_TGA,
+		GEO_SODA_TGA,
 
         NUM_GEOMETRY,
     };
@@ -31,10 +38,17 @@ public:
     //UI
     AnimatedUIElement ShopGUI;
     InteractPromptUI TextUI;
+	InteractPromptUI TextUI2;
+	InteractPromptUI CashUI;
+    InteractPromptUI LowCashUI;
+
 	InteractPromptUI SelectionUI[NUM_PICKABLES];
+    AnimatedUIElement SelectionModel;
+	AnimatedUIElement SelectionHighlight;
 
 	bool inShop;
     int shopSelection;
+    bool lowCash;
 
     // Grass density management
     int activeGrassCount;

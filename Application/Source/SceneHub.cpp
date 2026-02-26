@@ -215,9 +215,19 @@ void SceneHub::Init()
 	//debug
 	meshList_hub[GEO_WALL] = MeshBuilder::GenerateCube("wall", glm::vec3(1.f, 0.f, 0.f), 1.f);
 	meshList_hub[GEO_SPHERE] = MeshBuilder::GenerateSphere("sphere", glm::vec3(0.f, 1.f, 0.f), 1.f, 36, 18);
+	meshList_hub[GEO_FIGURINE_TGA] = MeshBuilder::GenerateQuad("figurine", glm::vec3(1.f), 1.f);
+	meshList_hub[GEO_FIGURINE_TGA]->textureID = LoadTGA("Image//figurine.tga");
+	meshList_hub[GEO_PIG_TGA] = MeshBuilder::GenerateQuad("pig", glm::vec3(1.f), 1.f);
+	meshList_hub[GEO_PIG_TGA]->textureID = LoadTGA("Image//pig.tga");
+	meshList_hub[GEO_PLUSHIE_TGA] = MeshBuilder::GenerateQuad("plushie", glm::vec3(1.f), 1.f);
+	meshList_hub[GEO_PLUSHIE_TGA]->textureID = LoadTGA("Image//plushie.tga");
+	meshList_hub[GEO_5090_TGA] = MeshBuilder::GenerateQuad("5090", glm::vec3(1.f), 1.f);
+	meshList_hub[GEO_5090_TGA]->textureID = LoadTGA("Image//5090.tga");
+	meshList_hub[GEO_SODA_TGA] = MeshBuilder::GenerateQuad("soda", glm::vec3(1.f), 1.f);
+	meshList_hub[GEO_SODA_TGA]->textureID = LoadTGA("Image//soda.tga");
 
 	// setup initial item in hand
-	addPickables("Halal Pork", glm::vec3(0, 0, 0));
+	addPickables("Coke", glm::vec3(0, 0, 0));
 	itemInHand = pickables[0];
 	amountOfItem = 10;
 	previousItemInHandName = "";
@@ -259,15 +269,15 @@ void SceneHub::Init()
 	//fountain
 	worldObjects[12].InitPhysicsObject(glm::vec3(0, 0.3f, 0), 0.f, BoundingBox::Type::SPHERE, glm::vec3(1.45f, 0, 0), 0, glm::vec3(0, 1, 0), miscSettings);
 
-	addPickables("Pepsi", glm::vec3(3, 1, 2));
+	//addPickables("Pepsi", glm::vec3(3, 1, 2));
 
 
 	int index = 0;
 
 	// Grass density initialization
 	targetFPS = 60.0f;
-	fpsSmoothed = 60.0f;
-	grassDensityMultiplier = 1.0f;
+	fpsSmoothed = 0.0f;
+	grassDensityMultiplier = 0.0f;
 	activeGrassCount = NUM_GRASSCLUMPS;
 
 	// Initial grass generation
@@ -285,7 +295,18 @@ void SceneHub::Init()
 	TextUI.setTargetPosition(glm::vec2(0, -1600));
 	TextUI.setTargetScale(glm::vec2(0.f));
 	TextUI.setColor(glm::vec3(1.f, 1.f, 0.f));
-	TextUI.setText("Welcome to the shop!, Press Left arrow to exit and Up/Down arrow to navigate.");
+	TextUI.setText("Welcome to the shop!");
+	TextUI2.resetPosition(glm::vec2(0, -1600));
+	TextUI2.resetScale(glm::vec2(0.f));
+	TextUI2.setTargetPosition(glm::vec2(0, -1600));
+	TextUI2.setTargetScale(glm::vec2(0.f));
+	TextUI2.setColor(glm::vec3(1.f, 1.f, 0.f));
+	TextUI2.setText("Press Left arrow to exit and Up/Down arrow to navigate, Enter to buy");
+	CashUI.resetPosition(glm::vec2(0, -1600));
+	CashUI.resetScale(glm::vec2(0.f));
+	CashUI.setTargetPosition(glm::vec2(0, -1600));
+	CashUI.setTargetScale(glm::vec2(0.f));
+	CashUI.setColor(glm::vec3(1.f, 1.f, 0.f));
 
 	for (int i = 0; i < NUM_PICKABLES; ++i) {
 		SelectionUI[i].resetPosition(glm::vec2(0, -1600));
@@ -299,6 +320,23 @@ void SceneHub::Init()
 	SelectionUI[2].setText("Frieren Plushie - $10");
 	SelectionUI[3].setText("Pet Pig - $15");
 	SelectionUI[4].setText("Soda - $3");
+
+	LowCashUI.resetPosition(glm::vec2(0, -1600));
+	LowCashUI.resetScale(glm::vec2(0.f));
+	LowCashUI.setTargetPosition(glm::vec2(0, -1600));
+	LowCashUI.setTargetScale(glm::vec2(0.f));
+	LowCashUI.setColor(glm::vec3(1.f, 0.f, 0.f));
+	LowCashUI.setText("Not enough money!!!");
+
+	SelectionHighlight.resetPosition(glm::vec2(0, -1600));
+	SelectionHighlight.resetScale(glm::vec2(0.f));
+	SelectionHighlight.setTargetPosition(glm::vec2(0, -1600));
+	SelectionHighlight.setTargetScale(glm::vec2(25.f, 45.f));
+
+	SelectionModel.resetPosition(glm::vec3(0, -10, 0));
+	SelectionModel.resetScale(glm::vec3(0.f));
+	SelectionModel.setTargetPosition(glm::vec3(0, -10, 0));
+	SelectionModel.setTargetScale(glm::vec3(1.f));
 
 	inShop = false;
 	shopSelection = 0;
@@ -333,7 +371,7 @@ void SceneHub::Update(double dt)
 			// do it in actual scene instead
 			if (interactives[interactedIndex] == "Play Rise To The Top ($5)" && nextScene == 0) 
 			{
-				if (accumulatedCash > 5) {
+				if (accumulatedCash >= 5) {
 					nextScene = 2;
 					accumulatedCash -= 5;
 					nextSceneDelay = 1.f;
@@ -347,7 +385,7 @@ void SceneHub::Update(double dt)
 			}
 			else if (interactives[interactedIndex] == "Play Basketball Toss ($5)") 
 			{
-				if (accumulatedCash > 5)
+				if (accumulatedCash >= 5)
 				{
 					nextScene = 3;
 					accumulatedCash -= 5;
@@ -362,7 +400,7 @@ void SceneHub::Update(double dt)
 			}
 			else if (interactives[interactedIndex] == "Play Can Knockdown Game ($5)" && nextScene == 0) 
 			{
-				if (accumulatedCash > 5)
+				if (accumulatedCash >= 5)
 				{
 					nextScene = 4;
 					accumulatedCash -= 5;
@@ -382,12 +420,23 @@ void SceneHub::Update(double dt)
 		}
 	}
 
-	if (inShop) 
+	if (inShop && glm::distance(glm::vec3(-1.3f, 0.3f, 0.f) , cameraBody.position) < 2.f)
 	{
 		ShopGUI.setTargetPosition(glm::vec2(0, 0));
 		ShopGUI.setTargetScale(glm::vec2(1200.f, 675.f));
 		TextUI.setTargetPosition(glm::vec2(0, 290.f));
-		TextUI.setTargetScale(glm::vec2(22.f));
+		TextUI.setTargetScale(glm::vec2(23.f));
+		TextUI2.setTargetPosition(glm::vec2(290.f, -315.f));
+		TextUI2.setTargetScale(glm::vec2(19.f));
+		CashUI.setTargetPosition(glm::vec2(-500.f, 285.f));
+		CashUI.setTargetScale(glm::vec2(27));
+		CashUI.setText("Cash: $" + std::to_string(accumulatedCash));
+
+		SelectionModel.setTargetPosition(glm::vec2(-180.f,0));
+		SelectionModel.setTargetScale(glm::vec2(540.f));
+
+		SelectionHighlight.setTargetPosition(glm::vec2(-185.f, 0.5f));
+		SelectionHighlight.setTargetScale(glm::vec2(700.f, 540.f));
 
 		for (int i = 0; i < NUM_PICKABLES; ++i) {
 			SelectionUI[i].setTargetPosition(glm::vec2(510.f, 210.f - ( i * 50)));
@@ -397,6 +446,7 @@ void SceneHub::Update(double dt)
 		if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_LEFT))
 		{
 			inShop = false;
+			shopSelection = 0;
 		}
 
 		if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_UP))
@@ -415,17 +465,112 @@ void SceneHub::Update(double dt)
 				shopSelection = 0;
 			}
 		}
+		if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_ENTER))
+		{
+			switch (shopSelection)
+			{
+			case 0:
+				if (accumulatedCash >= 50)
+				{
+					accumulatedCash -= 50;
+					addPickables("RTX 5090", glm::vec3(0, 1, 0));
+					addItemInHand(newestPickableIndex);
+					lowCash = false;
+				}
+				else
+				{
+					lowCash = true;
+				}
+				break;
+			case 1:
+				if (accumulatedCash >= 20)
+				{
+					accumulatedCash -= 20;
+					addPickables("Figurine", glm::vec3(0, 1, 0));
+					addItemInHand(newestPickableIndex);
+					lowCash = false;
+				}
+				else
+				{
+					lowCash = true;
+				}
+				break;
+			case 2:
+				if (accumulatedCash >= 10)
+				{
+					accumulatedCash -= 10;
+					addPickables("Plushie", glm::vec3(0, 1, 0));
+					addItemInHand(newestPickableIndex);
+					lowCash = false;
+				}
+				else
+				{
+					lowCash = true;
+				}
+				break;
+			case 3:
+				if (accumulatedCash >= 15)
+				{
+					accumulatedCash -= 15;
+					addPickables("Pig", glm::vec3(0, 1, 0));
+					addItemInHand(newestPickableIndex);
+					lowCash = false;
+				}
+				else
+				{
+					lowCash = true;
+				}
+				break;
+			case 4:
+				if (accumulatedCash >= 3)
+				{
+					accumulatedCash -= 3;
+					addPickables("Pepsi", glm::vec3(0, 1, 0));
+					addItemInHand(newestPickableIndex);
+					lowCash = false;
+				}
+				else
+				{
+					lowCash = true;
+				}
+				break;
+			default:
+				break;
+			}
+		}
 	}
 	else {
 		ShopGUI.setTargetPosition(glm::vec2(0, -1600));
 		ShopGUI.setTargetScale(glm::vec2(400.f, 225.f));
 		TextUI.setTargetPosition(glm::vec2(0, -1600));
 		TextUI.setTargetScale(glm::vec2(0.f));
+		TextUI2.setTargetPosition(glm::vec2(0, -1600));
+		TextUI2.setTargetScale(glm::vec2(0.f));
+		SelectionHighlight.setTargetPosition(glm::vec2(0, -1600));
+		SelectionHighlight.setTargetScale(glm::vec2(0.f));
+		CashUI.setTargetPosition(glm::vec2(0, -1600));
+		CashUI.setTargetScale(glm::vec2(0.f));
+		SelectionModel.setTargetPosition(glm::vec2(0, -1600));
+		SelectionModel.setTargetScale(glm::vec3(0.f));
 
 		for (int i = 0; i < NUM_PICKABLES; ++i) {
 			SelectionUI[i].setTargetPosition(glm::vec2(0, -1600));
 			SelectionUI[i].setTargetScale(glm::vec2(0.f));
 		}
+		shopSelection = 0;
+		lowCash = false;
+		inShop = false;
+	}
+
+	if (lowCash)
+	{
+		LowCashUI.setTargetPosition(glm::vec2(550.f, -220.f));
+		LowCashUI.setTargetScale(glm::vec2(27));
+	}
+	else
+	{
+		LowCashUI.setTargetPosition(glm::vec2(0, -1600));
+		LowCashUI.setTargetScale(glm::vec2(0.f));
 	}
 
 	//debug
@@ -447,7 +592,6 @@ void SceneHub::Update(double dt)
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_U)) {
 		debugPos.y -= 200.f * dt;
 	}
-	std::cout << "Debug Pos: " << debugPos.x << ", " << debugPos.y << ", " << debugPos.z << std::endl;
 
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_M)) {
 		debugScale += 10.f * dt;
@@ -455,16 +599,20 @@ void SceneHub::Update(double dt)
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_N)) {
 		debugScale -= 10.f * dt;
 	}
-	std::cout << "Debug Scale: " << debugScale << std::endl;
 
 	// Update grass density based on FPS
 	UpdateGrassDensity(dt);
 
 	ShopGUI.Update(dt);
 	TextUI.Update(dt);
+	TextUI2.Update(dt);
+	CashUI.Update(dt);
 	for (int i = 0; i < NUM_PICKABLES; ++i) {
 		SelectionUI[i].Update(dt);
 	}
+	LowCashUI.Update(dt);
+	SelectionHighlight.Update(dt);
+	SelectionModel.Update(dt);
 }
 
 void SceneHub::Render()
@@ -826,7 +974,7 @@ void SceneHub::Render()
 			itemInHand->body.position = itemInHandPos;
 
 			// rotation offsets when held
-			if (itemInHand->name == "Halal Pork") {
+			if (itemInHand->name == "Pig") {
 				itemInHand->body.SetOrientation(0, 180.f, 0);
 			}
 			else if (itemInHand->name == "RTX 5090") {
@@ -872,7 +1020,7 @@ void SceneHub::Render()
 					modelStack.Scale(0.15f, 0.15f, 0.15f);
 					RenderMesh(meshList[GEO_FIGURINE], enableLight);
 				}
-				else if (pickables[i]->name == "Halal Pork") {
+				else if (pickables[i]->name == "Pig") {
 					modelStack.Scale(0.15f, 0.15f, 0.15f);
 					RenderMesh(meshList[GEO_PIG], enableLight);
 				}
@@ -1057,12 +1205,51 @@ void SceneHub::RenderUI()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	RenderMeshOnScreen(meshList[GEO_ITEMINHANDFADEBACKGROUND_GUI], ShopGUI.getPosition().x, ShopGUI.getPosition().y, ShopGUI.getScale().x, ShopGUI.getScale().y);
+	RenderMeshOnScreen(meshList[GEO_ITEMINHANDFADEBACKGROUND_GUI], SelectionHighlight.getPosition().x, SelectionHighlight.getPosition().y, SelectionHighlight.getScale().x, SelectionHighlight.getScale().y);
+	
+	glDisable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+	switch (shopSelection) 
+	{
+	case 0:
+		RenderMeshOnScreen(meshList_hub[GEO_5090_TGA], SelectionModel.getPosition().x,SelectionModel.getPosition().y, SelectionModel.getScale().x, SelectionModel.getScale().y);
+		break;
+	case 1:
+		RenderMeshOnScreen(meshList_hub[GEO_FIGURINE_TGA], SelectionModel.getPosition().x, SelectionModel.getPosition().y, SelectionModel.getScale().x, SelectionModel.getScale().y);
+		break;
+	case 2:
+		RenderMeshOnScreen(meshList_hub[GEO_PLUSHIE_TGA], SelectionModel.getPosition().x, SelectionModel.getPosition().y, SelectionModel.getScale().x, SelectionModel.getScale().y);
+		break;
+	case 3:
+		RenderMeshOnScreen(meshList_hub[GEO_PIG_TGA], SelectionModel.getPosition().x, SelectionModel.getPosition().y, SelectionModel.getScale().x, SelectionModel.getScale().y);
+		break;
+	case 4:
+		RenderMeshOnScreen(meshList_hub[GEO_SODA_TGA], SelectionModel.getPosition().x, SelectionModel.getPosition().y, SelectionModel.getScale().x, SelectionModel.getScale().y);
+		break;
+	default:
+		break;
+
+	}
 	RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], TextUI.getText(), TextUI.getColor(), TextUI.getScale().x, TextUI.getPosition().x, TextUI.getPosition().y, 'C', .6f);
+	RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], TextUI2.getText(), TextUI2.getColor(), TextUI2.getScale().x, TextUI2.getPosition().x, TextUI2.getPosition().y, 'R', .6f);
+	RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], CashUI.getText(), CashUI.getColor(), CashUI.getScale().x, CashUI.getPosition().x, CashUI.getPosition().y, 'C', .6f);
 
 	for (int i = 0; i < NUM_PICKABLES; i++)
 	{
-		RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], SelectionUI[i].getText(), SelectionUI[i].getColor(), SelectionUI[i].getScale().x, SelectionUI[i].getPosition().x, SelectionUI[i].getPosition().y, 'R', .6f);
+		if (shopSelection == i)
+		{ 
+			RenderTextOnScreen(meshList[GEO_HOMEVIDEOBOLD_FONT], SelectionUI[i].getText(), SelectionUI[i].getColor(), SelectionUI[i].getScale().x, SelectionUI[i].getPosition().x, SelectionUI[i].getPosition().y, 'R', .6f);
+		}
+		else
+		{
+			RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], SelectionUI[i].getText(), SelectionUI[i].getColor(), SelectionUI[i].getScale().x, SelectionUI[i].getPosition().x, SelectionUI[i].getPosition().y, 'R', .6f);
+		}
+	}
+
+	if (lowCash) {
+		RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], LowCashUI.getText(), LowCashUI.getColor(), LowCashUI.getScale().x, LowCashUI.getPosition().x, LowCashUI.getPosition().y, 'R', .6f);
 	}
 	
 	glDisable(GL_DEPTH_TEST);
