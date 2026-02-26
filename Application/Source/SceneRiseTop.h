@@ -17,7 +17,7 @@ public:
         // LOCAL SCENE MODELS
         GEO_STALL,
         GEO_RISETOP,
-
+       
         NUM_GEOMETRY,
     };
 
