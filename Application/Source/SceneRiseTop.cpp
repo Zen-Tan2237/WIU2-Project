@@ -16,6 +16,7 @@
 #include "KeyboardController.h"
 #include "MouseController.h"
 #include "CollisionDetection.h"
+#include "audio.h"
 
 SceneRiseTop::SceneRiseTop()
 {
@@ -355,11 +356,27 @@ void SceneRiseTop::Init()
 	meshList_riseTop[GEO_PLANK]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
 	meshList_riseTop[GEO_PLANK]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
 	meshList_riseTop[GEO_PLANK]->material.kShininess = 1.0f;
+
+	// SFX
+	AudioManager::Instance().LoadSound("Wood Creak 1", "SFX/woodCreak1.wav");
+	AudioManager::Instance().LoadSound("Wood Creak 2", "SFX/woodCreak2.wav");
+	AudioManager::Instance().LoadSound("Wood Creak 3", "SFX/woodCreak3.wav");
+	AudioManager::Instance().SetSoundPosition("Wood Creak 1", worldObjects[25].position.x, worldObjects[25].position.y, worldObjects[25].position.z);
+	AudioManager::Instance().SetSoundPosition("Wood Creak 2", worldObjects[25].position.x, worldObjects[25].position.y, worldObjects[25].position.z);
+	AudioManager::Instance().SetSoundPosition("Wood Creak 3", worldObjects[25].position.x, worldObjects[25].position.y, worldObjects[25].position.z);
+	AudioManager::Instance().SetSoundVolume("Wood Creak 1", 0.5f);
+	AudioManager::Instance().SetSoundVolume("Wood Creak 2", 0.5f);
+	AudioManager::Instance().SetSoundVolume("Wood Creak 3", 0.5f);
 }
 
 void SceneRiseTop::Update(double dt)
 {
 	BaseScene::Update(dt);
+
+	// AUDIO MANAGE
+	AudioManager::Instance().SetListenerPosition(camera.position.x, camera.position.y, camera.position.z);
+	AudioManager::Instance().SetListenerDirection(camera.target.x, camera.target.y, camera.target.z);
+	AudioManager::Instance().SetListenerCone(1, 3, 0.5f);
 
 	// BOUNDING BOX TOGGLE
 	if (KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_M)) {
@@ -415,12 +432,27 @@ void SceneRiseTop::Update(double dt)
 		changeOrientationElapsed += dt;
 
 		if (changeOrientationElapsed >= changeOrientation) {
-			plankTargetOrientation = 10.f + (rand() % 200) / 10.f;
+			plankTargetOrientation = 10.f + (rand() % 250) / 10.f;
 			plankTargetOrientation *= direction;
 			playerPlankTargetOrientation = plankTargetOrientation + ((rand() % 100) / 10.f) * direction;
 			lerpOrientationSpeed = 0.5f + (rand() % 20) / 10.f;
 			changeOrientationElapsed = 0.f;
 			changeOrientation = 6.f - rand() % static_cast<int>(glm::clamp(static_cast<float>(gameTimeElapsed) / 4.f, 1.f, 5.f));
+
+			int temp = rand() % 3;
+			switch (temp) {
+			case 0:
+				AudioManager::Instance().SoundPlay("Wood Creak 1");
+				break;
+			case 1:
+				AudioManager::Instance().SoundPlay("Wood Creak 2");
+				break;
+			case 2:
+				AudioManager::Instance().SoundPlay("Wood Creak 3");
+				break;
+			default:
+				break;
+			}
 
 			if (direction == 1) {
 				direction = -1;
