@@ -217,7 +217,7 @@ void SceneHub::Init()
 	meshList_hub[GEO_SPHERE] = MeshBuilder::GenerateSphere("sphere", glm::vec3(0.f, 1.f, 0.f), 1.f, 36, 18);
 
 	// setup initial item in hand
-	addPickables("Baseball", glm::vec3(0, 0, 0));
+	addPickables("Pepsi", glm::vec3(0, 0, 0));
 	itemInHand = pickables[0];
 	amountOfItem = 10;
 	previousItemInHandName = "";
@@ -1130,14 +1130,15 @@ void SceneHub::RenderUI()
 			}
 			else if (itemInHand->name == "Baseball") {
 				RenderMeshOnScreen(meshList[GEO_BASEBALL_TGA], itemInHandImageHUD.getPosition().x - (itemInHandImageHUD.getScale().x / 2.f), itemInHandImageHUD.getPosition().y + (itemInHandImageHUD.getScale().y / 2.f), itemInHandImageHUD.getScale().x, itemInHandImageHUD.getScale().y);
-
 			}
 			else if (itemInHand->name == "Controller") {
 				RenderMeshOnScreen(meshList[GEO_CONTROLLER_TGA], itemInHandImageHUD.getPosition().x - (itemInHandImageHUD.getScale().x / 2.f), itemInHandImageHUD.getPosition().y + (itemInHandImageHUD.getScale().y / 2.f), itemInHandImageHUD.getScale().x, itemInHandImageHUD.getScale().y);
-
 			}
 			else if (itemInHand->name == "PingPong Ball") {
 				RenderMeshOnScreen(meshList[GEO_PINGPONGBALL_TGA], itemInHandImageHUD.getPosition().x - (itemInHandImageHUD.getScale().x / 2.f), itemInHandImageHUD.getPosition().y + (itemInHandImageHUD.getScale().y / 2.f), itemInHandImageHUD.getScale().x, itemInHandImageHUD.getScale().y);
+			}
+			else if (itemInHand->name == "Basketball") {
+				RenderMeshOnScreen(meshList[GEO_BASKETBALL_TGA], itemInHandImageHUD.getPosition().x - (itemInHandImageHUD.getScale().x / 2.f), itemInHandImageHUD.getPosition().y + (itemInHandImageHUD.getScale().y / 2.f), itemInHandImageHUD.getScale().x, itemInHandImageHUD.getScale().y);
 			}
 			
 

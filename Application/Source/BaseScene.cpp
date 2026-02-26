@@ -343,6 +343,9 @@ void BaseScene::Init()
 	meshList[GEO_BASEBALL_TGA] = MeshBuilder::GenerateQuad("Basketball Preview GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
 	meshList[GEO_BASEBALL_TGA]->textureID = LoadTGA("Image//basketball.tga");
 
+	meshList[GEO_BASKETBALL_TGA] = MeshBuilder::GenerateQuad("Basketball Preview GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
+	meshList[GEO_BASKETBALL_TGA]->textureID = LoadTGA("Image//basketball_tga.tga");
+
 
 	// EUI
 	meshList[GEO_INTERACT_EUI] = MeshBuilder::GenerateQuad("Interact EUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
@@ -705,12 +708,16 @@ void BaseScene::Update(double dt)
 	}
 
 	// RESOLVE COLLISIONS
-	const int MAX_ITER = 1;
+	const int MAX_ITER = 8;
 
 	for (int iter = 0; iter < MAX_ITER; ++iter) {
 		for (auto& cd : contacts) {
-			ResolveCollision(cd);
+			ResolveCollision(cd, (float)dt);
 		}
+	}
+
+	for (auto& cd : contacts) {
+		ApplyPositionCorrection(cd);
 	}
 
 
