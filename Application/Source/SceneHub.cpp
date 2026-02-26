@@ -371,7 +371,7 @@ void SceneHub::Update(double dt)
 			// do it in actual scene instead
 			if (interactives[interactedIndex] == "Play Rise To The Top ($5)" && nextScene == 0) 
 			{
-				if (accumulatedCash > 5) {
+				if (accumulatedCash >= 5) {
 					nextScene = 2;
 					accumulatedCash -= 5;
 					nextSceneDelay = 1.f;
@@ -385,7 +385,7 @@ void SceneHub::Update(double dt)
 			}
 			else if (interactives[interactedIndex] == "Play Basketball Toss ($5)") 
 			{
-				if (accumulatedCash > 5)
+				if (accumulatedCash >= 5)
 				{
 					nextScene = 3;
 					accumulatedCash -= 5;
@@ -400,7 +400,7 @@ void SceneHub::Update(double dt)
 			}
 			else if (interactives[interactedIndex] == "Play Can Knockdown Game ($5)" && nextScene == 0) 
 			{
-				if (accumulatedCash > 5)
+				if (accumulatedCash >= 5)
 				{
 					nextScene = 4;
 					accumulatedCash -= 5;
