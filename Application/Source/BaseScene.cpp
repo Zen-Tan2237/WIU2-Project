@@ -1437,9 +1437,9 @@ void BaseScene::addPickables(std::string name, glm::vec3 position)
 			else if (pickables[i]->name == "Basketball") {
 				pickables[i]->body.InitPhysicsObject(
 					position,
-					5.0f,
+					3.0f,
 					BoundingBox::Type::SPHERE,
-					glm::vec3(.15f, .15f, .15f),
+					glm::vec3(1.f, 1.f, 1.f),
 					settings
 				);
 			}
