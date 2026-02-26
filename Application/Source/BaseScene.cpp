@@ -340,9 +340,6 @@ void BaseScene::Init()
 	meshList[GEO_PINGPONGBALL_TGA] = MeshBuilder::GenerateQuad("PingPong Ball Preview GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
 	meshList[GEO_PINGPONGBALL_TGA]->textureID = LoadTGA("Image//Tennis_Ball.tga");
 
-	meshList[GEO_BASEBALL_TGA] = MeshBuilder::GenerateQuad("Basketball Preview GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
-	meshList[GEO_BASEBALL_TGA]->textureID = LoadTGA("Image//basketball.tga");
-
 	meshList[GEO_BASKETBALL_TGA] = MeshBuilder::GenerateQuad("Basketball Preview GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
 	meshList[GEO_BASKETBALL_TGA]->textureID = LoadTGA("Image//basketball_tga.tga");
 
