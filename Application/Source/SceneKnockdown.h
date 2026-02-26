@@ -24,6 +24,7 @@ public:
         GEO_FERRISWHEEL,
         GEO_PEPSI,
         GEO_MAXWELL,
+        GEO_BOARD,
 
         NUM_GEOMETRY,
     };
@@ -37,6 +38,9 @@ public:
     void Exit() override;
 
 	void generateCanPositions(int pattern);
+
+
+
 
     Mesh* meshList_hub[NUM_GEOMETRY];
 
