@@ -14,7 +14,7 @@
 #include <vector> // added
 
 static const int TOTAL_INTERACTIVES = 100;
-static const int TOTAL_PICKABLES = 50;
+static const int TOTAL_PICKABLES = 200;
 static const int TOTAL_LIGHTS = 8;
 
 static const int TOTAL_PARTS = 30;

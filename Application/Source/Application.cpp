@@ -161,7 +161,7 @@ void Application::Run()
 	Scene* scene3 = new SceneBB();
 	Scene* scene4 = new SceneKnockdown();
 	
-	Scene* scene = scene2;
+	Scene* scene = scene1;
 	scene->Init();
 
 

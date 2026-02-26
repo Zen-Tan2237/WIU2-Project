@@ -1278,7 +1278,7 @@ void BaseScene::addPickables(std::string name, glm::vec3 position)
 					settings
 				);
 			}
-			else if (pickables[i]->name == "Halal Pork") {
+			else if (pickables[i]->name == "Pig") {
 				pickables[i]->body.InitPhysicsObject(
 					position,
 					5.0f,
