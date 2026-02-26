@@ -15,8 +15,8 @@ public:
         GEO_SPHERE,
 
         //scene models
-        GEO_BBALL,
-        GEO_HOOP,
+        //GEO_BBALL,
+        //GEO_HOOP,
 
         NUM_GEOMETRY,
     };
