@@ -216,17 +216,17 @@ void SceneBB::Init()
 	meshList_hub[GEO_WALL] = MeshBuilder::GenerateCube("wall", glm::vec3(1.f, 0.f, 0.f), 1.f);
 	meshList_hub[GEO_SPHERE] = MeshBuilder::GenerateSphere("sphere", glm::vec3(0.f, 1.f, 0.f), 1.f, 36, 18);
 
-	meshList_hub[GEO_STALL] = MeshBuilder::GenerateOBJ("stall", "Models//minigame_Stall.obj");
-	meshList_hub[GEO_STALL]->textureID = LoadTGA("Textures//minigameStall.tga");
+	//meshList_hub[GEO_STALL] = MeshBuilder::GenerateOBJ("stall", "Models//minigame_Stall.obj");
+	//meshList_hub[GEO_STALL]->textureID = LoadTGA("Textures//minigameStall.tga");
 
-	meshList_hub[GEO_TABLE] = MeshBuilder::GenerateOBJ("table", "Models//table.obj");
-	meshList_hub[GEO_TABLE]->textureID = LoadTGA("Textures//table.tga");
+	//meshList_hub[GEO_TABLE] = MeshBuilder::GenerateOBJ("table", "Models//table.obj");
+	//meshList_hub[GEO_TABLE]->textureID = LoadTGA("Textures//table.tga");
 
-	meshList_hub[GEO_FOODSTAND] = MeshBuilder::GenerateOBJ("foodstand", "Models//Hot_Dog_Stand.obj");
-	meshList_hub[GEO_FOODSTAND]->textureID = LoadTGA("Textures//Hotdog.tga");
+	//meshList_hub[GEO_FOODSTAND] = MeshBuilder::GenerateOBJ("foodstand", "Models//Hot_Dog_Stand.obj");
+	//meshList_hub[GEO_FOODSTAND]->textureID = LoadTGA("Textures//Hotdog.tga");
 
-	meshList_hub[GEO_FERRISWHEEL] = MeshBuilder::GenerateOBJ("ferriswheel", "Models//FerrisWheel.obj");
-	meshList_hub[GEO_FERRISWHEEL]->textureID = LoadTGA("Textures//FerrisWheel.tga");
+	//meshList_hub[GEO_FERRISWHEEL] = MeshBuilder::GenerateOBJ("ferriswheel", "Models//FerrisWheel.obj");
+	//meshList_hub[GEO_FERRISWHEEL]->textureID = LoadTGA("Textures//FerrisWheel.tga");
 
 	// setup initial item in hand
 	addPickables("Baseball", glm::vec3(0, 0, 0));
@@ -248,21 +248,21 @@ void SceneBB::Init()
 	worldObjects[0].InitPhysicsObject(glm::vec3(0, -0.5f, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(200, 1, 200), 0, glm::vec3(1, 0, 0), miscSettings);
 
 	//stalls
-	worldObjects[1].InitPhysicsObject(glm::vec3(6, 0.9f, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(2.f, 1.8f, 1.7f), 180, glm::vec3(0, 1, 0), miscSettings);
-	worldObjects[2].InitPhysicsObject(glm::vec3(0, 0.9f, -6), 0.f, BoundingBox::Type::OBB, glm::vec3(2.5f, 1.8f, 1.7f), -90, glm::vec3(0, 1, 0), miscSettings);
-	worldObjects[3].InitPhysicsObject(glm::vec3(0, 0.9f, 6), 0.f, BoundingBox::Type::OBB, glm::vec3(2.5f, 1.8f, 1.7f), 90, glm::vec3(0, 1, 0), miscSettings);
-	worldObjects[4].InitPhysicsObject(glm::vec3(-6, 0.9f, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(2.5f, 1.8f, 1.7f), 0, glm::vec3(0, 1, 0), miscSettings);
+	//worldObjects[1].InitPhysicsObject(glm::vec3(6, 0.9f, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(2.f, 1.8f, 1.7f), 180, glm::vec3(0, 1, 0), miscSettings);
+	//worldObjects[2].InitPhysicsObject(glm::vec3(0, 0.9f, -6), 0.f, BoundingBox::Type::OBB, glm::vec3(2.5f, 1.8f, 1.7f), -90, glm::vec3(0, 1, 0), miscSettings);
+	//worldObjects[3].InitPhysicsObject(glm::vec3(0, 0.9f, 6), 0.f, BoundingBox::Type::OBB, glm::vec3(2.5f, 1.8f, 1.7f), 90, glm::vec3(0, 1, 0), miscSettings);
+	//worldObjects[4].InitPhysicsObject(glm::vec3(-6, 0.9f, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(2.5f, 1.8f, 1.7f), 0, glm::vec3(0, 1, 0), miscSettings);
 
 	//tables
-	worldObjects[5].InitPhysicsObject(glm::vec3(-3, 0, 3.6f), 0.f, BoundingBox::Type::OBB, glm::vec3(2.2f, 1.5f, 2.2f), 50, glm::vec3(0, 1, 0), miscSettings);
+	//worldObjects[5].InitPhysicsObject(glm::vec3(-3, 0, 3.6f), 0.f, BoundingBox::Type::OBB, glm::vec3(2.2f, 1.5f, 2.2f), 50, glm::vec3(0, 1, 0), miscSettings);
 
 	//ferris wheel
-	worldObjects[6].InitPhysicsObject(glm::vec3(-10, 0, -7), 0.f, BoundingBox::Type::OBB, glm::vec3(10.f, 9.f, 5.f), 45, glm::vec3(0, 1, 0), miscSettings);
+	//worldObjects[6].InitPhysicsObject(glm::vec3(-10, 0, -7), 0.f, BoundingBox::Type::OBB, glm::vec3(10.f, 9.f, 5.f), 45, glm::vec3(0, 1, 0), miscSettings);
 
 	//food stand
-	worldObjects[7].InitPhysicsObject(glm::vec3(-3.6, 0.5f, 5), 0.f, BoundingBox::Type::OBB, glm::vec3(2.2f, 1.f, 1.92f), -15, glm::vec3(0, 1, 0), miscSettings);
+	//worldObjects[7].InitPhysicsObject(glm::vec3(-3.6, 0.5f, 5), 0.f, BoundingBox::Type::OBB, glm::vec3(2.2f, 1.f, 1.92f), -15, glm::vec3(0, 1, 0), miscSettings);
 
-	addPickables("Pepsi", glm::vec3(3, 1, 2));
+	//addPickables("Pepsi", glm::vec3(3, 1, 2));
 
 
 	int index = 0;
@@ -277,25 +277,25 @@ void SceneBB::Init()
 	RegenerateGrassPositions();
 
 	//
-	meshList_hub[GEO_TABLE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
-	meshList_hub[GEO_TABLE]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
-	meshList_hub[GEO_TABLE]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
-	meshList_hub[GEO_TABLE]->material.kShininess = 1.0f;
+	//meshList_hub[GEO_TABLE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	//meshList_hub[GEO_TABLE]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
+	//meshList_hub[GEO_TABLE]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+	//meshList_hub[GEO_TABLE]->material.kShininess = 1.0f;
 
-	meshList_hub[GEO_FOODSTAND]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
-	meshList_hub[GEO_FOODSTAND]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
-	meshList_hub[GEO_FOODSTAND]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
-	meshList_hub[GEO_FOODSTAND]->material.kShininess = 1.0f;
+	//meshList_hub[GEO_FOODSTAND]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	//meshList_hub[GEO_FOODSTAND]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
+	//meshList_hub[GEO_FOODSTAND]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+	//meshList_hub[GEO_FOODSTAND]->material.kShininess = 1.0f;
 
-	meshList_hub[GEO_FERRISWHEEL]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
-	meshList_hub[GEO_FERRISWHEEL]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
-	meshList_hub[GEO_FERRISWHEEL]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
-	meshList_hub[GEO_FERRISWHEEL]->material.kShininess = 1.0f;
+	//meshList_hub[GEO_FERRISWHEEL]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	//meshList_hub[GEO_FERRISWHEEL]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
+	//meshList_hub[GEO_FERRISWHEEL]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+	//meshList_hub[GEO_FERRISWHEEL]->material.kShininess = 1.0f;
 
-	meshList_hub[GEO_STALL]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
-	meshList_hub[GEO_STALL]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
-	meshList_hub[GEO_STALL]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
-	meshList_hub[GEO_STALL]->material.kShininess = 1.0f;
+	//meshList_hub[GEO_STALL]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	//meshList_hub[GEO_STALL]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
+	//meshList_hub[GEO_STALL]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+	//meshList_hub[GEO_STALL]->material.kShininess = 1.0f;
 
 }
 
@@ -314,11 +314,11 @@ void SceneBB::Update(double dt)
 
 	// name of interactive, I = interactive, coords
 	addInteractives("Enter Scene 2 (Tilting Table)", 'I', glm::vec3(1, 0, 0));
-	addInteractives("1", 'I', glm::vec3(-1, 0, 0));
-	addInteractives("2", 'I', glm::vec3(0, 0, 1));
-	addInteractives("Enter SceneTester", 'I', glm::vec3(0, 0, -1));
+	//addInteractives("1", 'I', glm::vec3(-1, 0, 0));
+	//addInteractives("2", 'I', glm::vec3(0, 0, 1));
+	//addInteractives("Enter SceneTester", 'I', glm::vec3(0, 0, -1));
 
-	addInteractives("Enter Can Knockdown Game", 'I', glm::vec3(0.f, 1.f, 0.f));
+	//addInteractives("Enter Can Knockdown Game", 'I', glm::vec3(0.f, 1.f, 0.f));
 
 	//addPickables("Halal Pork", glm::vec3(0, 0, 0));
 	initializePickablesInteractives();
@@ -386,7 +386,7 @@ void SceneBB::Update(double dt)
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_N)) {
 		debugScale -= 2.0f * dt;
 	}
-	std::cout << "Debug Scale: " << debugScale << std::endl;
+	//std::cout << "Debug Scale: " << debugScale << std::endl;
 
 	// Update grass density based on FPS
 	UpdateGrassDensity(dt);
@@ -557,11 +557,11 @@ void SceneBB::Render()
 		}
 	}
 
-	{
-		PushPop axesGuard(modelStack);
-		// Render objects
-		//RenderMesh(meshList[GEO_AXES], false);
-	}
+	//{
+	//	PushPop axesGuard(modelStack);
+	//	// Render objects
+	//	RenderMesh(meshList[GEO_AXES], false);
+	//}
 
 	{
 		PushPop skybox(modelStack);
@@ -569,6 +569,7 @@ void SceneBB::Render()
 		RenderSkybox();
 	}
 
+	// Render hitboxes when 'M' is down
 	for (int i = 0; i < TOTAL_PHYSICSOBJECT; i++) {
 		PushPop debug(modelStack);
 		modelStack.Translate(worldObjects[i].position.x, worldObjects[i].position.y, worldObjects[i].position.z);
@@ -631,46 +632,46 @@ void SceneBB::Render()
 
 	glDepthMask(GL_TRUE);
 
-	{
-		PushPop table(modelStack);
-		modelStack.Translate(worldObjects[5].position.x, worldObjects[5].position.y, worldObjects[5].position.z);
-		glm::mat4 rotation = glm::mat4_cast(worldObjects[5].orientation);
-		modelStack.MultMatrix(rotation);
-		modelStack.Scale(.13f, .13f, .13f);
-		RenderMesh(meshList_hub[GEO_TABLE], true);
-		modelStack.Scale(worldObjects[5].boundingBox.getWidth(), worldObjects[5].boundingBox.getHeight(), worldObjects[5].boundingBox.getDepth());
-		//RenderMesh(meshList_hub[GEO_WALL], true);
-	}
+	//{
+	//	PushPop table(modelStack);
+	//	modelStack.Translate(worldObjects[5].position.x, worldObjects[5].position.y, worldObjects[5].position.z);
+	//	glm::mat4 rotation = glm::mat4_cast(worldObjects[5].orientation);
+	//	modelStack.MultMatrix(rotation);
+	//	modelStack.Scale(.13f, .13f, .13f);
+	//	RenderMesh(meshList_hub[GEO_TABLE], true);
+	//	modelStack.Scale(worldObjects[5].boundingBox.getWidth(), worldObjects[5].boundingBox.getHeight(), worldObjects[5].boundingBox.getDepth());
+	//	RenderMesh(meshList_hub[GEO_WALL], true);
+	//}
 
-	{
-		PushPop foodstand(modelStack);
-		modelStack.Translate(worldObjects[7].position.x, worldObjects[7].position.y, worldObjects[7].position.z);
-		glm::mat4 rotation = glm::mat4_cast(worldObjects[7].orientation);
-		modelStack.MultMatrix(rotation);
-		modelStack.Scale(.12f, .12f, .12f);
-		RenderMesh(meshList_hub[GEO_FOODSTAND], true);
-		//modelStack.Scale(debugScale, debugScale, debugScale);
-		//modelStack.Scale(worldObjects[7].boundingBox.getWidth(), worldObjects[7].boundingBox.getHeight(), worldObjects[7].boundingBox.getDepth());
-		//RenderMesh(meshList_hub[GEO_WALL], true);
-	}
+	//{
+	//	PushPop foodstand(modelStack);
+	//	modelStack.Translate(worldObjects[7].position.x, worldObjects[7].position.y, worldObjects[7].position.z);
+	//	glm::mat4 rotation = glm::mat4_cast(worldObjects[7].orientation);
+	//	modelStack.MultMatrix(rotation);
+	//	modelStack.Scale(.12f, .12f, .12f);
+	//	RenderMesh(meshList_hub[GEO_FOODSTAND], true);
+	//	//modelStack.Scale(debugScale, debugScale, debugScale);
+	//	//modelStack.Scale(worldObjects[7].boundingBox.getWidth(), worldObjects[7].boundingBox.getHeight(), worldObjects[7].boundingBox.getDepth());
+	//	//RenderMesh(meshList_hub[GEO_WALL], true);
+	//}
 
-	{
-		PushPop ferriswheel(modelStack);
-		modelStack.Translate(worldObjects[6].position.x, worldObjects[6].position.y, worldObjects[6].position.z);
-		glm::mat4 rotation = glm::mat4_cast(worldObjects[6].orientation);
-		modelStack.MultMatrix(rotation);
-		modelStack.Scale(.2f, .2f, .2f);
-		RenderMesh(meshList_hub[GEO_FERRISWHEEL], true);
-	}
+	//{
+	//	PushPop ferriswheel(modelStack);
+	//	modelStack.Translate(worldObjects[6].position.x, worldObjects[6].position.y, worldObjects[6].position.z);
+	//	glm::mat4 rotation = glm::mat4_cast(worldObjects[6].orientation);
+	//	modelStack.MultMatrix(rotation);
+	//	modelStack.Scale(.2f, .2f, .2f);
+	//	RenderMesh(meshList_hub[GEO_FERRISWHEEL], true);
+	//}
 
 	for (int i = 1; i < 5; i++)
 	{
-		PushPop stall(modelStack);
-		modelStack.Translate(worldObjects[i].position.x, worldObjects[i].position.y, worldObjects[i].position.z);
-		glm::mat4 rotation = glm::mat4_cast(worldObjects[i].orientation);
-		modelStack.MultMatrix(rotation);
-		modelStack.Scale(0.2f, 0.2f, 0.2f);
-		RenderMesh(meshList_hub[GEO_STALL], true);
+		//PushPop stall(modelStack);
+		//modelStack.Translate(worldObjects[i].position.x, worldObjects[i].position.y, worldObjects[i].position.z);
+		//glm::mat4 rotation = glm::mat4_cast(worldObjects[i].orientation);
+		//modelStack.MultMatrix(rotation);
+		//modelStack.Scale(0.2f, 0.2f, 0.2f);
+		//RenderMesh(meshList_hub[GEO_STALL], true);
 	}
 
 	//{
@@ -680,13 +681,13 @@ void SceneBB::Render()
 	//	RenderMesh(meshList[GEO_FOUNTAIN], true);
 	//}
 
-	{
-		PushPop monkey(modelStack);
-		modelStack.Translate(-2.f, 0.24f, 0.f);
-		modelStack.Rotate(-90, 0.f, 1.f, 0.f);
-		modelStack.Scale(0.1f, 0.1f, 0.1f);
-		RenderMesh(meshList[GEO_MONKEY], true);
-	}
+	//{
+	//	PushPop monkey(modelStack);
+	//	modelStack.Translate(-2.f, 0.24f, 0.f);
+	//	modelStack.Rotate(-90, 0.f, 1.f, 0.f);
+	//	modelStack.Scale(0.1f, 0.1f, 0.1f);
+	//	RenderMesh(meshList[GEO_MONKEY], true);
+	//}
 
 
 	{
@@ -763,26 +764,26 @@ void SceneBB::Render()
 				glm::mat4 rotation = glm::mat4_cast(pickables[i]->body.orientation);
 				modelStack.MultMatrix(rotation);
 
-				if (pickables[i]->name == "Baseball") {
-					modelStack.Scale(0.15f, 0.15f, 0.15f);
-					RenderMesh(meshList[GEO_BASEBALL], enableLight);
-				}
-				else if (pickables[i]->name == "Coke") {
-					modelStack.Scale(0.15f, 0.15f, 0.15f);
-					RenderMesh(meshList[GEO_CANSCOKE], enableLight);
-				}
-				else if (pickables[i]->name == "Mountain Dew") {
-					modelStack.Scale(0.15f, 0.15f, 0.15f);
-					RenderMesh(meshList[GEO_CANSMTNDEW], enableLight);
-				}
-				else if (pickables[i]->name == "Spite") {
-					modelStack.Scale(0.15f, 0.15f, 0.15f);
-					RenderMesh(meshList[GEO_CANSSPRITE], enableLight);
-				}
-				else if (pickables[i]->name == "Pepsi") {
-					modelStack.Scale(0.15f, 0.15f, 0.15f);
-					RenderMesh(meshList[GEO_CANSPEPSI], enableLight);
-				}
+				//if (pickables[i]->name == "Baseball") {
+				//	modelStack.Scale(0.15f, 0.15f, 0.15f);
+				//	RenderMesh(meshList[GEO_BASEBALL], enableLight);
+				//}
+				//else if (pickables[i]->name == "Coke") {
+				//	modelStack.Scale(0.15f, 0.15f, 0.15f);
+				//	RenderMesh(meshList[GEO_CANSCOKE], enableLight);
+				//}
+				//else if (pickables[i]->name == "Mountain Dew") {
+				//	modelStack.Scale(0.15f, 0.15f, 0.15f);
+				//	RenderMesh(meshList[GEO_CANSMTNDEW], enableLight);
+				//}
+				//else if (pickables[i]->name == "Spite") {
+				//	modelStack.Scale(0.15f, 0.15f, 0.15f);
+				//	RenderMesh(meshList[GEO_CANSSPRITE], enableLight);
+				//}
+				//else if (pickables[i]->name == "Pepsi") {
+				//	modelStack.Scale(0.15f, 0.15f, 0.15f);
+				//	RenderMesh(meshList[GEO_CANSPEPSI], enableLight);
+				//}
 
 				modelStack.PopMatrix();
 			}
