@@ -52,6 +52,11 @@ public:
     float lerpOrientationSpeed;
     int direction;
 
+    Pickable* itemOnPlank;
+    double notTouchingPlankElapsed;
+
+    InteractPromptUI timer;
+
     // DEBUG
     bool showBoundingBox = false;
 

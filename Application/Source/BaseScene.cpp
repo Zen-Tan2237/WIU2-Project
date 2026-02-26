@@ -231,8 +231,8 @@ void BaseScene::Init()
 	meshList[GEO_FERRISWHEEL]->textureID = LoadTGA("Textures//FerrisWheel.tga");
 
 	//
-	//meshList[GEO_BBPOST] = MeshBuilder::GenerateOBJ("bbhoop", "Models//BasketballHoop.obj");
-	//meshList[GEO_BBPOST]->textureID = LoadTGA("Textures//BasketballHoop.tga");
+	meshList[GEO_BBPOST] = MeshBuilder::GenerateOBJ("bbhoop", "Models//BasketballHoop.obj");
+	meshList[GEO_BBPOST]->textureID = LoadTGA("Textures//BasketballHoop.tga");
 
 
 	//pickables
@@ -269,8 +269,8 @@ void BaseScene::Init()
 	meshList[GEO_PINGPONGBALL] = MeshBuilder::GenerateOBJ("Ping Pong Ball", "Models//PingPongBall.obj");
 	meshList[GEO_PINGPONGBALL]->textureID = LoadTGA("Textures//Table_Tennis.tga");
 
-	//meshList[GEO_BBALL] = MeshBuilder::GenerateOBJ("basketball", "Models//basketball.obj");
-	//meshList[GEO_BBALL]->textureID = LoadTGA("Textures//basketball.tga");
+	meshList[GEO_BBALL] = MeshBuilder::GenerateOBJ("basketball", "Models//basketball.obj");
+	meshList[GEO_BBALL]->textureID = LoadTGA("Textures//basketball.tga");
 
 	meshList[GEO_CONTROLLER] = MeshBuilder::GenerateOBJ("Controller", "Models//Controller.obj");
 	meshList[GEO_CONTROLLER]->textureID = LoadTGA("Textures//Controller.tga");
@@ -340,8 +340,8 @@ void BaseScene::Init()
 	meshList[GEO_PINGPONGBALL_TGA] = MeshBuilder::GenerateQuad("PingPong Ball Preview GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
 	meshList[GEO_PINGPONGBALL_TGA]->textureID = LoadTGA("Image//Tennis_Ball.tga");
 
-	//meshList[GEO_BASEBALL_TGA] = MeshBuilder::GenerateQuad("Basketball Preview GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
-	//meshList[GEO_BASEBALL_TGA]->textureID = LoadTGA("Image//basketball.tga");
+	meshList[GEO_BASEBALL_TGA] = MeshBuilder::GenerateQuad("Basketball Preview GUI", glm::vec3(1.f, 1.f, 1.f), 1.f);
+	meshList[GEO_BASEBALL_TGA]->textureID = LoadTGA("Image//basketball.tga");
 
 
 	// EUI
@@ -394,7 +394,7 @@ void BaseScene::Init()
 
 	noOfPickables = 0;
 
-	accumulatedCash = 1125; //$25 to start with but will be overriden when this is not the first scene to be started up (i.e. when coming from another scene)
+	accumulatedCash = 25; //$25 to start with but will be overriden when this is not the first scene to be started up (i.e. when coming from another scene)
 
 	// ITEM IN HAND
 	itemInHand = nullptr;
@@ -421,8 +421,8 @@ void BaseScene::Init()
 	dialogueFadeHUD.resetPosition(glm::vec2(0, -414));
 	dialogueFadeHUD.setTargetPosition(glm::vec2(0, -414));
 
-	itemInHandImageHUD.resetPosition(glm::vec2(665, -330));
-	itemInHandImageHUD.setTargetPosition(glm::vec2(665, -330));
+	itemInHandImageHUD.resetPosition(glm::vec2(665, -360));
+	itemInHandImageHUD.setTargetPosition(glm::vec2(665, -360));
 	itemInHandImageHUD.resetScale(glm::vec2(0));
 	itemInHandImageHUD.setTargetScale(glm::vec2(0));
 
@@ -775,10 +775,12 @@ void BaseScene::Update(double dt)
 	if (itemInHand != nullptr && itemInHandElapsed < 2.f) {
 		itemInHandHUD.setTargetScale(glm::vec2(20.f, 200.f));
 		itemInHandImageHUD.setTargetScale(glm::vec2(150.f, 150.f));
+		itemInHandImageHUD.setTargetPosition(glm::vec2(665, -330));
 	}
 	else {
 		itemInHandHUD.setTargetScale(glm::vec2(0, 0));
 		itemInHandImageHUD.setTargetScale(glm::vec2(0, 0));
+		itemInHandImageHUD.setTargetPosition(glm::vec2(665, -360));
 	}
 
 	// UI UPDATING
