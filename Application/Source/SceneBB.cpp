@@ -834,9 +834,7 @@ void SceneBB::Render()
 void SceneBB::RenderUI()
 {
 	{
-		// Render GUI
-		//RenderMeshOnScreen(meshList[GEO_MENU_GUI], 0, 0, 1600, 900);
-		//RenderMeshOnScreen(meshList[GEO_SWITCHSCENE_GUI], 0, 0, 1600, 900);
+		// GUI RENDERING
 
 		glDisable(GL_DEPTH_TEST);
 		glEnable(GL_BLEND);
@@ -861,7 +859,7 @@ void SceneBB::RenderUI()
 			RenderMeshOnScreen(meshList[GEO_CROSSHAIRTRANSLUCENT_GUI], crosshair.getPosition().x, crosshair.getPosition().y, 1600, 900);
 		}
 
-		RenderTextOnScreen(meshList[GEO_CARNIVALEEFREAKSHOW_FONT], "SCORE", glm::vec3(0, 1, 0), 45, -795, 400, 'L', .6f);
+		RenderTextOnScreen(meshList[GEO_VCROSDMONO_FONT], "CASH: " + std::to_string(accumulatedCash), glm::vec3(1, 1, 1), 25, -700, 350, 'L', .6f);
 
 		if (itemInHand != nullptr) {
 			glDisable(GL_DEPTH_TEST);
@@ -906,16 +904,34 @@ void SceneBB::RenderUI()
 				RenderMeshOnScreen(meshList[GEO_BASKETBALL_TGA], itemInHandImageHUD.getPosition().x - (itemInHandImageHUD.getScale().x / 2.f), itemInHandImageHUD.getPosition().y + (itemInHandImageHUD.getScale().y / 2.f), itemInHandImageHUD.getScale().x, itemInHandImageHUD.getScale().y);
 			}
 
-
 			RenderTextOnScreen(meshList[GEO_VCROSDMONO_FONT], "(" + std::to_string(amountOfItem) + "x) " + itemInHand->name, glm::vec3(1, 1, 1), 20, 690, -355 + itemInHandHUD.getScale().y, 'R', .6f);
 
-			if (itemInUse) {
-				RenderTextOnScreen(meshList[GEO_HOMEVIDEOBOLD_FONT], "[LMB]", glm::vec3(1, 1, 1), 15, 700, -300 + itemInHandHUD.getScale().y, 'R', .6f);
+			if (itemInHand->name != "Controller") {
+				if (itemInUse) {
+					RenderTextOnScreen(meshList[GEO_HOMEVIDEOBOLD_FONT], "[LMB]", glm::vec3(1, 1, 1), 15, 700, -300 + itemInHandHUD.getScale().y, 'R', .6f);
+				}
+				else {
+					RenderTextOnScreen(meshList[GEO_HOMEVIDEO_FONT], "[LMB]", glm::vec3(1, 1, 1), 15, 700, -300 + itemInHandHUD.getScale().y, 'R', .6f);
+				}
+				RenderTextOnScreen(meshList[GEO_VCROSDMONO_FONT], "Use", glm::vec3(1, 1, 1), 15, 655 - 10, -300 + itemInHandHUD.getScale().y, 'R', .6f);
 			}
 			else {
-				RenderTextOnScreen(meshList[GEO_HOMEVIDEO_FONT], "[LMB]", glm::vec3(1, 1, 1), 15, 700, -300 + itemInHandHUD.getScale().y, 'R', .6f);
+				if (MouseController::GetInstance()->IsButtonDown(0)) {
+					RenderTextOnScreen(meshList[GEO_HOMEVIDEOBOLD_FONT], "[LMB]", glm::vec3(1, 1, 1), 15, 700, -280 + itemInHandHUD.getScale().y, 'R', .6f);
+				}
+				else {
+					RenderTextOnScreen(meshList[GEO_HOMEVIDEO_FONT], "[LMB]", glm::vec3(1, 1, 1), 15, 700, -280 + itemInHandHUD.getScale().y, 'R', .6f);
+				}
+				RenderTextOnScreen(meshList[GEO_VCROSDMONO_FONT], "Tilt Left", glm::vec3(1, 1, 1), 15, 655 - 10, -280 + itemInHandHUD.getScale().y, 'R', .6f);
+
+				if (MouseController::GetInstance()->IsButtonDown(1)) {
+					RenderTextOnScreen(meshList[GEO_HOMEVIDEOBOLD_FONT], "[RMB]", glm::vec3(1, 1, 1), 15, 700, -300 + itemInHandHUD.getScale().y, 'R', .6f);
+				}
+				else {
+					RenderTextOnScreen(meshList[GEO_HOMEVIDEO_FONT], "[RMB]", glm::vec3(1, 1, 1), 15, 700, -300 + itemInHandHUD.getScale().y, 'R', .6f);
+				}
+				RenderTextOnScreen(meshList[GEO_VCROSDMONO_FONT], "Tilt Right", glm::vec3(1, 1, 1), 15, 655 - 10, -300 + itemInHandHUD.getScale().y, 'R', .6f);
 			}
-			RenderTextOnScreen(meshList[GEO_VCROSDMONO_FONT], "Use", glm::vec3(1, 1, 1), 15, 655 - 10, -300 + itemInHandHUD.getScale().y, 'R', .6f);
 
 			RenderTextOnScreen(meshList[GEO_HOMEVIDEO_FONT], "[X]", glm::vec3(1, 1, 1), 15, 700, -320 + itemInHandHUD.getScale().y, 'R', .6f);
 			RenderTextOnScreen(meshList[GEO_VCROSDMONO_FONT], "Drop", glm::vec3(1, 1, 1), 15, 673 - 10, -320 + itemInHandHUD.getScale().y, 'R', .6f);
