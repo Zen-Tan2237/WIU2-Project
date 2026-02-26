@@ -44,6 +44,7 @@ public:
 		GEO_FENCE,
 		GEO_FOUNTAIN,
 		GEO_MONKEY,
+		GEO_PINGPONGBALL,
 
 		//scene models
 		GEO_STALL,

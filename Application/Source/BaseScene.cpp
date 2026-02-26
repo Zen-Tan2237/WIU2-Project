@@ -200,21 +200,6 @@ void BaseScene::Init()
 	meshList[GEO_GRASS]->textureID = LoadTGA("Textures//Grass.tga");
 
 	// MODELS
-	meshList[GEO_BASEBALL] = MeshBuilder::GenerateOBJ("Baseball", "Models//baseball.obj");
-	meshList[GEO_BASEBALL]->textureID = LoadTGA("Textures//baseball.tga");
-
-	meshList[GEO_CANSCOKE] = MeshBuilder::GenerateOBJ("Coke Can", "Models//Cans_Coke.obj");
-	meshList[GEO_CANSCOKE]->textureID = LoadTGA("Textures//Cans_Coke.tga");
-
-	meshList[GEO_CANSMTNDEW] = MeshBuilder::GenerateOBJ("Mtn Dew Can", "Models//Cans_Coke.obj");
-	meshList[GEO_CANSMTNDEW]->textureID = LoadTGA("Textures//Cans_MtnDew.tga");
-
-	meshList[GEO_CANSSPRITE] = MeshBuilder::GenerateOBJ("Sprite Can", "Models//Cans_Sprite.obj");
-	meshList[GEO_CANSSPRITE]->textureID = LoadTGA("Textures//Cans_Sprite.tga");
-
-	meshList[GEO_CANSPEPSI] = MeshBuilder::GenerateOBJ("Pepsi Can", "Models//Cans_Pepsi.obj");
-	meshList[GEO_CANSPEPSI]->textureID = LoadTGA("Textures//Cans_Pepsi.tga");
-
 	meshList[GEO_FLOOR] = MeshBuilder::GenerateOBJ("floor", "Models//Grass_base.obj");
 	meshList[GEO_FLOOR]->textureID = LoadTGA("Textures//Ground_texture.tga");
 
@@ -245,6 +230,21 @@ void BaseScene::Init()
 	meshList[GEO_FERRISWHEEL]->textureID = LoadTGA("Textures//FerrisWheel.tga");
 
 	//pickables
+	meshList[GEO_BASEBALL] = MeshBuilder::GenerateOBJ("Baseball", "Models//baseball.obj");
+	meshList[GEO_BASEBALL]->textureID = LoadTGA("Textures//baseball.tga");
+
+	meshList[GEO_CANSCOKE] = MeshBuilder::GenerateOBJ("Coke Can", "Models//Cans_Coke.obj");
+	meshList[GEO_CANSCOKE]->textureID = LoadTGA("Textures//Cans_Coke.tga");
+
+	meshList[GEO_CANSMTNDEW] = MeshBuilder::GenerateOBJ("Mtn Dew Can", "Models//Cans_Coke.obj");
+	meshList[GEO_CANSMTNDEW]->textureID = LoadTGA("Textures//Cans_MtnDew.tga");
+
+	meshList[GEO_CANSSPRITE] = MeshBuilder::GenerateOBJ("Sprite Can", "Models//Cans_Sprite.obj");
+	meshList[GEO_CANSSPRITE]->textureID = LoadTGA("Textures//Cans_Sprite.tga");
+
+	meshList[GEO_CANSPEPSI] = MeshBuilder::GenerateOBJ("Pepsi Can", "Models//Cans_Pepsi.obj");
+	meshList[GEO_CANSPEPSI]->textureID = LoadTGA("Textures//Cans_Pepsi.tga");
+
 	meshList[GEO_FIGURINE] = MeshBuilder::GenerateOBJ("figurine", "Models//Figurine.obj");
 	meshList[GEO_FIGURINE]->textureID = LoadTGA("Textures//Figurine.tga");
 
@@ -256,6 +256,12 @@ void BaseScene::Init()
 
 	meshList[GEO_5090] = MeshBuilder::GenerateOBJ("5090", "Models//RTX5090_BOX.obj");
 	meshList[GEO_5090]->textureID = LoadTGA("Textures//RTX5090_BOX.tga");
+
+	meshList[GEO_PINGPONGBALL] = MeshBuilder::GenerateOBJ("5090", "Models//RTX5090_BOX.obj");
+	meshList[GEO_5090]->textureID = LoadTGA("Textures//RTX5090_BOX.tga");
+
+	meshList[GEO_PINGPONGBALL] = MeshBuilder::GenerateOBJ("Ping Pong Ball", "Models//PingPongBall.obj");
+	meshList[GEO_PINGPONGBALL]->textureID = LoadTGA("Textures//Table_Tennis.tga");
 
 	// SKYBOX
 	meshList[GEO_FRONT] = MeshBuilder::GenerateQuad("Front", glm::vec3(1.f, 1.f, 1.f), 100.f);
@@ -476,6 +482,11 @@ void BaseScene::Init()
 	meshList[GEO_5090]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
 	meshList[GEO_5090]->material.kShininess = 1.0f;
 
+	meshList[GEO_PINGPONGBALL]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	meshList[GEO_PINGPONGBALL]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
+	meshList[GEO_PINGPONGBALL]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+	meshList[GEO_PINGPONGBALL]->material.kShininess = 1.0f;
+
 	meshList[GEO_TABLE]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
 	meshList[GEO_TABLE]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
 	meshList[GEO_TABLE]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
@@ -560,19 +571,24 @@ void BaseScene::Update(double dt)
 		if (CheckCollision(cameraBody, obj, cd) && index != 0) {
 			ResolveCollision(cd);
 		}
-		index++;
-	}
 
-	for (int i = 0; i < TOTAL_PICKABLES; ++i) {	// Pickables - World Objects
-		for (auto& obj : worldObjects) {
+		for (int i = 0; i < TOTAL_PICKABLES; ++i) {	// Pickables - World Objects
 			if (pickables[i] != nullptr) {
-				if (!pickables[i]->isHeld) {
+				if (!pickables[i]->isHeld && (index < 1 || index > 4)) {
 					CollisionData cd;
 					if (CheckCollision(pickables[i]->body, obj, cd)) {
 						ResolveCollision(cd);
 					}
 				}
 			}
+		}
+
+		index++;
+	}
+
+	for (int i = 0; i < TOTAL_PICKABLES; ++i) {	// Pickables - World Objects
+		for (auto& obj : worldObjects) {
+			
 		}
 	}
 
@@ -1288,6 +1304,15 @@ void BaseScene::addPickables(std::string name, glm::vec3 position)
 					settings
 				);
 			}
+			else if (pickables[i]->name == "PingPong Ball") {
+				pickables[i]->body.InitPhysicsObject(
+					position,
+					5.0f,
+					BoundingBox::Type::SPHERE,
+					glm::vec3(.05f, .05f, .05f),
+					settings
+				);
+			}
 			
 
 			temp = i;
@@ -1382,7 +1407,7 @@ void BaseScene::dropItemInHand(int amountToRemove)
 	for (int i = 0; i < removeCount; i++) {
 		amountOfItem--;
 
-		glm::vec3 placementPos = camera.target;
+		glm::vec3 placementPos = camera.position + (camera.target - camera.position) * .5f;
 
 		if (amountOfItem > 0) {
 			placementPos += glm::vec3(((rand() % 5) - 2) / 100.f, 0,

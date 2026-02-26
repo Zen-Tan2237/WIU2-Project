@@ -783,6 +783,10 @@ void SceneHub::Render()
 					modelStack.Scale(0.15f, 0.15f, 0.15f);
 					RenderMesh(meshList[GEO_5090], enableLight);
 				}
+				else if (pickables[i]->name == "PingPong Ball") {
+					modelStack.Scale(0.02f, 0.02f, 0.02f);
+					RenderMesh(meshList[GEO_PINGPONGBALL], enableLight);
+				}
 
 				modelStack.PopMatrix();
 			}

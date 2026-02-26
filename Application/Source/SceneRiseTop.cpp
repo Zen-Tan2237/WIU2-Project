@@ -236,9 +236,19 @@ void SceneRiseTop::Init()
 
 	// setup phase durations here ([first one is part][second one is phase]. phase means like u want a constant stream of dialgoues
 	// make sure whenver u do part++, u have like (if part == <the number they should be at>) then part++
-	phaseDurations[0][0] = 3.f;
-	phaseDurations[0][1] = 6.7f;
-	phaseDurations[0][2] = 6.7f;
+	phaseDurations[0][0] = 2.f;
+	phaseDurations[0][1] = 2.3f;
+	phaseDurations[0][2] = 2.f;
+	phaseDurations[0][3] = 2.2f;
+	phaseDurations[0][4] = 3.f;
+	phaseDurations[0][5] = 3.f;
+	phaseDurations[0][6] = 2.5f;
+	phaseDurations[0][7] = 2.5f;
+	phaseDurations[0][8] = 2.8f;
+	phaseDurations[0][9] = 3.f;
+	phaseDurations[0][10] = 3.f;
+	phaseDurations[0][11] = 2.5f;
+	phaseDurations[0][12] = 2.f;
 
 	// CAMERA INIT
 	camera.Init(glm::vec3(0, 0.9f, 4.f), glm::vec3(0, 0.9f, 5.f), glm::vec3(0, 1.9f, 4.f));
@@ -250,20 +260,30 @@ void SceneRiseTop::Init()
 	worldObjects[0].InitPhysicsObject(glm::vec3(0, -0.5f, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(200, 1, 200), 0, glm::vec3(1, 0, 0), miscSettings);
 
 	// Stall
-	worldObjects[1].InitPhysicsObject(glm::vec3(0, 0.9f, 6), 0.f, BoundingBox::Type::OBB, glm::vec3(1.5f, 1.4f, 1.7f), 90, glm::vec3(0, 1, 0), miscSettings);
+	worldObjects[1].InitPhysicsObject(glm::vec3(6, 0.9f, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(1.5f, 1.4f, 1.7f), 180, glm::vec3(0, 1, 0), miscSettings);
+	worldObjects[2].InitPhysicsObject(glm::vec3(0, 0.9f, -6), 0.f, BoundingBox::Type::OBB, glm::vec3(1.5f, 1.4f, 1.7f), -90, glm::vec3(0, 1, 0), miscSettings);
+	worldObjects[3].InitPhysicsObject(glm::vec3(0, 0.9f, 6), 0.f, BoundingBox::Type::OBB, glm::vec3(1.5f, 1.4f, 1.7f), 90, glm::vec3(0, 1, 0), miscSettings);
+	worldObjects[4].InitPhysicsObject(glm::vec3(-6, 0.9f, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(1.5f, 1.4f, 1.7f), 0, glm::vec3(0, 1, 0), miscSettings);
 
-	// Rise Top
-	worldObjects[2].InitPhysicsObject(glm::vec3(0, 0.f, 6.5f), 0.f, BoundingBox::Type::OBB, glm::vec3(0.f, 0.f, 0.f), 180, glm::vec3(0, 1, 0), miscSettings);
+	// Stall Tables
+	worldObjects[5].InitPhysicsObject(glm::vec3(6.1, 0.25f, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(1.3f, .5f, 1.7f), 180, glm::vec3(0, 1, 0), miscSettings);
+	worldObjects[6].InitPhysicsObject(glm::vec3(0, 0.25f, -6.1), 0.f, BoundingBox::Type::OBB, glm::vec3(1.3f, .5f, 1.7f), -90, glm::vec3(0, 1, 0), miscSettings);
+	worldObjects[7].InitPhysicsObject(glm::vec3(0, 0.25f, 6.1), 0.f, BoundingBox::Type::OBB, glm::vec3(1.3f, .5f, 1.7f), 90, glm::vec3(0, 1, 0), miscSettings);
+	worldObjects[8].InitPhysicsObject(glm::vec3(-6.1, 0.25f, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(1.3f, .5f, 1.7f), 0, glm::vec3(0, 1, 0), miscSettings);
 
 	// Tables
-	worldObjects[5].InitPhysicsObject(glm::vec3(-3, 0, 3.6f), 0.f, BoundingBox::Type::OBB, glm::vec3(1.8f, 1.f, 1.8f), 50, glm::vec3(0, 1, 0), miscSettings);
+	worldObjects[9].InitPhysicsObject(glm::vec3(-3, 0, 3.6f), 0.f, BoundingBox::Type::OBB, glm::vec3(1.8f, 1.f, 1.8f), 50, glm::vec3(0, 1, 0), miscSettings);
 
 	// Ferris Wheel
-	worldObjects[6].InitPhysicsObject(glm::vec3(-10, 0, -7), 0.f, BoundingBox::Type::OBB, glm::vec3(10.f, 5.f, 5.f), 45, glm::vec3(0, 1, 0), miscSettings);
+	worldObjects[10].InitPhysicsObject(glm::vec3(-10, 0, -7), 0.f, BoundingBox::Type::OBB, glm::vec3(10.f, 5.f, 5.f), 45, glm::vec3(0, 1, 0), miscSettings);
 
 	// Food Stand
-	worldObjects[7].InitPhysicsObject(glm::vec3(-3.6, 0.5f, 5), 0.f, BoundingBox::Type::OBB, glm::vec3(1.5f, 0.5f, 1.3f), -15, glm::vec3(0, 1, 0), miscSettings);
+	worldObjects[11].InitPhysicsObject(glm::vec3(-3.6, 0.5f, 5), 0.f, BoundingBox::Type::OBB, glm::vec3(1.5f, 0.5f, 1.3f), -15, glm::vec3(0, 1, 0), miscSettings);
 
+	// Rise Top
+	worldObjects[12].InitPhysicsObject(glm::vec3(0, 0.f, 6.5f), 0.f, BoundingBox::Type::OBB, glm::vec3(0.f, 0.f, 0.f), 180, glm::vec3(0, 1, 0), miscSettings);
+
+	// Ping Pong Ball
 
 	int index = 0;
 
@@ -290,6 +310,7 @@ void SceneRiseTop::Init()
 	meshList_riseTop[GEO_RISETOP]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
 	meshList_riseTop[GEO_RISETOP]->material.kShininess = 1.0f;
 
+	addPickables("PingPong Ball", glm::vec3(0, 0, 0));
 }
 
 void SceneRiseTop::Update(double dt)
@@ -615,19 +636,19 @@ void SceneRiseTop::Render()
 
 	{
 		PushPop table(modelStack);
-		modelStack.Translate(worldObjects[5].position.x, worldObjects[5].position.y, worldObjects[5].position.z);
-		glm::mat4 rotation = glm::mat4_cast(worldObjects[5].orientation);
+		modelStack.Translate(worldObjects[9].position.x, worldObjects[9].position.y, worldObjects[9].position.z);
+		glm::mat4 rotation = glm::mat4_cast(worldObjects[9].orientation);
 		modelStack.MultMatrix(rotation);
 		modelStack.Scale(.13f, .13f, .13f);
 		RenderMesh(meshList[GEO_TABLE], true);
-		modelStack.Scale(worldObjects[5].boundingBox.getWidth(), worldObjects[5].boundingBox.getHeight(), worldObjects[5].boundingBox.getDepth());
-		//RenderMesh(meshList_hub[GEO_WALL], true);
+		//modelStack.Scale(worldObjects[9].boundingBox.getWidth(), worldObjects[9].boundingBox.getHeight(), worldObjects[9].boundingBox.getDepth());
+		////RenderMesh(meshList_hub[GEO_WALL], true);
 	}
 
 	{
 		PushPop foodstand(modelStack);
-		modelStack.Translate(worldObjects[7].position.x, worldObjects[7].position.y, worldObjects[7].position.z);
-		glm::mat4 rotation = glm::mat4_cast(worldObjects[7].orientation);
+		modelStack.Translate(worldObjects[11].position.x, worldObjects[11].position.y, worldObjects[11].position.z);
+		glm::mat4 rotation = glm::mat4_cast(worldObjects[11].orientation);
 		modelStack.MultMatrix(rotation);
 		modelStack.Scale(.12f, .12f, .12f);
 		RenderMesh(meshList[GEO_FOODSTAND], true);
@@ -638,17 +659,18 @@ void SceneRiseTop::Render()
 
 	{
 		PushPop ferriswheel(modelStack);
-		modelStack.Translate(worldObjects[6].position.x, worldObjects[6].position.y, worldObjects[6].position.z);
-		glm::mat4 rotation = glm::mat4_cast(worldObjects[6].orientation);
+		modelStack.Translate(worldObjects[10].position.x, worldObjects[10].position.y, worldObjects[10].position.z);
+		glm::mat4 rotation = glm::mat4_cast(worldObjects[10].orientation);
 		modelStack.MultMatrix(rotation);
 		modelStack.Scale(.2f, .2f, .2f);
 		RenderMesh(meshList[GEO_FERRISWHEEL], true);
 	}
 
+	for (int i = 1; i < 5; i++)
 	{
 		PushPop stall(modelStack);
-		modelStack.Translate(worldObjects[1].position.x, worldObjects[1].position.y, worldObjects[1].position.z);
-		glm::mat4 rotation = glm::mat4_cast(worldObjects[1].orientation);
+		modelStack.Translate(worldObjects[i].position.x, worldObjects[i].position.y, worldObjects[i].position.z);
+		glm::mat4 rotation = glm::mat4_cast(worldObjects[i].orientation);
 		modelStack.MultMatrix(rotation);
 		modelStack.Scale(0.2f, 0.2f, 0.2f);
 		RenderMesh(meshList_riseTop[GEO_STALL], true);
@@ -656,8 +678,8 @@ void SceneRiseTop::Render()
 
 	{
 		PushPop riseTop(modelStack);
-		modelStack.Translate(worldObjects[2].position.x, worldObjects[2].position.y, worldObjects[2].position.z);
-		glm::mat4 rotation = glm::mat4_cast(worldObjects[2].orientation);
+		modelStack.Translate(worldObjects[12].position.x, worldObjects[12].position.y, worldObjects[12].position.z);
+		glm::mat4 rotation = glm::mat4_cast(worldObjects[12].orientation);
 		modelStack.MultMatrix(rotation);
 		modelStack.Scale(0.65f, 0.65f, 0.65f);
 		RenderMesh(meshList_riseTop[GEO_RISETOP], true);
@@ -754,7 +776,7 @@ void SceneRiseTop::Render()
 				modelStack.MultMatrix(rotation);
 
 				if (pickables[i]->name == "Baseball") {
-					modelStack.Scale(0.15f, 0.15f, 0.15f);
+					modelStack.Scale(0.2f, 0.2f, 0.2f);
 					RenderMesh(meshList[GEO_BASEBALL], enableLight);
 				}
 				else if (pickables[i]->name == "Coke") {
@@ -772,6 +794,26 @@ void SceneRiseTop::Render()
 				else if (pickables[i]->name == "Pepsi") {
 					modelStack.Scale(0.15f, 0.15f, 0.15f);
 					RenderMesh(meshList[GEO_CANSPEPSI], enableLight);
+				}
+				else if (pickables[i]->name == "Figurine") {
+					modelStack.Scale(0.15f, 0.15f, 0.15f);
+					RenderMesh(meshList[GEO_FIGURINE], enableLight);
+				}
+				else if (pickables[i]->name == "Halal Pork") {
+					modelStack.Scale(0.15f, 0.15f, 0.15f);
+					RenderMesh(meshList[GEO_PIG], enableLight);
+				}
+				else if (pickables[i]->name == "Plushie") {
+					modelStack.Scale(0.15f, 0.15f, 0.15f);
+					RenderMesh(meshList[GEO_PLUSHIE], enableLight);
+				}
+				else if (pickables[i]->name == "RTX 5090") {
+					modelStack.Scale(0.15f, 0.15f, 0.15f);
+					RenderMesh(meshList[GEO_5090], enableLight);
+				}
+				else if (pickables[i]->name == "PingPong Ball") {
+					modelStack.Scale(0.02f, 0.02f, 0.02f);
+					RenderMesh(meshList[GEO_PINGPONGBALL], enableLight);
 				}
 
 				modelStack.PopMatrix();
@@ -795,6 +837,44 @@ void SceneRiseTop::Render()
 				break;
 			case 2:
 				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Here's a quick guide", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
+				break;
+			case 3:
+				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "See that ball at the bottom?", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
+				break;
+			case 4:
+				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Your goal is to guide it along the path.", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
+				break;
+
+			case 5:
+				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Pull both ropes to lift the plank.", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
+				break;
+
+			case 6:
+				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Pull left more to tilt left.", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
+				break;
+
+			case 7:
+				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Pull right more to tilt right.", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
+				break;
+
+			case 8:
+				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "The ball rolls where the plank leans.", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
+				break;
+
+			case 9:
+				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Small adjustments make big differences.", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
+				break;
+
+			case 10:
+				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Too much tilt and you'll lose control!", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
+				break;
+
+			case 11:
+				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Guide it carefully to the top.", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
+				break;
+
+			case 12:
+				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Think you’ve got steady hands?", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
 				break;
 			default:
 				break;
@@ -838,7 +918,7 @@ void SceneRiseTop::RenderUI()
 			RenderMeshOnScreen(meshList[GEO_CROSSHAIRTRANSLUCENT_GUI], crosshair.getPosition().x, crosshair.getPosition().y, 1600, 900);
 		}
 
-		RenderTextOnScreen(meshList[GEO_CARNIVALEEFREAKSHOW_FONT], "SCORE", glm::vec3(0, 1, 0), 45, -795, 400, 'L', .6f);
+		RenderTextOnScreen(meshList[GEO_VCROSDMONO_FONT], "CASH: " + std::to_string(accumulatedCash), glm::vec3(1, 1, 1), 25, -700, 350, 'L', .6f);
 
 		if (itemInHand != nullptr) {
 			glDisable(GL_DEPTH_TEST);
@@ -852,15 +932,15 @@ void SceneRiseTop::RenderUI()
 			RenderTextOnScreen(meshList[GEO_VCROSDMONO_FONT], "(" + std::to_string(amountOfItem) + "x) " + itemInHand->name, glm::vec3(1, 1, 1), 20, 690, -355 + itemInHandHUD.getScale().y, 'R', .6f);
 
 			if (itemInUse) {
-				RenderTextOnScreen(meshList[GEO_HOMEVIDEOBOLD_FONT], "[E]", glm::vec3(1, 1, 1), 15, 700, -300 + itemInHandHUD.getScale().y, 'R', .6f);
+				RenderTextOnScreen(meshList[GEO_HOMEVIDEOBOLD_FONT], "[LMB]", glm::vec3(1, 1, 1), 15, 700, -300 + itemInHandHUD.getScale().y, 'R', .6f);
 			}
 			else {
-				RenderTextOnScreen(meshList[GEO_HOMEVIDEO_FONT], "[E]", glm::vec3(1, 1, 1), 15, 700, -300 + itemInHandHUD.getScale().y, 'R', .6f);
+				RenderTextOnScreen(meshList[GEO_HOMEVIDEO_FONT], "[LMB]", glm::vec3(1, 1, 1), 15, 700, -300 + itemInHandHUD.getScale().y, 'R', .6f);
 			}
-			RenderTextOnScreen(meshList[GEO_VCROSDMONO_FONT], "Use", glm::vec3(1, 1, 1), 15, 660, -300 + itemInHandHUD.getScale().y, 'R', .6f);
+			RenderTextOnScreen(meshList[GEO_VCROSDMONO_FONT], "Use", glm::vec3(1, 1, 1), 15, 655 - 10, -300 + itemInHandHUD.getScale().y, 'R', .6f);
 
 			RenderTextOnScreen(meshList[GEO_HOMEVIDEO_FONT], "[X]", glm::vec3(1, 1, 1), 15, 700, -320 + itemInHandHUD.getScale().y, 'R', .6f);
-			RenderTextOnScreen(meshList[GEO_VCROSDMONO_FONT], "Drop", glm::vec3(1, 1, 1), 15, 660, -320 + itemInHandHUD.getScale().y, 'R', .6f);
+			RenderTextOnScreen(meshList[GEO_VCROSDMONO_FONT], "Drop", glm::vec3(1, 1, 1), 15, 673 - 10, -320 + itemInHandHUD.getScale().y, 'R', .6f);
 		}
 
 		// DEBUG
