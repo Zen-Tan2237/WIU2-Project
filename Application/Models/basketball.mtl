@@ -1,0 +1,14 @@
+# Blender 5.0.1 MTL File: 'None'
+# www.blender.org
+
+newmtl Kore_inst
+Ka 1.000000 1.000000 1.000000
+Ks 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 3
+map_Kd C:/Users/Admin/source/repos/WIU2-Project/Application/Models/Basketball ball_BaseColor.png
+map_Ns C:/Users/Admin/source/repos/WIU2-Project/Application/Models/Basketball ball_Roughness.png
+map_refl C:/Users/Admin/source/repos/WIU2-Project/Application/Models/Basketball ball_Metalness.png
+map_Bump C:/Users/Admin/source/repos/WIU2-Project/Application/Models/Basketball ball_Normal.png
