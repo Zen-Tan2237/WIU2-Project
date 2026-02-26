@@ -45,7 +45,6 @@ public:
 		GEO_TABLE,
 		GEO_FOODSTAND,
 		GEO_FERRISWHEEL,
-		GEO_BBALL,
 		GEO_BBPOST,
 
 		//pickables
@@ -60,6 +59,7 @@ public:
 		GEO_5090,
 		GEO_PINGPONGBALL,
 		GEO_CONTROLLER,
+		GEO_BBALL,
 
 		// SKYBOX
 		GEO_FRONT,
