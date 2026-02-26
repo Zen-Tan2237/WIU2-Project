@@ -46,7 +46,7 @@ void SceneBB::Init()
 		light[1].position = glm::vec3(0, 5, 0);
 		light[1].color = glm::vec3(1, 1, 1);
 		light[1].type = Light::POINT;
-		light[1].power = 2;
+		light[1].power = 1.5f;
 		light[1].kC = 1.f;
 		light[1].kL = 0.01f;
 		light[1].kQ = 0.001f;
@@ -55,10 +55,10 @@ void SceneBB::Init()
 		light[1].exponent = 3.f;
 		light[1].spotDirection = glm::vec3(0.f, 1.f, 0.f);
 
-		light[2].position = glm::vec3(0, 5, 0);
+		light[2].position = glm::vec3(0, -5, 0);
 		light[2].color = glm::vec3(1, 1, 1);
-		light[2].type = Light::POINT;
-		light[2].power = 0;
+		light[2].type = Light::DIRECTIONAL;
+		light[2].power = 0.5f;
 		light[2].kC = 1.f;
 		light[2].kL = 0.01f;
 		light[2].kQ = 0.001f;
@@ -331,27 +331,27 @@ void SceneBB::Update(double dt)
 				sceneSwitchHUD.resetScale(glm::vec2(.25f));
 				sceneSwitchHUD.setTargetScale(glm::vec2(1.f));
 			}
-			else if (interactives[interactedIndex] == "1") {
-				if (part == 0)
-				{
-					addPickables("Pepsi", glm::vec3(0, 5, 0));
-				}
-			}
-			else if (interactives[interactedIndex] == "2") {
-				// do something
-			}
-			else if (interactives[interactedIndex] == "Enter SceneTester") {
-				nextScene = 3;
-				nextSceneDelay = 1.f;
-				sceneSwitchHUD.resetScale(glm::vec2(.25f));
-				sceneSwitchHUD.setTargetScale(glm::vec2(1.f));
-			}
-			else if (interactives[interactedIndex] == "Enter Can Knockdown Game" && nextScene == 0) {
-					nextScene = 4;
-					nextSceneDelay = 1.f;
-					sceneSwitchHUD.resetScale(glm::vec2(.25f));
-					sceneSwitchHUD.setTargetScale(glm::vec2(1.f));
-			}
+			//else if (interactives[interactedIndex] == "1") {
+			//	if (part == 0)
+			//	{
+			//		addPickables("Pepsi", glm::vec3(0, 5, 0));
+			//	}
+			//}
+			//else if (interactives[interactedIndex] == "2") {
+			//	// do something
+			//}
+			//else if (interactives[interactedIndex] == "Enter SceneTester") {
+			//	nextScene = 3;
+			//	nextSceneDelay = 1.f;
+			//	sceneSwitchHUD.resetScale(glm::vec2(.25f));
+			//	sceneSwitchHUD.setTargetScale(glm::vec2(1.f));
+			//}
+			//else if (interactives[interactedIndex] == "Enter Can Knockdown Game" && nextScene == 0) {
+			//		nextScene = 4;
+			//		nextSceneDelay = 1.f;
+			//		sceneSwitchHUD.resetScale(glm::vec2(.25f));
+			//		sceneSwitchHUD.setTargetScale(glm::vec2(1.f));
+			//}
 		}
 	}
 
@@ -786,19 +786,9 @@ void SceneBB::Render()
 		}
 	}
 
-	//{
-	//	PushPop bball(modelStack);
-	//
-	//	meshList[GEO_BBALL]->material.kAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
-	//	meshList[GEO_BBALL]->material.kDiffuse = glm::vec3(1.0f, 1.0f, 1.0f);
-	//	meshList[GEO_BBALL]->material.kSpecular = glm::vec3(0.0f, 0.0f, 0.0f);
-	//	meshList[GEO_BBALL]->material.kShininess = 1.0f;
-	//	
-	//	modelStack.Translate(0.f, 1.f, 0.f);
-	//	modelStack.Scale(0.1f, 0.1f, 0.1f);
-	//	RenderMesh(meshList[GEO_BBALL], true);
-	//}
 
+
+	// Basketball Hoop
 	{
 		PushPop bbhoop(modelStack);
 
@@ -890,7 +880,7 @@ void SceneBB::RenderUI()
 			else {
 				RenderTextOnScreen(meshList[GEO_HOMEVIDEO_FONT], "[E]", glm::vec3(1, 1, 1), 15, 700, -300 + itemInHandHUD.getScale().y, 'R', .6f);
 			}
-			RenderTextOnScreen(meshList[GEO_VCROSDMONO_FONT], "Use", glm::vec3(1, 1, 1), 15, 660, -300 + itemInHandHUD.getScale().y, 'R', .6f);
+			RenderTextOnScreen(meshList[GEO_VCROSDMONO_FONT], "Throw", glm::vec3(1, 1, 1), 15, 660, -300 + itemInHandHUD.getScale().y, 'R', .6f);
 
 			RenderTextOnScreen(meshList[GEO_HOMEVIDEO_FONT], "[X]", glm::vec3(1, 1, 1), 15, 700, -320 + itemInHandHUD.getScale().y, 'R', .6f);
 			RenderTextOnScreen(meshList[GEO_VCROSDMONO_FONT], "Drop", glm::vec3(1, 1, 1), 15, 660, -320 + itemInHandHUD.getScale().y, 'R', .6f);
