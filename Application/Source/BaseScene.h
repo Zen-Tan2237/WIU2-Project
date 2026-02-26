@@ -33,18 +33,12 @@ public:
 		GEO_GRASS,
 
 		// MODELS
-		GEO_BASEBALL,
-		GEO_CANSCOKE,
-		GEO_CANSMTNDEW,
-		GEO_CANSSPRITE,
-		GEO_CANSPEPSI,
 		GEO_BACKGROUND_BUILDINGS1,
 		GEO_BACKGROUND_BUILDINGS2,
 		GEO_FLOOR,
 		GEO_FENCE,
 		GEO_FOUNTAIN,
 		GEO_MONKEY,
-		GEO_PINGPONGBALL,
 
 		//scene models
 		GEO_STALL,
@@ -53,10 +47,17 @@ public:
 		GEO_FERRISWHEEL,
 
 		//pickables
+		GEO_BASEBALL,
+		GEO_CANSCOKE,
+		GEO_CANSMTNDEW,
+		GEO_CANSSPRITE,
+		GEO_CANSPEPSI,
 		GEO_FIGURINE,
 		GEO_PIG,
 		GEO_PLUSHIE,
 		GEO_5090,
+		GEO_PINGPONGBALL,
+		GEO_CONTROLLER,
 
 		// SKYBOX
 		GEO_FRONT,
@@ -249,6 +250,10 @@ public:
 	void dropItemInHand(int amountToRemove);
 	void addItemInHand(int index);
 	void useItemInHand();
+
+	void resetItemInHandAnimation();
+
+	float itemInHandAnimationTimer;
 
 	unsigned m_vertexArrayID;
 	Mesh* meshList[NUM_GEOMETRY];

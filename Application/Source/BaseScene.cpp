@@ -18,6 +18,7 @@
 #include "MouseController.h"
 #include "LoadTGA.h"
 #include "CollisionDetection.h"
+#include "audio.h"
 
 BaseScene::BaseScene()
 {
@@ -263,6 +264,9 @@ void BaseScene::Init()
 	meshList[GEO_PINGPONGBALL] = MeshBuilder::GenerateOBJ("Ping Pong Ball", "Models//PingPongBall.obj");
 	meshList[GEO_PINGPONGBALL]->textureID = LoadTGA("Textures//Table_Tennis.tga");
 
+	//meshList[GEO_CONTROLLER] = MeshBuilder::GenerateOBJ("Controller", "Models//Controller.obj");
+	//meshList[GEO_CONTROLLER]->textureID = LoadTGA("Textures//Controller.tga");
+
 	// SKYBOX
 	meshList[GEO_FRONT] = MeshBuilder::GenerateQuad("Front", glm::vec3(1.f, 1.f, 1.f), 100.f);
 	meshList[GEO_FRONT]->textureID = LoadTGA("Textures//Skybox//front.tga");
@@ -506,6 +510,13 @@ void BaseScene::Init()
 	meshList[GEO_STALL]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
 	meshList[GEO_STALL]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
 	meshList[GEO_STALL]->material.kShininess = 1.0f;
+
+	//meshList[GEO_CONTROLLER]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	//meshList[GEO_CONTROLLER]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
+	//meshList[GEO_CONTROLLER]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+	//meshList[GEO_CONTROLLER]->material.kShininess = 1.0f;
+
+	AudioManager::Instance().LoadSound("Drink", "SFX/Drink.mp3");
 }
 
 void BaseScene::Update(double dt)
@@ -1369,6 +1380,24 @@ void BaseScene::addPickables(std::string name, glm::vec3 position)
 					settings
 				);
 			}
+			else if (pickables[i]->name == "Basketball") {
+				pickables[i]->body.InitPhysicsObject(
+					position,
+					5.0f,
+					BoundingBox::Type::SPHERE,
+					glm::vec3(.15f, .15f, .15f),
+					settings
+				);
+			}
+			else if (pickables[i]->name == "Controller") {
+				pickables[i]->body.InitPhysicsObject(
+					position,
+					5.0f,
+					BoundingBox::Type::OBB,
+					glm::vec3(.05f, .05f, .05f),
+					settings
+				);
+			}
 			
 
 			temp = i;
@@ -1517,6 +1546,33 @@ void BaseScene::useItemInHand()
 
 			if (amountOfItem > 0) {
 				addPickables(itemToDropName, placementPos);
+				pickables[newestPickableIndex]->body.AddImpulse(glm::normalize((camera.position + forward * 2.f + glm::vec3(0, .2f, 0)) - placementPos) * strength);
+			}
+			else {
+				itemInHand->body.ResetPhysicsProperties();
+				itemInHand->body.position = placementPos;
+				itemInHand->isHeld = false;
+				itemInHand->body.AddImpulse(glm::normalize((camera.position + forward * 2.f + glm::vec3(0, .2f, 0)) - placementPos) * strength);
+			}
+
+			if (amountOfItem == 0) {
+				itemInHand = nullptr;
+			}
+		}
+		else if (itemInHand->name == "Coke" || itemInHand->name == "Mountain Dew" || itemInHand->name == "Sprite" || itemInHand->name == "Pepsi") {
+			AudioManager::Instance().SoundPlay("Drink");
+		}
+		else if (itemInHand->name == "Basketball") {
+			std::string itemToDropName = itemInHand->name;
+			glm::vec3 placementPos = itemInHand->body.position;
+
+			amountOfItem--;
+
+			glm::vec3 forward = glm::normalize(camera.target - camera.position);
+			float strength = 10.f + glm::clamp(static_cast<float>(itemUseHeldElapsed / 1.f), 0.f, 1.f) * 40.f;
+
+			if (amountOfItem > 0) {
+				addPickables(itemToDropName, placementPos);
 				pickables[newestPickableIndex]->body.AddImpulse(glm::normalize((camera.position + forward * 2.f + glm::vec3(0, 1.f, 0)) - placementPos) * strength);
 			}
 			else {
@@ -1529,8 +1585,6 @@ void BaseScene::useItemInHand()
 			if (amountOfItem == 0) {
 				itemInHand = nullptr;
 			}
-		}
-		else if (itemInHand->name == "Coke" || itemInHand->name == "Mountain Dew" || itemInHand->name == "Sprite" || itemInHand->name == "Pepsi") {
 		}
 	}
 }

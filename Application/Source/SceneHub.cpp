@@ -1036,6 +1036,10 @@ void SceneHub::Render()
 					modelStack.Scale(0.02f, 0.02f, 0.02f);
 					RenderMesh(meshList[GEO_PINGPONGBALL], enableLight);
 				}
+				else if (pickables[i]->name == "Controller") {
+					modelStack.Scale(0.02f, 0.02f, 0.02f);
+					RenderMesh(meshList[GEO_CONTROLLER], enableLight);
+				}
 
 				modelStack.PopMatrix();
 			}

@@ -32,9 +32,9 @@ void SceneBB::Init()
 	//light
 	{
 		light[0].position = glm::vec3(0, 5, 0);
-		light[0].color = glm::vec3(1, 1, 1);
+		light[0].color = glm::vec3(1, 0.8f, 0.5f);
 		light[0].type = Light::DIRECTIONAL;
-		light[0].power = 0.f;
+		light[0].power = 1.f;
 		light[0].kC = 1.f;
 		light[0].kL = 0.01f;
 		light[0].kQ = 0.001f;
@@ -216,6 +216,13 @@ void SceneBB::Init()
 	meshList_hub[GEO_WALL] = MeshBuilder::GenerateCube("wall", glm::vec3(1.f, 0.f, 0.f), 1.f);
 	meshList_hub[GEO_SPHERE] = MeshBuilder::GenerateSphere("sphere", glm::vec3(0.f, 1.f, 0.f), 1.f, 36, 18);
 
+	meshList_hub[GEO_BBALL] = MeshBuilder::GenerateOBJ("basketball", "Models//basketball.obj");
+	meshList_hub[GEO_BBALL]->textureID = LoadTGA("Textures//Basketball.tga");
+
+	meshList_hub[GEO_HOOP] = MeshBuilder::GenerateOBJ("bbhoop", "Models//BasketballHoop.obj");
+	meshList_hub[GEO_HOOP]->textureID = LoadTGA("Textures//BasketballHoop.tga");
+	//meshList_hub[GEO_HOOP]->textureID = LoadTGA("Textures//Basketball_Post_d.tga");
+
 	//meshList_hub[GEO_STALL] = MeshBuilder::GenerateOBJ("stall", "Models//minigame_Stall.obj");
 	//meshList_hub[GEO_STALL]->textureID = LoadTGA("Textures//minigameStall.tga");
 
@@ -229,9 +236,9 @@ void SceneBB::Init()
 	//meshList_hub[GEO_FERRISWHEEL]->textureID = LoadTGA("Textures//FerrisWheel.tga");
 
 	// setup initial item in hand
-	addPickables("Baseball", glm::vec3(0, 0, 0));
+	addPickables("Basketball", glm::vec3(0, 0, 0));
 	itemInHand = pickables[0];
-	amountOfItem = 10;
+	amountOfItem = 1;
 	previousItemInHandName = "";
 	itemInUse = false;
 
@@ -247,20 +254,7 @@ void SceneBB::Init()
 	// Floor
 	worldObjects[0].InitPhysicsObject(glm::vec3(0, -0.5f, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(200, 1, 200), 0, glm::vec3(1, 0, 0), miscSettings);
 
-	//stalls
-	//worldObjects[1].InitPhysicsObject(glm::vec3(6, 0.9f, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(2.f, 1.8f, 1.7f), 180, glm::vec3(0, 1, 0), miscSettings);
-	//worldObjects[2].InitPhysicsObject(glm::vec3(0, 0.9f, -6), 0.f, BoundingBox::Type::OBB, glm::vec3(2.5f, 1.8f, 1.7f), -90, glm::vec3(0, 1, 0), miscSettings);
-	//worldObjects[3].InitPhysicsObject(glm::vec3(0, 0.9f, 6), 0.f, BoundingBox::Type::OBB, glm::vec3(2.5f, 1.8f, 1.7f), 90, glm::vec3(0, 1, 0), miscSettings);
-	//worldObjects[4].InitPhysicsObject(glm::vec3(-6, 0.9f, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(2.5f, 1.8f, 1.7f), 0, glm::vec3(0, 1, 0), miscSettings);
-
-	//tables
-	//worldObjects[5].InitPhysicsObject(glm::vec3(-3, 0, 3.6f), 0.f, BoundingBox::Type::OBB, glm::vec3(2.2f, 1.5f, 2.2f), 50, glm::vec3(0, 1, 0), miscSettings);
-
-	//ferris wheel
-	//worldObjects[6].InitPhysicsObject(glm::vec3(-10, 0, -7), 0.f, BoundingBox::Type::OBB, glm::vec3(10.f, 9.f, 5.f), 45, glm::vec3(0, 1, 0), miscSettings);
-
-	//food stand
-	//worldObjects[7].InitPhysicsObject(glm::vec3(-3.6, 0.5f, 5), 0.f, BoundingBox::Type::OBB, glm::vec3(2.2f, 1.f, 1.92f), -15, glm::vec3(0, 1, 0), miscSettings);
+	worldObjects[1].InitPhysicsObject(glm::vec3(0.f, 5.f, 5.f), 0.f, BoundingBox::Type::SPHERE, glm::vec3(1.f, 1.f, 1.f), miscSettings);
 
 	//addPickables("Pepsi", glm::vec3(3, 1, 2));
 
@@ -313,7 +307,7 @@ void SceneBB::Update(double dt)
 	}
 
 	// name of interactive, I = interactive, coords
-	addInteractives("Enter Scene 2 (Tilting Table)", 'I', glm::vec3(1, 0, 0));
+	addInteractives("Return to Hub", 'I', glm::vec3(1, 0, 0));
 	//addInteractives("1", 'I', glm::vec3(-1, 0, 0));
 	//addInteractives("2", 'I', glm::vec3(0, 0, 1));
 	//addInteractives("Enter SceneTester", 'I', glm::vec3(0, 0, -1));
@@ -329,8 +323,8 @@ void SceneBB::Update(double dt)
 	if (interactedIndex != -1 && KeyboardController::GetInstance()->IsKeyPressed(GLFW_KEY_F)) { // means got prompt, is close to and facing smth
 		if (interactivesType[interactedIndex] == 'I') { // its an interactive
 			// do it in actual scene instead
-			if (interactives[interactedIndex] == "Enter Scene 2 (Tilting Table)" && nextScene == 0) {
-				nextScene = 2;
+			if (interactives[interactedIndex] == "Return to Hub" && nextScene == 0) {
+				nextScene = 1;
 				nextSceneDelay = 1.f;
 				sceneSwitchHUD.resetScale(glm::vec2(.25f));
 				sceneSwitchHUD.setTargetScale(glm::vec2(1.f));
@@ -753,6 +747,17 @@ void SceneBB::Render()
 
 			itemInHand->body.position = itemInHandPos;
 			itemInHand->body.SetOrientation(-pitch, yaw, 0);
+
+			PushPop bball(modelStack);
+
+			meshList_hub[GEO_BBALL]->material.kAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
+			meshList_hub[GEO_BBALL]->material.kDiffuse = glm::vec3(1.0f, 1.0f, 1.0f);
+			meshList_hub[GEO_BBALL]->material.kSpecular = glm::vec3(0.0f, 0.0f, 0.0f);
+			meshList_hub[GEO_BBALL]->material.kShininess = 1.0f;
+
+			modelStack.Translate(0.f, 1.f, 0.f);
+			modelStack.Scale(0.1f, 0.1f, 0.1f);
+			RenderMesh(meshList_hub[GEO_BBALL], true);
 		}
 
 
@@ -788,6 +793,32 @@ void SceneBB::Render()
 				modelStack.PopMatrix();
 			}
 		}
+	}
+
+	//{
+	//	PushPop bball(modelStack);
+	//
+	//	meshList_hub[GEO_BBALL]->material.kAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
+	//	meshList_hub[GEO_BBALL]->material.kDiffuse = glm::vec3(1.0f, 1.0f, 1.0f);
+	//	meshList_hub[GEO_BBALL]->material.kSpecular = glm::vec3(0.0f, 0.0f, 0.0f);
+	//	meshList_hub[GEO_BBALL]->material.kShininess = 1.0f;
+	//	
+	//	modelStack.Translate(0.f, 1.f, 0.f);
+	//	modelStack.Scale(0.1f, 0.1f, 0.1f);
+	//	RenderMesh(meshList_hub[GEO_BBALL], true);
+	//}
+
+	{
+		PushPop bbhoop(modelStack);
+
+		meshList_hub[GEO_HOOP]->material.kAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
+		meshList_hub[GEO_HOOP]->material.kDiffuse = glm::vec3(1.0f, 1.0f, 1.0f);
+		meshList_hub[GEO_HOOP]->material.kSpecular = glm::vec3(0.0f, 0.0f, 0.0f);
+		meshList_hub[GEO_HOOP]->material.kShininess = 1.0f;
+
+		modelStack.Scale(0.5f, 0.5f, 0.5f);
+
+		RenderMesh(meshList_hub[GEO_HOOP], true);
 	}
 
 	{
