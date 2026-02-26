@@ -338,7 +338,6 @@ void SceneKnockdown::Init()
 
 	startPhysicsUpdateForCans = false;
 	win = false;
-	accumulatedCash = 0;
 
 	AudioManager::Instance().SetSoundPosition("Maxwell", maxwell.position.x, maxwell.position.y, maxwell.position.z);
 	AudioManager::Instance().SoundPlay("Maxwell");
