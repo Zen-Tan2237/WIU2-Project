@@ -514,8 +514,12 @@ void SceneKnockdown::Update(double dt)
 
 		for (int iter = 0; iter < SOLVER_ITERS; ++iter) {
 			for (auto& cd : contacts) {
-				ResolveCollision(cd);
+				ResolveCollision(cd, (float)dt);
 			}
+		}
+
+		for (auto& cd : contacts) {
+			ApplyPositionCorrection(cd);
 		}
 
 		for (int i = 0; i < numOfCansInPlay; i++) {
