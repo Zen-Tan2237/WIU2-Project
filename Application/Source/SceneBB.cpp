@@ -223,8 +223,8 @@ void SceneBB::Init()
 	//meshList[GEO_BBPOST] = MeshBuilder::GenerateOBJ("bbhoop", "Models//BasketballHoop.obj");
 	//meshList[GEO_BBPOST]->textureID = LoadTGA("Textures//BasketballHoop.tga");
 
-	//meshList_hub[GEO_STALL] = MeshBuilder::GenerateOBJ("stall", "Models//minigame_Stall.obj");
-	//meshList_hub[GEO_STALL]->textureID = LoadTGA("Textures//minigameStall.tga");
+	meshList[GEO_STALL] = MeshBuilder::GenerateOBJ("stall", "Models//minigame_Stall.obj");
+	meshList[GEO_STALL]->textureID = LoadTGA("Textures//minigameStall.tga");
 
 	//meshList_hub[GEO_TABLE] = MeshBuilder::GenerateOBJ("table", "Models//table.obj");
 	//meshList_hub[GEO_TABLE]->textureID = LoadTGA("Textures//table.tga");
@@ -244,15 +244,18 @@ void SceneBB::Init()
 
 	// setup phase durations here ([first one is part][second one is phase]. phase means like u want a constant stream of dialgoues
 	// make sure whenver u do part++, u have like (if part == <the number they should be at>) then part++
-	phaseDurations[0][0] = 6.7f;
-	phaseDurations[0][1] = 6.7f;
-	phaseDurations[0][2] = 6.7f;
+	phaseDurations[0][0] = 5.0f;
+	phaseDurations[0][1] = 8.0f;
+	phaseDurations[0][2] = 6.0f;
 
 	// world objects
 	bool miscSettings[2] = { false, false }; // for gravity and drag. override in case of specific objects
 
 	// Floor
 	worldObjects[0].InitPhysicsObject(glm::vec3(0, -0.5f, 0), 0.f, BoundingBox::Type::OBB, glm::vec3(200, 1, 200), 0, glm::vec3(1, 0, 0), miscSettings);
+
+	// Stall (return)
+	worldObjects[1].InitPhysicsObject(glm::vec3(0, 0.9f, 6), 0.f, BoundingBox::Type::OBB, glm::vec3(1.7f, 1.5f, 1.5f), 180, glm::vec3(0, 1, 0), miscSettings);
 
 	// Basketball post
 	worldObjects[5].InitPhysicsObject(glm::vec3(0.f, 1.1f, 2.f), 0.f, BoundingBox::Type::OBB, glm::vec3(0.1f, 2.f, 0.1f), miscSettings);
@@ -265,11 +268,6 @@ void SceneBB::Init()
 	//worldObjects[9].InitPhysicsObject(glm::vec3(0.f, 2.05f, 1.46f), 0.f, BoundingBox::Type::OBB, glm::vec3(0.1f, 0.1f, 0.1f), miscSettings);
 
 	//addPickables("Pepsi", glm::vec3(3, 1, 2));
-
-	//CollisionData cd;
-	//PhysicsObject enterBox;
-	//enterBox.InitPhysicsObject(glm::vec3(0.f, 0.f, 0.f), 0.f, BoundingBox::Type::OBB, glm::vec3(1.f, 1.f, 1.f), miscSettings);
-	//CheckCollision(enterBox, pickables[0]->body, cd);
 
 
 	int index = 0;
@@ -298,20 +296,31 @@ void SceneBB::Init()
 	//meshList_hub[GEO_FERRISWHEEL]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
 	//meshList_hub[GEO_FERRISWHEEL]->material.kShininess = 1.0f;
 
-	//meshList_hub[GEO_STALL]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
-	//meshList_hub[GEO_STALL]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
-	//meshList_hub[GEO_STALL]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
-	//meshList_hub[GEO_STALL]->material.kShininess = 1.0f;
+	meshList[GEO_STALL]->material.kAmbient = glm::vec3(0.1f, 0.1f, 0.1f);
+	meshList[GEO_STALL]->material.kDiffuse = glm::vec3(.5f, .5f, .5f);
+	meshList[GEO_STALL]->material.kSpecular = glm::vec3(0.f, 0.f, 0.f);
+	meshList[GEO_STALL]->material.kShininess = 1.0f;
 
 	meshList[GEO_BBALL]->material.kAmbient = glm::vec3(0.2f, 0.2f, 0.2f);
 	meshList[GEO_BBALL]->material.kDiffuse = glm::vec3(1.0f, 1.0f, 1.0f);
 	meshList[GEO_BBALL]->material.kSpecular = glm::vec3(0.0f, 0.0f, 0.0f);
 	meshList[GEO_BBALL]->material.kShininess = 1.0f;
+
+	AudioManager::Instance().LoadSound("bbBounce", "SFX/bb_bounce.wav");
+	AudioManager::Instance().LoadSound("bbSwish", "SFX/bb_swish.wav");
+	AudioManager::Instance().SetSoundPosition("bbSwish", 0.f, 2.05f, 1.46f);
+
+	AudioManager::Instance().SetListenerCone(0, 3, 0.5f);
 }
 
 void SceneBB::Update(double dt)
 {
 	BaseScene::Update(dt);
+
+	// Sound update
+	AudioManager::Instance().SetSoundPosition("bbBounce", pickables[0]->body.position.x, pickables[0]->body.position.y, pickables[0]->body.position.z);
+	AudioManager::Instance().SetListenerPosition(camera.position.x, camera.position.y, camera.position.z);
+	AudioManager::Instance().SetListenerDirection(camera.target.x, camera.target.y, camera.target.z);
 
 	// Update rim hitbox
 	//	Rim's hitbox is simulated with a moving sphere (instead of torus)
@@ -327,7 +336,7 @@ void SceneBB::Update(double dt)
 	}
 
 	// name of interactive, I = interactive, coords
-	addInteractives("Return to Hub", 'I', glm::vec3(1, 0, 0));
+	addInteractives("Return to Hub", 'I', glm::vec3(0, 0.8, 6));
 	//addInteractives("1", 'I', glm::vec3(-1, 0, 0));
 	//addInteractives("2", 'I', glm::vec3(0, 0, 1));
 	//addInteractives("Enter SceneTester", 'I', glm::vec3(0, 0, -1));
@@ -371,6 +380,41 @@ void SceneBB::Update(double dt)
 			//}
 		}
 	}
+
+	// upon Bounce
+	CollisionData cd;
+	if (CheckCollision(worldObjects[0], pickables[0]->body, cd) and glm::length(pickables[0]->body.velocity) > 0.3f) {
+		AudioManager::Instance().SetSoundVolume("bbBounce", glm::length(pickables[0]->body.velocity));
+		AudioManager::Instance().SoundPlay("bbBounce", 0.17f);
+	}
+
+	// upon scoring
+	bool miscSettings[2] = { false, false };
+	PhysicsObject enterBox, netBox;
+	enterBox.InitPhysicsObject(glm::vec3(0.f, 2.2f, 1.46f), 0.f, BoundingBox::Type::OBB, glm::vec3(0.2f, 0.05f, 0.2f), miscSettings);
+	netBox.InitPhysicsObject(glm::vec3(0.f, 2.05f, 1.46f), 0.f, BoundingBox::Type::OBB, glm::vec3(0.1f, 0.1f, 0.1f), miscSettings);
+	if (pickables[0]->body.position.y > 2.2f and pickables[0]->body.velocity.y < 0.f) ballBasketState = 1;
+	if (ballBasketState == 1 and CheckCollision(enterBox, pickables[0]->body, cd) and pickables[0]->body.velocity.y < 0.f) ballBasketState = 2;
+	if (ballBasketState == 2 and CheckCollision(netBox, pickables[0]->body, cd)) ballBasketState = 3;
+	if (ballBasketState == 3 and !CheckCollision(netBox, pickables[0]->body, cd) and pickables[0]->body.velocity.y < 0.f) {
+		AudioManager::Instance().SoundPlay("bbSwish");
+		scored = true;
+	}
+	if (pickables[0]->body.position.y < 1.5f) {
+		ballBasketState = 0;
+		if (scored) {
+			// SCORE
+			scored = false;
+			accumulatedCash += 3;
+		}
+	}
+
+	// bounce on pole backboard or rim
+	if (CheckCollision(worldObjects[5], pickables[0]->body, cd) or CheckCollision(worldObjects[6], pickables[0]->body, cd) or CheckCollision(worldObjects[7], pickables[0]->body, cd)) {
+		AudioManager::Instance().SetSoundVolume("bbBounce", glm::length(pickables[0]->body.velocity));
+		AudioManager::Instance().SoundPlay("bbBounce", 0.17f);
+	}
+
 
 	//debug
 	if (KeyboardController::GetInstance()->IsKeyDown(GLFW_KEY_I)) {
@@ -612,6 +656,14 @@ void SceneBB::Render()
 		PushPop fence(modelStack);
 		modelStack.Scale(0.2f, 0.2f, 0.2f);
 		RenderMesh(meshList[GEO_FENCE], true);
+	}
+
+	{
+		PushPop stall(modelStack);
+		modelStack.Translate(0.f, 1.f, 6.f);
+		modelStack.Rotate(90.f, 0, 1, 0);
+		modelStack.Scale(0.2f, 0.2f, 0.2f);
+		RenderMesh(meshList[GEO_STALL], true);
 	}
 
 	glm::vec3 localCamPos = camera.position;
@@ -856,13 +908,13 @@ void SceneBB::Render()
 		case 0: // part 1
 			switch (phase) {
 			case 0:
-				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Welcome to our crooked carnival, today you will be earning points through our various minigames and challenges.", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
+				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "This is the Basketball Toss minigame.", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
 				break;
 			case 1:
-				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "you can redeem your points for fantastic prizes such as, a anime figure or A GEFORCE RTX 5090!", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
+				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Simply throw the ball into the hoop, and score!", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
 				break;
 			case 2:
-				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "But be careful, if you lose all your points, you will be trapped here forever!", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
+				RenderTextOnScreen(meshList[GEO_MINGLIUEXTB_FONT], "Play fair now, there's no cheating.", glm::vec3(1, 1, 1), 20, 0, -380, 'C', .6f);
 				break;
 			default:
 				break;

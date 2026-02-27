@@ -46,7 +46,8 @@ public:
     float debugScale;
 
     bool temp = false;
-
+    bool scored = false;
+    int ballBasketState = 0;
 };
 #endif
 
