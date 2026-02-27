@@ -409,7 +409,7 @@ void SceneBB::Update(double dt)
 		}
 	}
 
-	// bounce on pole backboard or rim
+	// bounce on pole, backboard, or rim
 	if (CheckCollision(worldObjects[5], pickables[0]->body, cd) or CheckCollision(worldObjects[6], pickables[0]->body, cd) or CheckCollision(worldObjects[7], pickables[0]->body, cd)) {
 		AudioManager::Instance().SetSoundVolume("bbBounce", glm::length(pickables[0]->body.velocity));
 		AudioManager::Instance().SoundPlay("bbBounce", 0.17f);
